@@ -26,9 +26,9 @@ export function Header() {
 
   return (
     <header className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b">
-      <div className="container flex h-20 items-center justify-between">
+      <div className="container flex h-24 items-center justify-between">
         <Link href="/" className="flex items-center">
-          <Image src={logoUrl} alt="NPHC Solano Logo" width={64} height={64} className="h-14 w-auto" />
+          <Image src={logoUrl} alt="NPHC Solano Logo" width={96} height={96} className="h-20 w-auto" />
         </Link>
         
         <div className="hidden md:flex items-center gap-6">
@@ -63,7 +63,7 @@ export function Header() {
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between p-4 border-b">
                   <Link href="/" className="flex items-center space-x-2" onClick={() => setIsOpen(false)}>
-                    <Image src={logoUrl} alt="NPHC Solano Logo" width={40} height={40} />
+                    <Image src={logoUrl} alt="NPHC Solano Logo" width={60} height={60} />
                     <span className="font-bold font-headline text-lg">NPHC Solano</span>
                   </Link>
                 </div>
