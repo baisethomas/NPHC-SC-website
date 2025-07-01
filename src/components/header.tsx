@@ -17,6 +17,8 @@ const navLinks = [
   { href: "/contact", label: "Contact Us" },
 ];
 
+const logoUrl = "https://images.squarespace-cdn.com/content/v1/5c5c99388dfc82270599a502/1550524451046-E1K4J34G333D2YJ45Q2W/NPHC-solid-logo-2018.png";
+
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
@@ -26,7 +28,7 @@ export function Header() {
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center">
           <Link href="/" className="flex items-center space-x-2">
-            <Image src="/nphc-logo.png" alt="NPHC Solano Logo" width={48} height={48} />
+            <Image src={logoUrl} alt="NPHC Solano Logo" width={48} height={48} />
             <span className="font-bold font-headline text-lg tracking-wide">NPHC SOLANO</span>
           </Link>
         </div>
@@ -56,7 +58,7 @@ export function Header() {
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between p-4 border-b">
                   <Link href="/" className="flex items-center space-x-2" onClick={() => setIsOpen(false)}>
-                    <Image src="/nphc-logo.png" alt="NPHC Solano Logo" width={40} height={40} />
+                    <Image src={logoUrl} alt="NPHC Solano Logo" width={40} height={40} />
                     <span className="font-bold font-headline text-lg">NPHC Solano</span>
                   </Link>
                 </div>
