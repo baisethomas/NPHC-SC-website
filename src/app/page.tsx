@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight, Calendar, Clock, MapPin } from "lucide-react";
+import { getEvents } from "@/lib/data";
 
 const announcements = [
   {
@@ -22,25 +23,6 @@ const announcements = [
   }
 ];
 
-const events = [
-  {
-    title: "Meet the Greeks",
-    date: "September 5, 2024",
-    time: "6:00 PM",
-    location: "Solano Community College",
-    image: "https://placehold.co/600x400.png",
-    image_hint: "community event"
-  },
-  {
-    title: "Annual Summer Cookout",
-    date: "August 10, 2024",
-    time: "12:00 PM",
-    location: "Fairfield Community Park",
-    image: "https://placehold.co/600x400.png",
-    image_hint: "people cooking"
-  }
-];
-
 const organizations = [
   { logo: "https://placehold.co/100x100.png", name: "Alpha Kappa Alpha Sorority, Inc.", hint: "organization logo" },
   { logo: "https://placehold.co/100x100.png", name: "Alpha Phi Alpha Fraternity, Inc.", hint: "organization logo" },
@@ -55,6 +37,8 @@ const organizations = [
 
 
 export default function Home() {
+  const events = getEvents().slice(0, 2);
+
   return (
     <div className="flex flex-col">
       <section className="relative h-[60vh] min-h-[400px] w-full flex items-center justify-center text-center text-white">
