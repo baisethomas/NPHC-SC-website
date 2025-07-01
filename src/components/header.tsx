@@ -14,6 +14,7 @@ const navLinks = [
   { href: "/about", label: "About Us" },
   { href: "/organizations", label: "Organizations" },
   { href: "/events", label: "Events" },
+  { href: "/gallery", label: "Gallery" },
   { href: "/contact", label: "Contact Us" },
 ];
 
@@ -25,27 +26,31 @@ export function Header() {
 
   return (
     <header className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b">
-      <div className="container flex h-16 items-center justify-between">
-        <div className="flex items-center">
-          <Link href="/" className="flex items-center space-x-2">
-            <Image src={logoUrl} alt="NPHC Solano Logo" width={48} height={48} />
-            <span className="font-bold font-headline text-lg tracking-wide">NPHC SOLANO</span>
-          </Link>
+      <div className="container flex h-20 items-center justify-between">
+        <Link href="/" className="flex items-center">
+          <Image src={logoUrl} alt="NPHC Solano Logo" width={64} height={64} className="h-14 w-auto" />
+        </Link>
+        
+        <div className="hidden md:flex items-center gap-6">
+          <nav className="flex items-center gap-6 text-sm font-medium">
+            {navLinks.map((link) => (
+              <Link 
+                key={link.href} 
+                href={link.href} 
+                className={cn(
+                  "transition-colors hover:text-foreground/80",
+                  pathname === link.href ? "text-foreground" : "text-foreground/60"
+                )}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+          <Button asChild>
+            <Link href="#">Donate</Link>
+          </Button>
         </div>
-        <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-          {navLinks.map((link) => (
-            <Link 
-              key={link.href} 
-              href={link.href} 
-              className={cn(
-                "transition-colors hover:text-foreground/80",
-                pathname === link.href ? "text-foreground" : "text-foreground/60"
-              )}
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
+
         <div className="md:hidden">
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
@@ -54,7 +59,7 @@ export function Header() {
                 <span className="sr-only">Toggle Menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-[300px] sm:w-[400px] bg-background">
+            <SheetContent side="left" className="w-[300px] sm:w-[400px] bg-background p-0">
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between p-4 border-b">
                   <Link href="/" className="flex items-center space-x-2" onClick={() => setIsOpen(false)}>
@@ -77,6 +82,11 @@ export function Header() {
                     </Link>
                   ))}
                 </nav>
+                <div className="mt-auto p-4 border-t">
+                  <Button asChild className="w-full">
+                    <Link href="#">Donate</Link>
+                  </Button>
+                </div>
               </div>
             </SheetContent>
           </Sheet>
