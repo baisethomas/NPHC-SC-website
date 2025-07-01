@@ -3,14 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Calendar, Newspaper, Users, Sitemap } from "lucide-react";
+import { LayoutDashboard, Calendar, Newspaper, Users, Building2 } from "lucide-react";
 
 const navLinks = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/events", label: "Events", icon: Calendar },
   { href: "/admin/announcements", label: "Announcements", icon: Newspaper },
   { href: "/admin/board", label: "Board Members", icon: Users },
-  { href: "/admin/organizations", label: "Organizations", icon: Sitemap },
+  { href: "/admin/organizations", label: "Organizations", icon: Building2 },
 ];
 
 export function AdminNav() {
