@@ -48,6 +48,9 @@ const organizations = [
   { logo: "https://placehold.co/100x100.png", name: "Zeta Phi Beta Sorority, Inc.", hint: "organization logo" },
   { logo: "https://placehold.co/100x100.png", name: "Iota Phi Theta Fraternity, Inc.", hint: "organization logo" },
   { logo: "https://placehold.co/100x100.png", name: "Kappa Alpha Psi Fraternity, Inc.", hint: "organization logo" },
+  { logo: "https://placehold.co/100x100.png", name: "Sigma Gamma Rho Sorority, Inc.", hint: "organization logo" },
+  { logo: "https://placehold.co/100x100.png", name: "Phi Beta Sigma Fraternity, Inc.", hint: "organization logo" },
+  { logo: "https://placehold.co/100x100.png", name: "Omega Psi Phi Fraternity, Inc.", hint: "organization logo" },
 ];
 
 
@@ -147,7 +150,7 @@ export default function Home() {
             <h2 className="text-3xl font-headline font-bold">Our Organizations</h2>
             <p className="text-muted-foreground mt-2">The Divine Nine chapters of Solano County.</p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 items-center">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-8 items-center">
             {organizations.map((org, index) => (
               <div key={index} className="flex flex-col items-center text-center">
                 <Image src={org.logo} alt={`${org.name} logo`} width={100} height={100} className="rounded-full mb-4" data-ai-hint={org.hint} />
