@@ -18,7 +18,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'images.squarespace-cdn.com',
+        hostname: 'www.nphchq.com',
         port: '',
         pathname: '/**',
       },

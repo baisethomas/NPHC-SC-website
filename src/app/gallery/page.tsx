@@ -14,7 +14,7 @@ export default function GalleryPage() {
         <div>
           <h2 className="text-2xl font-headline font-bold mb-4">How to Use Images</h2>
           <p className="text-muted-foreground mb-6">
-            To display an image from an external website, you need its URL. Then, you must add the website's domain (e.g., "images.unsplash.com") to the `remotePatterns` array in your `next.config.ts` file. This is a security measure required by Next.js.
+            To display an image from an external website, you need its URL. Then, you must add the website's domain (e.g., "www.nphchq.com") to the `remotePatterns` array in your `next.config.ts` file. This is a security measure required by Next.js.
           </p>
           <div className="p-4 bg-muted rounded-lg">
             <pre className="text-sm overflow-x-auto text-foreground/80">
@@ -24,7 +24,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'images.squarespace-cdn.com',
+        hostname: 'www.nphchq.com',
       },
       // ... other domains
     ],
@@ -49,7 +49,7 @@ const nextConfig = {
               <h3 className="font-semibold">NPHC Logo</h3>
               <div className="p-4 border rounded-lg bg-white flex justify-center items-center">
                 <Image
-                  src="https://images.squarespace-cdn.com/content/v1/5c5c99388dfc82270599a502/1550524451046-E1K4J34G333D2YJ45Q2W/NPHC-solid-logo-2018.png"
+                  src="https://www.nphchq.com/wp-content/uploads/2020/04/NPHC-Official-Logo-sq.png"
                   alt="NPHC Logo"
                   width={200}
                   height={200}
@@ -57,7 +57,7 @@ const nextConfig = {
                   data-ai-hint="logo crest"
                 />
               </div>
-              <p className="text-xs text-muted-foreground text-center">Domain: images.squarespace-cdn.com</p>
+              <p className="text-xs text-muted-foreground text-center">Domain: www.nphchq.com</p>
             </div>
              <div className="space-y-2">
               <h3 className="font-semibold">Placeholder Image</h3>

@@ -18,7 +18,7 @@ const navLinks = [
   { href: "/contact", label: "Contact Us" },
 ];
 
-const logoUrl = "https://images.squarespace-cdn.com/content/v1/5c5c99388dfc82270599a502/1550524451046-E1K4J34G333D2YJ45Q2W/NPHC-solid-logo-2018.png";
+const logoUrl = "https://www.nphchq.com/wp-content/uploads/2020/04/NPHC-Official-Logo-sq.png";
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
