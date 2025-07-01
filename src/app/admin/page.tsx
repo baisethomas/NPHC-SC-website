@@ -31,6 +31,17 @@ export default function AdminDashboardPage() {
             </Button>
           </CardContent>
         </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Manage Board Members</CardTitle>
+            <CardDescription>Add, edit, or remove board members.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild>
+              <Link href="/admin/board">Go to Board Members <ArrowRight className="ml-2 h-4 w-4" /></Link>
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

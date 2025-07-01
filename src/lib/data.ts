@@ -99,3 +99,41 @@ export function getAnnouncements() {
 export function addAnnouncement(announcement: Announcement) {
   announcements = [announcement, ...announcements];
 }
+
+export interface BoardMember {
+  name: string;
+  title: string;
+  initials: string;
+  image: string;
+  hint: string;
+}
+
+let boardMembers: BoardMember[] = [
+  { name: "Eleanor Vance", title: "President", initials: "EV", image: "https://placehold.co/100x100.png", hint: "headshot person" },
+  { name: "Marcus Thorne", title: "Vice President", initials: "MT", image: "https://placehold.co/100x100.png", hint: "professional headshot" },
+  { name: "Seraphina Cruz", title: "Secretary", initials: "SC", image: "https://placehold.co/100x100.png", hint: "person smiling" },
+  { name: "Julian Hayes", title: "Treasurer", initials: "JH", image: "https://placehold.co/100x100.png", hint: "corporate headshot" },
+  { name: "Isabella Chen", title: "Parliamentarian", initials: "IC", image: "https://placehold.co/100x100.png", hint: "professional person" },
+  { name: "David Rodriguez", title: "Director of Community Service", initials: "DR", image: "https://placehold.co/100x100.png", hint: "person outdoors" },
+];
+
+type NewBoardMember = Omit<BoardMember, 'image' | 'hint' | 'initials'>;
+
+export function getBoardMembers() {
+  return boardMembers;
+}
+
+export function addBoardMember(member: NewBoardMember) {
+  const initials = member.name
+    .split(' ')
+    .map((n) => n[0])
+    .join('');
+    
+  const newMember: BoardMember = {
+    ...member,
+    initials,
+    image: "https://placehold.co/100x100.png",
+    hint: "person headshot",
+  };
+  boardMembers = [newMember, ...boardMembers];
+}
