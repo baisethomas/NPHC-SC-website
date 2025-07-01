@@ -67,3 +67,35 @@ export function addEvent(event: NewEvent) {
   };
   events = [newEvent, ...events];
 }
+
+export interface Announcement {
+  title: string;
+  date: string;
+  description: string;
+}
+
+let announcements: Announcement[] = [
+  {
+    title: "Annual Scholarship Gala",
+    date: "August 15, 2024",
+    description: "Join us for our biggest fundraising event of the year. All proceeds go to our student scholarship fund."
+  },
+  {
+    title: "New Member Intake",
+    date: "July 30, 2024",
+    description: "Several of our member organizations will be starting their new member intake process soon. Stay tuned for details."
+  },
+  {
+    title: "Community Service Day",
+    date: "July 20, 2024",
+    description: "We're partnering with local charities for a county-wide day of service. Sign up to volunteer!"
+  }
+];
+
+export function getAnnouncements() {
+  return announcements;
+}
+
+export function addAnnouncement(announcement: Announcement) {
+  announcements = [announcement, ...announcements];
+}

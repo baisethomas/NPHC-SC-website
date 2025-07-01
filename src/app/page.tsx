@@ -3,25 +3,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight, Calendar, Clock, MapPin } from "lucide-react";
-import { getEvents } from "@/lib/data";
-
-const announcements = [
-  {
-    title: "Annual Scholarship Gala",
-    date: "August 15, 2024",
-    description: "Join us for our biggest fundraising event of the year. All proceeds go to our student scholarship fund."
-  },
-  {
-    title: "New Member Intake",
-    date: "July 30, 2024",
-    description: "Several of our member organizations will be starting their new member intake process soon. Stay tuned for details."
-  },
-  {
-    title: "Community Service Day",
-    date: "July 20, 2024",
-    description: "We're partnering with local charities for a county-wide day of service. Sign up to volunteer!"
-  }
-];
+import { getEvents, getAnnouncements } from "@/lib/data";
 
 const organizations = [
   { logo: "https://placehold.co/100x100.png", name: "Alpha Kappa Alpha Sorority, Inc.", hint: "organization logo" },
@@ -38,6 +20,7 @@ const organizations = [
 
 export default function Home() {
   const events = getEvents().slice(0, 2);
+  const announcements = getAnnouncements();
 
   return (
     <div className="flex flex-col">
@@ -134,7 +117,7 @@ export default function Home() {
             <h2 className="text-3xl font-headline font-bold">Our Organizations</h2>
             <p className="text-muted-foreground mt-2">The Divine Nine chapters of Solano County.</p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-8 items-center">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-8 items-center justify-center">
             {organizations.map((org, index) => (
               <div key={index} className="flex flex-col items-center text-center">
                 <Image src={org.logo} alt={`${org.name} logo`} width={100} height={100} className="rounded-full mb-4" data-ai-hint={org.hint} />
