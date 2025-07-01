@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -22,9 +23,10 @@ export function Header() {
 
   return (
     <header className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b">
-      <div className="container flex h-16 items-center">
-        <div className="mr-4 flex">
-          <Link href="/" className="mr-6 flex items-center space-x-2">
+      <div className="container flex h-16 items-center justify-between">
+        <div className="flex items-center">
+          <Link href="/" className="flex items-center space-x-2">
+            <Image src="/nphc-logo.png" alt="NPHC Solano Logo" width={48} height={48} />
             <span className="font-bold font-headline text-lg tracking-wide">NPHC SOLANO</span>
           </Link>
         </div>
@@ -42,7 +44,7 @@ export function Header() {
             </Link>
           ))}
         </nav>
-        <div className="flex flex-1 items-center justify-end md:hidden">
+        <div className="md:hidden">
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon">
@@ -53,7 +55,8 @@ export function Header() {
             <SheetContent side="left" className="w-[300px] sm:w-[400px] bg-background">
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between p-4 border-b">
-                  <Link href="/" className="mr-6 flex items-center space-x-2" onClick={() => setIsOpen(false)}>
+                  <Link href="/" className="flex items-center space-x-2" onClick={() => setIsOpen(false)}>
+                    <Image src="/nphc-logo.png" alt="NPHC Solano Logo" width={40} height={40} />
                     <span className="font-bold font-headline text-lg">NPHC Solano</span>
                   </Link>
                 </div>
