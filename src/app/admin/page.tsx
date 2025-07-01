@@ -42,6 +42,17 @@ export default function AdminDashboardPage() {
             </Button>
           </CardContent>
         </Card>
+         <Card>
+          <CardHeader>
+            <CardTitle>Manage Organizations</CardTitle>
+            <CardDescription>Add, edit, or remove organizations.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild>
+              <Link href="/admin/organizations">Go to Organizations <ArrowRight className="ml-2 h-4 w-4" /></Link>
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

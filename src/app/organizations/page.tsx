@@ -3,83 +3,11 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight } from "lucide-react";
-
-const organizations = [
-  {
-    name: "Alpha Kappa Alpha Sorority, Inc.",
-    logo: "https://placehold.co/200x200.png",
-    hint: "organization crest",
-    description: "The first intercollegiate historically African American Greek-lettered sorority.",
-    chapter: "Mu Eta Omega Chapter",
-    link: "#",
-  },
-  {
-    name: "Alpha Phi Alpha Fraternity, Inc.",
-    logo: "https://placehold.co/200x200.png",
-    hint: "organization crest",
-    description: "The first intercollegiate Greek-letter fraternity established for African American Men.",
-    chapter: "Zeta Beta Lambda Chapter",
-    link: "#",
-  },
-  {
-    name: "Delta Sigma Theta Sorority, Inc.",
-    logo: "https://placehold.co/200x200.png",
-    hint: "organization crest",
-    description: "An organization of college educated women committed to the constructive development of its members and to public service.",
-    chapter: "Fairfield-Suisun Valley Alumnae Chapter",
-    link: "#",
-  },
-  {
-    name: "Zeta Phi Beta Sorority, Inc.",
-    logo: "https://placehold.co/200x200.png",
-    hint: "organization crest",
-    description: "A community-conscious, action-oriented organization founded on the principles of Scholarship, Service, Sisterhood and Finer Womanhood.",
-    chapter: "Tau Alpha Zeta Chapter",
-    link: "#",
-  },
-  {
-    name: "Iota Phi Theta Fraternity, Inc.",
-    logo: "https://placehold.co/200x200.png",
-    hint: "organization crest",
-    description: "Committed to the development and perpetuation of Scholarship, Leadership, Citizenship, Fidelity, and Brotherhood among Men.",
-    chapter: "Alpha Pi Omega Chapter",
-    link: "#",
-  },
-  {
-    name: "Kappa Alpha Psi Fraternity, Inc.",
-    logo: "https://placehold.co/200x200.png",
-    hint: "organization crest",
-    description: "A collegiate Greek-letter fraternity with a predominantly African-American membership, focused on achievement in every field of human endeavor.",
-    chapter: "Fairfield-Vacaville Alumni Chapter",
-    link: "#",
-  },
-  {
-    name: "Sigma Gamma Rho Sorority, Inc.",
-    logo: "https://placehold.co/200x200.png",
-    hint: "organization crest",
-    description: "A leading historically Black Greek-letter sorority that aims to enhance the quality of life for women and their families in the U.S. and globally.",
-    chapter: "Lambda Rho Sigma Chapter",
-    link: "#",
-  },
-  {
-    name: "Phi Beta Sigma Fraternity, Inc.",
-    logo: "https://placehold.co/200x200.png",
-    hint: "organization crest",
-    description: "An international organization of college and professional men, founded on the principles of Brotherhood, Scholarship and Service.",
-    chapter: "Kappa Iota Sigma Chapter",
-    link: "#",
-  },
-    {
-    name: "Omega Psi Phi Fraternity, Inc.",
-    logo: "https://placehold.co/200x200.png",
-    hint: "organization crest",
-    description: "The first international fraternal organization founded on the campus of a historically black college, based on Friendship, Manhood, Scholarship, and Perseverance.",
-    chapter: "Nu Phi Chapter",
-    link: "#",
-  },
-];
+import { getOrganizations } from "@/lib/data";
 
 export default function OrganizationsPage() {
+  const organizations = getOrganizations();
+
   return (
     <div>
       <section className="bg-muted py-20">

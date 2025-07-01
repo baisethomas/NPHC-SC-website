@@ -3,24 +3,12 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight, Calendar, Clock, MapPin } from "lucide-react";
-import { getEvents, getAnnouncements } from "@/lib/data";
-
-const organizations = [
-  { logo: "https://placehold.co/100x100.png", name: "Alpha Kappa Alpha Sorority, Inc.", hint: "organization logo" },
-  { logo: "https://placehold.co/100x100.png", name: "Alpha Phi Alpha Fraternity, Inc.", hint: "organization logo" },
-  { logo: "https://placehold.co/100x100.png", name: "Delta Sigma Theta Sorority, Inc.", hint: "organization logo" },
-  { logo: "https://placehold.co/100x100.png", name: "Zeta Phi Beta Sorority, Inc.", hint: "organization logo" },
-  { logo: "https://placehold.co/100x100.png", name: "Iota Phi Theta Fraternity, Inc.", hint: "organization logo" },
-  { logo: "https://placehold.co/100x100.png", name: "Kappa Alpha Psi Fraternity, Inc.", hint: "organization logo" },
-  { logo: "https://placehold.co/100x100.png", name: "Sigma Gamma Rho Sorority, Inc.", hint: "organization logo" },
-  { logo: "https://placehold.co/100x100.png", name: "Phi Beta Sigma Fraternity, Inc.", hint: "organization logo" },
-  { logo: "https://placehold.co/100x100.png", name: "Omega Psi Phi Fraternity, Inc.", hint: "organization logo" },
-];
-
+import { getEvents, getAnnouncements, getOrganizations } from "@/lib/data";
 
 export default function Home() {
   const events = getEvents().slice(0, 2);
   const announcements = getAnnouncements();
+  const organizations = getOrganizations();
 
   return (
     <div className="flex flex-col">
@@ -117,7 +105,7 @@ export default function Home() {
             <h2 className="text-3xl font-headline font-bold">Our Organizations</h2>
             <p className="text-muted-foreground mt-2">The Divine Nine chapters of Solano County.</p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-8 items-center justify-center">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-8 items-center justify-center">
             {organizations.map((org, index) => (
               <div key={index} className="flex flex-col items-center text-center">
                 <Image src={org.logo} alt={`${org.name} logo`} width={100} height={100} className="rounded-full mb-4" data-ai-hint={org.hint} />
