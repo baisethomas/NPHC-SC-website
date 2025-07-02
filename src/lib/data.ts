@@ -26,7 +26,7 @@ export async function getEvents(): Promise<Event[]> {
     return eventList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   } catch (error) {
     console.error("FIREBASE READ ERROR: Failed to fetch events.", error);
-    console.log("This is likely due to Firestore security rules. Please check your Firebase console. Returning an empty array to prevent a crash.");
+    console.log("This is often due to Firestore security rules. Please check your Firebase console and ensure the 'events' collection has public read access. Returning an empty array to prevent a crash.");
     return [];
   }
 }
@@ -43,7 +43,7 @@ export async function getEventBySlug(slug: string): Promise<Event | undefined> {
     }
   } catch (error) {
     console.error(`FIREBASE READ ERROR: Failed to fetch event with slug '${slug}'.`, error);
-    console.log("This is likely due to Firestore security rules. Please check your Firebase console.");
+    console.log("This is often due to Firestore security rules. Please check your Firebase console and ensure the 'events' collection has public read access.");
     return undefined;
   }
 }
