@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Clock, MapPin } from "lucide-react";
@@ -22,7 +23,7 @@ export default function EventsPage() {
         <div className="container">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {events.map((event) => (
-              <Card key={event.title} className="flex flex-col overflow-hidden">
+              <Card key={event.slug} className="flex flex-col overflow-hidden">
                 <div className="relative h-64 w-full">
                   <Image src={event.image} alt={event.title} layout="fill" objectFit="cover" data-ai-hint={event.image_hint} />
                 </div>
@@ -46,7 +47,7 @@ export default function EventsPage() {
                 </CardContent>
                 <CardFooter>
                   <Button asChild className="w-full">
-                    <a href={event.rsvpLink} target="_blank" rel="noopener noreferrer">RSVP / Learn More</a>
+                    <Link href={`/events/${event.slug}`}>View Details</Link>
                   </Button>
                 </CardFooter>
               </Card>

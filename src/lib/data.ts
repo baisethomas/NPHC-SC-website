@@ -1,4 +1,5 @@
 export interface Event {
+  slug: string;
   title: string;
   date: string;
   time: string;
@@ -9,8 +10,11 @@ export interface Event {
   rsvpLink: string;
 }
 
+const slugify = (text: string) => text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
+
 let events: Event[] = [
     {
+    slug: "annual-scholarship-gala",
     title: "Annual Scholarship Gala",
     date: "October 26, 2024",
     time: "6:00 PM - 10:00 PM",
@@ -21,6 +25,7 @@ let events: Event[] = [
     rsvpLink: "#"
   },
   {
+    slug: "meet-the-greeks-community-day",
     title: "Meet the Greeks Community Day",
     date: "September 5, 2024",
     time: "12:00 PM - 4:00 PM",
@@ -31,6 +36,7 @@ let events: Event[] = [
     rsvpLink: "#"
   },
   {
+    slug: "annual-summer-cookout",
     title: "Annual Summer Cookout",
     date: "August 10, 2024",
     time: "12:00 PM - 5:00 PM",
@@ -41,6 +47,7 @@ let events: Event[] = [
     rsvpLink: "#"
   },
   {
+    slug: "financial-literacy-workshop",
     title: "Financial Literacy Workshop",
     date: "November 12, 2024",
     time: "7:00 PM - 8:30 PM",
@@ -52,15 +59,20 @@ let events: Event[] = [
   },
 ];
 
-type NewEvent = Omit<Event, 'image' | 'image_hint' | 'rsvpLink'>;
+type NewEvent = Omit<Event, 'slug' | 'image' | 'image_hint' | 'rsvpLink'>;
 
 export function getEvents() {
   return events;
 }
 
+export function getEventBySlug(slug: string) {
+  return events.find((event) => event.slug === slug);
+}
+
 export function addEvent(event: NewEvent) {
   const newEvent: Event = {
     ...event,
+    slug: slugify(event.title),
     image: "https://placehold.co/600x400.png",
     image_hint: "new event",
     rsvpLink: "#",

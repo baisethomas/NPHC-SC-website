@@ -85,7 +85,7 @@ export default function Home() {
                 </CardContent>
                 <CardFooter>
                   <Button asChild variant="outline">
-                    <Link href="/events">Learn More</Link>
+                    <Link href={`/events/${event.slug}`}>Learn More</Link>
                   </Button>
                 </CardFooter>
               </Card>
