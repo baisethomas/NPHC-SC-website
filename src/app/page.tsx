@@ -5,8 +5,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { ArrowRight, Calendar, Clock, MapPin } from "lucide-react";
 import { getEvents, getAnnouncements, getDivineNineOrganizations } from "@/lib/data";
 
-export default function Home() {
-  const events = getEvents().slice(0, 2);
+export default async function Home() {
+  const events = (await getEvents()).slice(0, 2);
   const announcements = getAnnouncements();
   const organizations = getDivineNineOrganizations();
 

@@ -5,8 +5,8 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Calendar, Clock, MapPin } from "lucide-react";
 import { getEvents } from "@/lib/data";
 
-export default function EventsPage() {
-  const events = getEvents();
+export default async function EventsPage() {
+  const events = await getEvents();
 
   return (
     <div>

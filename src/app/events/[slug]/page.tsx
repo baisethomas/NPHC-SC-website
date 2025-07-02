@@ -4,8 +4,8 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Calendar, Clock, MapPin } from 'lucide-react';
 
-export default function EventDetailPage({ params }: { params: { slug: string } }) {
-  const event = getEventBySlug(params.slug);
+export default async function EventDetailPage({ params }: { params: { slug: string } }) {
+  const event = await getEventBySlug(params.slug);
 
   if (!event) {
     notFound();

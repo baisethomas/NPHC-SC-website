@@ -1,3 +1,6 @@
+import { db } from './firebase';
+import { collection, getDocs, doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
+
 export interface Event {
   id: string;
   slug: string;
@@ -13,7 +16,11 @@ export interface Event {
 
 const slugify = (text: string) => text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
 
-let events: Event[] = [
+// Note: The events data is now stored in your Firestore database.
+// You will need to manually add the initial data to your 'events' collection in Firebase
+// or build a seeding script to populate it.
+/*
+const initialEvents: Event[] = [
     {
     id: "annual-scholarship-gala",
     slug: "annual-scholarship-gala",
@@ -26,55 +33,32 @@ let events: Event[] = [
     image_hint: "gala event",
     rsvpLink: "#"
   },
-  {
-    id: "meet-the-greeks-community-day",
-    slug: "meet-the-greeks-community-day",
-    title: "Meet the Greeks Community Day",
-    date: "September 5, 2024",
-    time: "12:00 PM - 4:00 PM",
-    location: "Solano Community College Quad",
-    description: "A fun-filled day for the community to meet members of the Divine Nine, enjoy music, food, and learn about what we do.",
-    image: "https://placehold.co/600x400.png",
-    image_hint: "community fair",
-    rsvpLink: "#"
-  },
-  {
-    id: "annual-summer-cookout",
-    slug: "annual-summer-cookout",
-    title: "Annual Summer Cookout",
-    date: "August 10, 2024",
-    time: "12:00 PM - 5:00 PM",
-    location: "Fairfield Community Park",
-    description: "Bring your family and friends for our annual summer cookout. Food, games, and fellowship for all ages.",
-    image: "https://placehold.co/600x400.png",
-    image_hint: "family picnic",
-    rsvpLink: "#"
-  },
-  {
-    id: "financial-literacy-workshop",
-    slug: "financial-literacy-workshop",
-    title: "Financial Literacy Workshop",
-    date: "November 12, 2024",
-    time: "7:00 PM - 8:30 PM",
-    location: "Virtual Event (Zoom)",
-    description: "A free virtual workshop open to the public, covering topics like budgeting, investing, and building credit.",
-    image: "https://placehold.co/600x400.png",
-    image_hint: "finance workshop",
-    rsvpLink: "#"
-  },
+  // ... other initial events
 ];
+*/
 
 type NewEvent = Omit<Event, 'id' | 'slug' | 'image' | 'image_hint' | 'rsvpLink'>;
 
-export function getEvents() {
-  return events;
+export async function getEvents(): Promise<Event[]> {
+  const eventsCol = collection(db, 'events');
+  const eventSnapshot = await getDocs(eventsCol);
+  const eventList = eventSnapshot.docs.map(doc => doc.data() as Event);
+  // Note: For more consistent ordering, consider storing dates as ISO strings or Firestore Timestamps
+  return eventList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
-export function getEventBySlug(slug: string) {
-  return events.find((event) => event.slug === slug);
+export async function getEventBySlug(slug: string): Promise<Event | undefined> {
+  const eventDocRef = doc(db, 'events', slug);
+  const eventSnap = await getDoc(eventDocRef);
+  
+  if (eventSnap.exists()) {
+    return eventSnap.data() as Event;
+  } else {
+    return undefined;
+  }
 }
 
-export function addEvent(event: NewEvent) {
+export async function addEvent(event: NewEvent): Promise<void> {
   const slug = slugify(event.title);
   const newEvent: Event = {
     ...event,
@@ -84,11 +68,13 @@ export function addEvent(event: NewEvent) {
     image_hint: "new event",
     rsvpLink: "#",
   };
-  events = [newEvent, ...events];
+  // Use the slug as the document ID for easy retrieval
+  await setDoc(doc(db, "events", slug), newEvent);
 }
 
-export function deleteEvent(id: string) {
-  events = events.filter((event) => event.id !== id);
+export async function deleteEvent(id: string): Promise<void> {
+  // The 'id' is the slug, which is the document ID
+  await deleteDoc(doc(db, "events", id));
 }
 
 export interface Announcement {

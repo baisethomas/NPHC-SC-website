@@ -22,7 +22,7 @@ export async function createEvent(values: z.infer<typeof formSchema>) {
   }
   
   try {
-    addEvent(validatedFields.data);
+    await addEvent(validatedFields.data);
     revalidatePath('/events');
     revalidatePath('/admin/events');
     revalidatePath('/');
@@ -44,7 +44,7 @@ export async function deleteEvent(formData: FormData) {
   }
 
   try {
-    deleteEventFromDb(id);
+    await deleteEventFromDb(id);
     revalidatePath('/events');
     revalidatePath('/admin/events');
     revalidatePath('/');

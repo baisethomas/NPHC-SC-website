@@ -6,8 +6,8 @@ import { PlusCircle, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { deleteEvent } from "./actions";
 
-export default function AdminEventsPage() {
-  const events = getEvents();
+export default async function AdminEventsPage() {
+  const events = await getEvents();
 
   return (
     <Card>
