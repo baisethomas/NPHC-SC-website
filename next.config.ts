@@ -39,6 +39,30 @@ const nextConfig: NextConfig = {
         hostname: 'apa1906.net',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.deltasigmatheta.org',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'upload.wikimedia.org',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'iotaphitheta.org',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.pngall.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

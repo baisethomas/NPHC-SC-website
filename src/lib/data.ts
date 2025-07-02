@@ -166,7 +166,7 @@ let organizations: Organization[] = [
   },
   {
     name: "Delta Sigma Theta Sorority, Inc.",
-    logo: "https://placehold.co/200x200.png",
+    logo: "https://www.deltasigmatheta.org/wp-content/uploads/2023/01/Crest_Logo_rszd.png",
     hint: "organization crest",
     description: "An organization of college educated women committed to the constructive development of its members and to public service.",
     chapter: "Fairfield-Suisun Valley Alumnae Chapter",
@@ -174,7 +174,7 @@ let organizations: Organization[] = [
   },
   {
     name: "Zeta Phi Beta Sorority, Inc.",
-    logo: "https://placehold.co/200x200.png",
+    logo: "https://upload.wikimedia.org/wikipedia/en/c/cd/ZetaPBetaShield.png",
     hint: "organization crest",
     description: "A community-conscious, action-oriented organization founded on the principles of Scholarship, Service, Sisterhood and Finer Womanhood.",
     chapter: "Tau Alpha Zeta Chapter",
@@ -182,7 +182,7 @@ let organizations: Organization[] = [
   },
   {
     name: "Iota Phi Theta Fraternity, Inc.",
-    logo: "https://placehold.co/200x200.png",
+    logo: "https://iotaphitheta.org/wp-content/uploads/2022/09/ip-1.png",
     hint: "organization crest",
     description: "Committed to the development and perpetuation of Scholarship, Leadership, Citizenship, Fidelity, and Brotherhood among Men.",
     chapter: "Alpha Pi Omega Chapter",
@@ -190,7 +190,7 @@ let organizations: Organization[] = [
   },
   {
     name: "Kappa Alpha Psi Fraternity, Inc.",
-    logo: "https://placehold.co/200x200.png",
+    logo: "https://upload.wikimedia.org/wikipedia/en/1/1d/KAPsiCrest.png",
     hint: "organization crest",
     description: "A collegiate Greek-letter fraternity with a predominantly African-American membership, focused on achievement in every field of human endeavor.",
     chapter: "Fairfield-Vacaville Alumni Chapter",
@@ -198,7 +198,7 @@ let organizations: Organization[] = [
   },
   {
     name: "Sigma Gamma Rho Sorority, Inc.",
-    logo: "https://placehold.co/200x200.png",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/f/fe/Sigma_Gamma_Rho_Shield.png",
     hint: "organization crest",
     description: "A leading historically Black Greek-letter sorority that aims to enhance the quality of life for women and their families in the U.S. and globally.",
     chapter: "Lambda Rho Sigma Chapter",
@@ -206,7 +206,7 @@ let organizations: Organization[] = [
   },
   {
     name: "Phi Beta Sigma Fraternity, Inc.",
-    logo: "https://placehold.co/200x200.png",
+    logo: "https://upload.wikimedia.org/wikipedia/en/a/a9/PhiBetaSigmaShield.png",
     hint: "organization crest",
     description: "An international organization of college and professional men, founded on the principles of Brotherhood, Scholarship and Service.",
     chapter: "Kappa Iota Sigma Chapter",
@@ -214,7 +214,7 @@ let organizations: Organization[] = [
   },
     {
     name: "Omega Psi Phi Fraternity, Inc.",
-    logo: "https://placehold.co/200x200.png",
+    logo: "https://www.pngall.com/wp-content/uploads/17/Omega-Psi-Phi-Shield-Artistic-Representation-PNG-thumb.png",
     hint: "organization crest",
     description: "The first international fraternal organization founded on the campus of a historically black college, based on Friendship, Manhood, Scholarship, and Perseverance.",
     chapter: "Nu Phi Chapter",
