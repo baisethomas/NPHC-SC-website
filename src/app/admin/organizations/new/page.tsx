@@ -41,20 +41,29 @@ export default function NewOrganizationPage() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const result = await createOrganization(values);
+    try {
+      const result = await createOrganization(values);
 
-    if (result?.error) {
-      toast({
+      if (result?.error) {
+        toast({
+          variant: "destructive",
+          title: "Uh oh! Something went wrong.",
+          description: result.error,
+        });
+      } else {
+        toast({
+          title: "Organization Added!",
+          description: "The new organization has been added successfully.",
+        });
+        router.push("/admin/organizations");
+      }
+    } catch (error) {
+       console.error("Submission failed:", error);
+       toast({
         variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: result.error,
-      });
-    } else {
-      toast({
-        title: "Organization Added!",
-        description: "The new organization has been added successfully.",
-      });
-      router.push("/admin/organizations");
+        title: "Submission Error",
+        description: "An unexpected error occurred. Please try again.",
+       });
     }
   }
 

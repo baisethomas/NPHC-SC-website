@@ -36,20 +36,29 @@ export default function NewBoardMemberPage() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const result = await createBoardMember(values);
+    try {
+      const result = await createBoardMember(values);
 
-    if (result?.error) {
-      toast({
+      if (result?.error) {
+        toast({
+          variant: "destructive",
+          title: "Uh oh! Something went wrong.",
+          description: result.error,
+        });
+      } else {
+        toast({
+          title: "Board Member Added!",
+          description: "The new board member has been added successfully.",
+        });
+        router.push("/admin/board");
+      }
+    } catch (error) {
+       console.error("Submission failed:", error);
+       toast({
         variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: result.error,
-      });
-    } else {
-      toast({
-        title: "Board Member Added!",
-        description: "The new board member has been added successfully.",
-      });
-      router.push("/admin/board");
+        title: "Submission Error",
+        description: "An unexpected error occurred. Please try again.",
+       });
     }
   }
 

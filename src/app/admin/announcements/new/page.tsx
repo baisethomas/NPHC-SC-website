@@ -39,20 +39,29 @@ export default function NewAnnouncementPage() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const result = await createAnnouncement(values);
+    try {
+      const result = await createAnnouncement(values);
 
-    if (result?.error) {
-      toast({
+      if (result?.error) {
+        toast({
+          variant: "destructive",
+          title: "Uh oh! Something went wrong.",
+          description: result.error,
+        });
+      } else {
+        toast({
+          title: "Announcement Created!",
+          description: "The new announcement has been added successfully.",
+        });
+        router.push("/admin/announcements");
+      }
+    } catch (error) {
+       console.error("Submission failed:", error);
+       toast({
         variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: result.error,
-      });
-    } else {
-      toast({
-        title: "Announcement Created!",
-        description: "The new announcement has been added successfully.",
-      });
-      router.push("/admin/announcements");
+        title: "Submission Error",
+        description: "An unexpected error occurred. Please try again.",
+       });
     }
   }
 

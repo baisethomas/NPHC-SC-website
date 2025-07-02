@@ -66,20 +66,29 @@ export default function NewEventPage() {
     formData.append("description", values.description);
     formData.append("photo", values.photo[0]);
 
-    const result = await createEvent(formData);
+    try {
+      const result = await createEvent(formData);
 
-    if (result?.error) {
-      toast({
+      if (result?.error) {
+        toast({
+          variant: "destructive",
+          title: "Uh oh! Something went wrong.",
+          description: result.error,
+        });
+      } else {
+        toast({
+          title: "Event Created!",
+          description: "The new event has been added successfully.",
+        });
+        router.push("/admin/events");
+      }
+    } catch (error) {
+       console.error("Submission failed:", error);
+       toast({
         variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: result.error,
-      });
-    } else {
-      toast({
-        title: "Event Created!",
-        description: "The new event has been added successfully.",
-      });
-      router.push("/admin/events");
+        title: "Submission Error",
+        description: "An unexpected error occurred. Please try again.",
+       });
     }
   }
 
