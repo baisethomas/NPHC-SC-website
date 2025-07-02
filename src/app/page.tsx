@@ -13,7 +13,7 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       <section className="relative h-[60vh] min-h-[400px] w-full flex items-center justify-center text-center text-white">
-        <Image src="https://placehold.co/1200x600.png" alt="NPHC Solano County members" layout="fill" objectFit="cover" className="z-0" data-ai-hint="community gathering" />
+        <Image src="https://firebasestorage.googleapis.com/v0/b/sc-panhell.firebasestorage.app/o/475441597_629799412765597_8844708793537042668_n.jpg?alt=media&token=fa427e42-e8ac-45b5-bb5e-20fee49c888b" alt="NPHC Solano County members" layout="fill" objectFit="cover" className="z-0" data-ai-hint="community gathering" />
         <div className="absolute inset-0 bg-black/60 z-10" />
         <div className="z-20 p-4">
           <h1 className="text-4xl md:text-6xl font-headline font-bold mb-4 tracking-tight">NPHC of Solano County</h1>
