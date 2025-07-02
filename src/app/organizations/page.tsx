@@ -23,7 +23,7 @@ export default function OrganizationsPage() {
         <div className="container">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {organizations.map((org) => (
-              <Card key={org.name} className="flex flex-col">
+              <Card key={`${org.name}-${org.chapter}`} className="flex flex-col">
                 <CardHeader className="items-center text-center">
                   <Image src={org.logo} alt={`${org.name} logo`} width={200} height={200} className="h-28 w-28 object-contain mb-4" data-ai-hint={org.hint} />
                   <CardTitle className="font-headline text-2xl">{org.name}</CardTitle>

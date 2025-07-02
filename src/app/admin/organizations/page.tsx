@@ -33,7 +33,7 @@ export default function AdminOrganizationsPage() {
           </TableHeader>
           <TableBody>
             {organizations.map((org) => (
-              <TableRow key={org.name}>
+              <TableRow key={`${org.name}-${org.chapter}`}>
                 <TableCell className="font-medium">{org.name}</TableCell>
                 <TableCell>{org.chapter}</TableCell>
                 <TableCell className="text-right">
