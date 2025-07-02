@@ -47,14 +47,14 @@ export async function getEventBySlug(slug: string): Promise<Event | undefined> {
   }
 }
 
-export async function addEvent(event: NewEvent): Promise<void> {
+export async function addEvent(event: NewEvent, imageUrl: string): Promise<void> {
   const slug = slugify(event.title);
   const newEvent: Event = {
     ...event,
     id: slug,
     slug: slug,
-    image: "https://placehold.co/600x400.png",
-    image_hint: "new event",
+    image: imageUrl,
+    image_hint: event.title,
     rsvpLink: "#",
   };
   await setDoc(doc(db, "events", slug), newEvent);

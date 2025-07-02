@@ -1,0 +1,13 @@
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { storage } from "./firebase";
+
+export async function uploadFile(file: File): Promise<string> {
+  const storageRef = ref(storage, `events/${Date.now()}-${file.name}`);
+  
+  await uploadBytes(storageRef, file, {
+    contentType: file.type,
+  });
+
+  const downloadURL = await getDownloadURL(storageRef);
+  return downloadURL;
+}

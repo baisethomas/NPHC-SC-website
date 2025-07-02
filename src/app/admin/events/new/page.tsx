@@ -18,13 +18,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { createEvent } from "../actions";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
 
 const formSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters."),
-  date: z.string().min(2, "Date is required."),
+  date: z.date({
+    required_error: "A date for the event is required.",
+  }),
   time: z.string().min(2, "Time is required."),
   location: z.string().min(2, "Location is required."),
   description: z.string().min(10, "Description must be at least 10 characters."),
+  photo: z.any()
+    .refine((files) => files?.length == 1, "Image is required."),
 });
 
 export default function NewEventPage() {
@@ -35,7 +44,6 @@ export default function NewEventPage() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
-      date: "",
       time: "",
       location: "",
       description: "",
@@ -43,7 +51,15 @@ export default function NewEventPage() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const result = await createEvent(values);
+    const formData = new FormData();
+    formData.append("title", values.title);
+    formData.append("date", values.date.toISOString());
+    formData.append("time", values.time);
+    formData.append("location", values.location);
+    formData.append("description", values.description);
+    formData.append("photo", values.photo[0]);
+
+    const result = await createEvent(formData);
 
     if (result?.error) {
       toast({
@@ -77,13 +93,47 @@ export default function NewEventPage() {
               </FormItem>
             )} />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <FormField control={form.control} name="date" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Date</FormLabel>
-                  <FormControl><Input placeholder="October 26, 2024" {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
+              <FormField
+                control={form.control}
+                name="date"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Date</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "PPP")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) =>
+                            date < new Date("1900-01-01")
+                          }
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField control={form.control} name="time" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Time</FormLabel>
@@ -99,6 +149,26 @@ export default function NewEventPage() {
                 <FormMessage />
               </FormItem>
             )} />
+            <FormField
+              control={form.control}
+              name="photo"
+              render={({ field: { onChange, value, ...rest } }) => (
+                <FormItem>
+                  <FormLabel>Event Photo</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="file"
+                      accept="image/png, image/jpeg, image/webp"
+                      onChange={(event) => {
+                        onChange(event.target.files);
+                      }}
+                      {...rest}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField control={form.control} name="description" render={({ field }) => (
               <FormItem>
                 <FormLabel>Description</FormLabel>
