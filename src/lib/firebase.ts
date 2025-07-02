@@ -13,11 +13,14 @@ const firebaseConfig = {
 };
 
 // HOW TO CONNECT TO FIREBASE:
-// 1. In the root of your project, rename the `.env.local.example` file to `.env.local`.
+// 1. In the root of your project, create a file named `.env.local`.
 // 2. Open your Firebase project at https://console.firebase.google.com/
 // 3. Go to Project Settings (gear icon) > General tab.
 // 4. Under "Your apps", click the web icon (</>) to find your web app configuration.
-// 5. Copy the values from your Firebase config into the `.env.local` file. The project ID is already set for you.
+// 5. Copy the values from your Firebase config into the `.env.local` file,
+//    prefixing each variable name with `NEXT_PUBLIC_FIREBASE_`. For example:
+//    NEXT_PUBLIC_FIREBASE_API_KEY=...
+//    NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
 // 6. In Firebase, go to the "Firestore Database" section and create a database.
 // 7. Create a collection named "events".
 // 8. Add documents to the "events" collection that match the structure of the Event interface in src/lib/data.ts. The document ID should be the event's slug.
