@@ -214,7 +214,7 @@ let organizations: Organization[] = [
   },
     {
     name: "Omega Psi Phi Fraternity, Inc.",
-    logo: "https://www.etsu.edu/students/sao/fsl/pictures/omega-psi-phi-crest-content-square.png",
+    logo: "https://studentlife.oregonstate.edu/sites/studentlife.oregonstate.edu/files/styles/large/public/omega-psi-phi-fraternity-crest_0.png?itok=RhlfKa3V",
     hint: "organization crest",
     description: "The first international fraternal organization founded on the campus of a historically black college, based on Friendship, Manhood, Scholarship, and Perseverance.",
     chapter: "Nu Phi Chapter",

@@ -66,7 +66,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'www.etsu.edu',
+        hostname: 'studentlife.oregonstate.edu',
         port: '',
         pathname: '/**',
       }
