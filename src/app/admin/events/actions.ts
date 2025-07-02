@@ -92,8 +92,11 @@ export async function deleteEvent(formData: FormData) {
     revalidatePath('/admin/events');
     revalidatePath('/');
   } catch (error) {
-    return {
-      error: 'Failed to delete event.'
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
+    console.error('Failed to delete event:', errorMessage);
+    if (errorMessage.includes('permission-denied') || errorMessage.includes('insufficient permissions')) {
+      return { error: 'Database delete failed: Firestore permission denied. Check security rules.' };
     }
+    return { error: `Failed to delete event: ${errorMessage}` };
   }
 }

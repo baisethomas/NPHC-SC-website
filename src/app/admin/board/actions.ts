@@ -23,8 +23,9 @@ export async function createBoardMember(values: z.infer<typeof formSchema>) {
     revalidatePath('/about');
     revalidatePath('/admin/board');
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
     return {
-      error: 'Failed to create board member.'
+      error: `Failed to create board member: ${errorMessage}`
     }
   }
 
@@ -44,8 +45,9 @@ export async function deleteBoardMember(formData: FormData) {
         revalidatePath('/about');
         revalidatePath('/admin/board');
     } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
         return {
-            error: 'Failed to delete board member.'
+            error: `Failed to delete board member: ${errorMessage}`
         }
     }
 }

@@ -26,8 +26,9 @@ export async function createOrganization(values: z.infer<typeof formSchema>) {
     revalidatePath('/admin/organizations');
     revalidatePath('/');
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
     return {
-      error: 'Failed to create organization.'
+      error: `Failed to create organization: ${errorMessage}`
     }
   }
 
@@ -48,8 +49,9 @@ export async function deleteOrganization(formData: FormData) {
     revalidatePath('/admin/organizations');
     revalidatePath('/');
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
     return {
-      error: 'Failed to delete organization.'
+      error: `Failed to delete organization: ${errorMessage}`
     }
   }
 }

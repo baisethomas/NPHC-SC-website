@@ -52,8 +52,11 @@ export async function deleteAnnouncement(formData: FormData) {
         revalidatePath('/');
         revalidatePath('/admin/announcements');
     } catch (error) {
-        return {
-            error: 'Failed to delete announcement.'
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
+        console.error('Failed to delete announcement:', errorMessage);
+        if (errorMessage.includes('permission-denied') || errorMessage.includes('insufficient permissions')) {
+            return { error: 'Database delete failed: Firestore permission denied. Check security rules.' };
         }
+        return { error: `Failed to delete announcement: ${errorMessage}` };
     }
 }
