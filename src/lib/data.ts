@@ -157,6 +157,14 @@ let organizations: Organization[] = [
     link: "#",
   },
   {
+    name: "Alpha Kappa Alpha Sorority, Inc.",
+    logo: "https://aka1908.com/wp-content/uploads/2022/06/bg_logo_aka.svg",
+    hint: "organization crest",
+    description: "The first intercollegiate historically African American Greek-lettered sorority.",
+    chapter: "Rho Gamma Omega Chapter",
+    link: "#",
+  },
+  {
     name: "Alpha Phi Alpha Fraternity, Inc.",
     logo: "https://apa1906.net/wp-content/uploads/2018/08/apa_crest_132_c.png",
     hint: "organization crest",
@@ -172,20 +180,12 @@ let organizations: Organization[] = [
     chapter: "Fairfield-Suisun Valley Alumnae Chapter",
     link: "#",
   },
-  {
-    name: "Zeta Phi Beta Sorority, Inc.",
-    logo: "https://upload.wikimedia.org/wikipedia/en/c/cd/ZetaPBetaShield.png",
+   {
+    name: "Delta Sigma Theta Sorority, Inc.",
+    logo: "https://www.deltasigmatheta.org/wp-content/uploads/2023/01/Crest_Logo_rszd.png",
     hint: "organization crest",
-    description: "A community-conscious, action-oriented organization founded on the principles of Scholarship, Service, Sisterhood and Finer Womanhood.",
-    chapter: "Tau Alpha Zeta Chapter",
-    link: "#",
-  },
-  {
-    name: "Iota Phi Theta Fraternity, Inc.",
-    logo: "https://iotaphitheta.org/wp-content/uploads/2022/09/ip-1.png",
-    hint: "organization crest",
-    description: "Committed to the development and perpetuation of Scholarship, Leadership, Citizenship, Fidelity, and Brotherhood among Men.",
-    chapter: "Alpha Pi Omega Chapter",
+    description: "An organization of college educated women committed to the constructive development of its members and to public service.",
+    chapter: "Vallejo Alumnae Chapter",
     link: "#",
   },
   {
@@ -197,22 +197,6 @@ let organizations: Organization[] = [
     link: "#",
   },
   {
-    name: "Sigma Gamma Rho Sorority, Inc.",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/f/fe/Sigma_Gamma_Rho_Shield.png",
-    hint: "organization crest",
-    description: "A leading historically Black Greek-letter sorority that aims to enhance the quality of life for women and their families in the U.S. and globally.",
-    chapter: "Lambda Rho Sigma Chapter",
-    link: "#",
-  },
-  {
-    name: "Phi Beta Sigma Fraternity, Inc.",
-    logo: "https://upload.wikimedia.org/wikipedia/en/a/a9/PhiBetaSigmaShield.png",
-    hint: "organization crest",
-    description: "An international organization of college and professional men, founded on the principles of Brotherhood, Scholarship and Service.",
-    chapter: "Kappa Iota Sigma Chapter",
-    link: "#",
-  },
-    {
     name: "Omega Psi Phi Fraternity, Inc.",
     logo: "https://studentlife.oregonstate.edu/sites/studentlife.oregonstate.edu/files/styles/large/public/omega-psi-phi-fraternity-crest_0.png?itok=RhlfKa3V",
     hint: "organization crest",
