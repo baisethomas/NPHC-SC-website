@@ -61,10 +61,8 @@ export function Header() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-[300px] sm:w-[400px] bg-background p-0">
-              <SheetHeader className="sr-only">
-                <SheetTitle>Mobile Navigation</SheetTitle>
-                <SheetDescription>A list of links to navigate the NPHC Solano website.</SheetDescription>
-              </SheetHeader>
+              <SheetTitle className="sr-only">Mobile Navigation</SheetTitle>
+              <SheetDescription className="sr-only">A list of links to navigate the NPHC Solano website.</SheetDescription>
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between p-4 border-b">
                   <Link href="/" className="flex items-center space-x-2" onClick={() => setIsOpen(false)}>
