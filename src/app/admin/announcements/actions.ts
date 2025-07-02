@@ -24,8 +24,15 @@ export async function createAnnouncement(values: z.infer<typeof formSchema>) {
     revalidatePath('/');
     revalidatePath('/admin/announcements');
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
+    console.error('Failed to create announcement:', errorMessage);
+    
+    if (errorMessage.includes('permission-denied') || errorMessage.includes('insufficient permissions')) {
+        return { error: 'Failed to create announcement: Firestore permission denied. Please check your Firestore security rules in the Firebase console to allow writes to the "announcements" collection.' };
+    }
+
     return {
-      error: 'Failed to create announcement.'
+      error: 'Failed to create announcement. See server logs for details.'
     }
   }
 

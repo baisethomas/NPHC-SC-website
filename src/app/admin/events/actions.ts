@@ -65,6 +65,10 @@ export async function createEvent(formData: FormData) {
     if (errorMessage.includes('storage/unauthorized')) {
          return { error: 'Failed to create event: Firebase Storage permission denied. Please check your storage rules in the Firebase console.' };
     }
+
+    if (errorMessage.includes('permission-denied') || errorMessage.includes('insufficient permissions')) {
+        return { error: 'Failed to create event: Firestore permission denied. Please check your Firestore security rules in the Firebase console to allow writes to the "events" collection.' };
+    }
     
     return {
       error: 'Failed to create event. See server logs for details.'
