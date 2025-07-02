@@ -1,4 +1,5 @@
 export interface Event {
+  id: string;
   slug: string;
   title: string;
   date: string;
@@ -14,6 +15,7 @@ const slugify = (text: string) => text.toLowerCase().replace(/\s+/g, '-').replac
 
 let events: Event[] = [
     {
+    id: "annual-scholarship-gala",
     slug: "annual-scholarship-gala",
     title: "Annual Scholarship Gala",
     date: "October 26, 2024",
@@ -25,6 +27,7 @@ let events: Event[] = [
     rsvpLink: "#"
   },
   {
+    id: "meet-the-greeks-community-day",
     slug: "meet-the-greeks-community-day",
     title: "Meet the Greeks Community Day",
     date: "September 5, 2024",
@@ -36,6 +39,7 @@ let events: Event[] = [
     rsvpLink: "#"
   },
   {
+    id: "annual-summer-cookout",
     slug: "annual-summer-cookout",
     title: "Annual Summer Cookout",
     date: "August 10, 2024",
@@ -47,6 +51,7 @@ let events: Event[] = [
     rsvpLink: "#"
   },
   {
+    id: "financial-literacy-workshop",
     slug: "financial-literacy-workshop",
     title: "Financial Literacy Workshop",
     date: "November 12, 2024",
@@ -59,7 +64,7 @@ let events: Event[] = [
   },
 ];
 
-type NewEvent = Omit<Event, 'slug' | 'image' | 'image_hint' | 'rsvpLink'>;
+type NewEvent = Omit<Event, 'id' | 'slug' | 'image' | 'image_hint' | 'rsvpLink'>;
 
 export function getEvents() {
   return events;
@@ -70,9 +75,11 @@ export function getEventBySlug(slug: string) {
 }
 
 export function addEvent(event: NewEvent) {
+  const slug = slugify(event.title);
   const newEvent: Event = {
     ...event,
-    slug: slugify(event.title),
+    id: slug,
+    slug: slug,
     image: "https://placehold.co/600x400.png",
     image_hint: "new event",
     rsvpLink: "#",
@@ -80,7 +87,12 @@ export function addEvent(event: NewEvent) {
   events = [newEvent, ...events];
 }
 
+export function deleteEvent(id: string) {
+  events = events.filter((event) => event.id !== id);
+}
+
 export interface Announcement {
+  id: string;
   title: string;
   date: string;
   description: string;
@@ -88,16 +100,19 @@ export interface Announcement {
 
 let announcements: Announcement[] = [
   {
+    id: 'annual-scholarship-gala',
     title: "Annual Scholarship Gala",
     date: "August 15, 2024",
     description: "Join us for our biggest fundraising event of the year. All proceeds go to our student scholarship fund."
   },
   {
+    id: 'new-member-intake',
     title: "New Member Intake",
     date: "July 30, 2024",
     description: "Several of our member organizations will be starting their new member intake process soon. Stay tuned for details."
   },
   {
+    id: 'community-service-day',
     title: "Community Service Day",
     date: "July 20, 2024",
     description: "We're partnering with local charities for a county-wide day of service. Sign up to volunteer!"
@@ -108,11 +123,20 @@ export function getAnnouncements() {
   return announcements;
 }
 
-export function addAnnouncement(announcement: Announcement) {
-  announcements = [announcement, ...announcements];
+export function addAnnouncement(announcement: Omit<Announcement, 'id'>) {
+  const newAnnouncement: Announcement = {
+    id: slugify(announcement.title),
+    ...announcement,
+  };
+  announcements = [newAnnouncement, ...announcements];
+}
+
+export function deleteAnnouncement(id: string) {
+  announcements = announcements.filter((ann) => ann.id !== id);
 }
 
 export interface BoardMember {
+  id: string;
   name: string;
   title: string;
   initials: string;
@@ -121,15 +145,15 @@ export interface BoardMember {
 }
 
 let boardMembers: BoardMember[] = [
-  { name: "Eleanor Vance", title: "President", initials: "EV", image: "https://placehold.co/100x100.png", hint: "headshot person" },
-  { name: "Marcus Thorne", title: "Vice President", initials: "MT", image: "https://placehold.co/100x100.png", hint: "professional headshot" },
-  { name: "Seraphina Cruz", title: "Secretary", initials: "SC", image: "https://placehold.co/100x100.png", hint: "person smiling" },
-  { name: "Julian Hayes", title: "Treasurer", initials: "JH", image: "https://placehold.co/100x100.png", hint: "corporate headshot" },
-  { name: "Isabella Chen", title: "Parliamentarian", initials: "IC", image: "https://placehold.co/100x100.png", hint: "professional person" },
-  { name: "David Rodriguez", title: "Director of Community Service", initials: "DR", image: "https://placehold.co/100x100.png", hint: "person outdoors" },
+  { id: "eleanor-vance", name: "Eleanor Vance", title: "President", initials: "EV", image: "https://placehold.co/100x100.png", hint: "headshot person" },
+  { id: "marcus-thorne", name: "Marcus Thorne", title: "Vice President", initials: "MT", image: "https://placehold.co/100x100.png", hint: "professional headshot" },
+  { id: "seraphina-cruz", name: "Seraphina Cruz", title: "Secretary", initials: "SC", image: "https://placehold.co/100x100.png", hint: "person smiling" },
+  { id: "julian-hayes", name: "Julian Hayes", title: "Treasurer", initials: "JH", image: "https://placehold.co/100x100.png", hint: "corporate headshot" },
+  { id: "isabella-chen", name: "Isabella Chen", title: "Parliamentarian", initials: "IC", image: "https://placehold.co/100x100.png", hint: "professional person" },
+  { id: "david-rodriguez", name: "David Rodriguez", title: "Director of Community Service", initials: "DR", image: "https://placehold.co/100x100.png", hint: "person outdoors" },
 ];
 
-type NewBoardMember = Omit<BoardMember, 'image' | 'hint' | 'initials'>;
+type NewBoardMember = Omit<BoardMember, 'id' | 'image' | 'hint' | 'initials'>;
 
 export function getBoardMembers() {
   return boardMembers;
@@ -143,6 +167,7 @@ export function addBoardMember(member: NewBoardMember) {
     
   const newMember: BoardMember = {
     ...member,
+    id: slugify(member.name),
     initials,
     image: "https://placehold.co/100x100.png",
     hint: "person headshot",
@@ -150,7 +175,12 @@ export function addBoardMember(member: NewBoardMember) {
   boardMembers = [newMember, ...boardMembers];
 }
 
+export function deleteBoardMember(id: string) {
+  boardMembers = boardMembers.filter((member) => member.id !== id);
+}
+
 export interface Organization {
+  id: string;
   name: string;
   logo: string;
   hint: string;
@@ -161,6 +191,7 @@ export interface Organization {
 
 let organizations: Organization[] = [
   {
+    id: "alpha-kappa-alpha-sorority-inc--kappa-beta-omega-chapter",
     name: "Alpha Kappa Alpha Sorority, Inc.",
     logo: "https://aka1908.com/wp-content/uploads/2022/06/bg_logo_aka.svg",
     hint: "organization crest",
@@ -169,6 +200,7 @@ let organizations: Organization[] = [
     link: "#",
   },
   {
+    id: "alpha-kappa-alpha-sorority-inc--tau-upsilon-omega-chapter",
     name: "Alpha Kappa Alpha Sorority, Inc.",
     logo: "https://aka1908.com/wp-content/uploads/2022/06/bg_logo_aka.svg",
     hint: "organization crest",
@@ -177,6 +209,7 @@ let organizations: Organization[] = [
     link: "#",
   },
   {
+    id: "alpha-phi-alpha-fraternity-inc--kappa-omicron-lambda-chapter",
     name: "Alpha Phi Alpha Fraternity, Inc.",
     logo: "https://apa1906.net/wp-content/uploads/2018/08/apa_crest_132_c.png",
     hint: "organization crest",
@@ -185,6 +218,7 @@ let organizations: Organization[] = [
     link: "#",
   },
   {
+    id: "delta-sigma-theta-sorority-inc--fairfield-suisun-valley-alumnae-chapter",
     name: "Delta Sigma Theta Sorority, Inc.",
     logo: "https://www.deltasigmatheta.org/wp-content/uploads/2023/01/Crest_Logo_rszd.png",
     hint: "organization crest",
@@ -193,6 +227,7 @@ let organizations: Organization[] = [
     link: "#",
   },
    {
+    id: "delta-sigma-theta-sorority-inc--vallejo-alumnae-chapter",
     name: "Delta Sigma Theta Sorority, Inc.",
     logo: "https://www.deltasigmatheta.org/wp-content/uploads/2023/01/Crest_Logo_rszd.png",
     hint: "organization crest",
@@ -201,6 +236,7 @@ let organizations: Organization[] = [
     link: "#",
   },
   {
+    id: "kappa-alpha-psi-fraternity-inc--fairfield-vacaville-alumni-chapter",
     name: "Kappa Alpha Psi Fraternity, Inc.",
     logo: "https://upload.wikimedia.org/wikipedia/en/1/1d/KAPsiCrest.png",
     hint: "organization crest",
@@ -209,6 +245,7 @@ let organizations: Organization[] = [
     link: "#",
   },
   {
+    id: "omega-psi-phi-fraternity-inc--theta-pi-chapter",
     name: "Omega Psi Phi Fraternity, Inc.",
     logo: "https://studentlife.oregonstate.edu/sites/studentlife.oregonstate.edu/files/styles/large/public/omega-psi-phi-fraternity-crest_0.png?itok=RhlfKa3V",
     hint: "organization crest",
@@ -218,7 +255,7 @@ let organizations: Organization[] = [
   },
 ];
 
-type NewOrganization = Omit<Organization, 'logo' | 'hint'>;
+type NewOrganization = Omit<Organization, 'id' | 'logo' | 'hint'>;
 
 export function getOrganizations() {
   return organizations;
@@ -227,10 +264,15 @@ export function getOrganizations() {
 export function addOrganization(org: NewOrganization) {
   const newOrg: Organization = {
     ...org,
+    id: slugify(`${org.name}-${org.chapter}`),
     logo: "https://placehold.co/200x200.png",
     hint: "organization crest",
   };
   organizations = [newOrg, ...organizations];
+}
+
+export function deleteOrganization(id: string) {
+  organizations = organizations.filter((org) => org.id !== id);
 }
 
 interface DivineNineOrganization {

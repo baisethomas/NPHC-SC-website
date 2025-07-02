@@ -2,8 +2,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getEvents } from "@/lib/data";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Trash2 } from "lucide-react";
 import Link from "next/link";
+import { deleteEvent } from "./actions";
 
 export default function AdminEventsPage() {
   const events = getEvents();
@@ -34,12 +35,18 @@ export default function AdminEventsPage() {
           </TableHeader>
           <TableBody>
             {events.map((event) => (
-              <TableRow key={event.title}>
+              <TableRow key={event.id}>
                 <TableCell className="font-medium">{event.title}</TableCell>
                 <TableCell>{event.date}</TableCell>
                 <TableCell>{event.location}</TableCell>
                 <TableCell className="text-right">
-                  <Button variant="outline" size="sm" disabled>Edit</Button>
+                   <form action={deleteEvent} className="inline-block">
+                      <input type="hidden" name="id" value={event.id} />
+                      <Button variant="ghost" size="icon" type="submit">
+                        <Trash2 className="h-4 w-4" />
+                        <span className="sr-only">Delete</span>
+                      </Button>
+                    </form>
                 </TableCell>
               </TableRow>
             ))}

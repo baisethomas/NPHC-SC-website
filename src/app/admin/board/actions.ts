@@ -1,7 +1,7 @@
 'use server';
 
 import { z } from 'zod';
-import { addBoardMember } from '@/lib/data';
+import { addBoardMember, deleteBoardMember as deleteBoardMemberFromDb } from '@/lib/data';
 import { revalidatePath } from 'next/cache';
 
 const formSchema = z.object({
@@ -29,4 +29,23 @@ export async function createBoardMember(values: z.infer<typeof formSchema>) {
   }
 
   return {};
+}
+
+export async function deleteBoardMember(formData: FormData) {
+    const id = formData.get('id') as string;
+    if (!id) {
+        return {
+            error: 'Invalid board member ID.',
+        };
+    }
+
+    try {
+        deleteBoardMemberFromDb(id);
+        revalidatePath('/about');
+        revalidatePath('/admin/board');
+    } catch (error) {
+        return {
+            error: 'Failed to delete board member.'
+        }
+    }
 }

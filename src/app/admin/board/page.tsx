@@ -2,8 +2,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getBoardMembers } from "@/lib/data";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Trash2 } from "lucide-react";
 import Link from "next/link";
+import { deleteBoardMember } from "./actions";
 
 export default function AdminBoardPage() {
   const boardMembers = getBoardMembers();
@@ -33,11 +34,17 @@ export default function AdminBoardPage() {
           </TableHeader>
           <TableBody>
             {boardMembers.map((member) => (
-              <TableRow key={member.name}>
+              <TableRow key={member.id}>
                 <TableCell className="font-medium">{member.name}</TableCell>
                 <TableCell>{member.title}</TableCell>
                 <TableCell className="text-right">
-                  <Button variant="outline" size="sm" disabled>Edit</Button>
+                  <form action={deleteBoardMember} className="inline-block">
+                    <input type="hidden" name="id" value={member.id} />
+                    <Button variant="ghost" size="icon" type="submit">
+                      <Trash2 className="h-4 w-4" />
+                      <span className="sr-only">Delete</span>
+                    </Button>
+                  </form>
                 </TableCell>
               </TableRow>
             ))}

@@ -1,7 +1,7 @@
 'use server';
 
 import { z } from 'zod';
-import { addOrganization } from '@/lib/data';
+import { addOrganization, deleteOrganization as deleteOrganizationFromDb } from '@/lib/data';
 import { revalidatePath } from 'next/cache';
 
 const formSchema = z.object({
@@ -32,4 +32,24 @@ export async function createOrganization(values: z.infer<typeof formSchema>) {
   }
 
   return {};
+}
+
+export async function deleteOrganization(formData: FormData) {
+  const id = formData.get('id') as string;
+  if (!id) {
+    return {
+      error: 'Invalid organization ID.',
+    };
+  }
+
+  try {
+    deleteOrganizationFromDb(id);
+    revalidatePath('/organizations');
+    revalidatePath('/admin/organizations');
+    revalidatePath('/');
+  } catch (error) {
+    return {
+      error: 'Failed to delete organization.'
+    }
+  }
 }

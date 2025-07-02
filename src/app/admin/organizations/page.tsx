@@ -2,8 +2,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getOrganizations } from "@/lib/data";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Trash2 } from "lucide-react";
 import Link from "next/link";
+import { deleteOrganization } from "./actions";
 
 export default function AdminOrganizationsPage() {
   const organizations = getOrganizations();
@@ -33,11 +34,17 @@ export default function AdminOrganizationsPage() {
           </TableHeader>
           <TableBody>
             {organizations.map((org) => (
-              <TableRow key={`${org.name}-${org.chapter}`}>
+              <TableRow key={org.id}>
                 <TableCell className="font-medium">{org.name}</TableCell>
                 <TableCell>{org.chapter}</TableCell>
                 <TableCell className="text-right">
-                  <Button variant="outline" size="sm" disabled>Edit</Button>
+                  <form action={deleteOrganization} className="inline-block">
+                    <input type="hidden" name="id" value={org.id} />
+                    <Button variant="ghost" size="icon" type="submit">
+                      <Trash2 className="h-4 w-4" />
+                      <span className="sr-only">Delete</span>
+                    </Button>
+                  </form>
                 </TableCell>
               </TableRow>
             ))}

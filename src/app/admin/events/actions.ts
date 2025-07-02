@@ -1,7 +1,7 @@
 'use server';
 
 import { z } from 'zod';
-import { addEvent } from '@/lib/data';
+import { addEvent, deleteEvent as deleteEventFromDb } from '@/lib/data';
 import { revalidatePath } from 'next/cache';
 
 const formSchema = z.object({
@@ -33,4 +33,24 @@ export async function createEvent(values: z.infer<typeof formSchema>) {
   }
 
   return {};
+}
+
+export async function deleteEvent(formData: FormData) {
+  const id = formData.get('id') as string;
+  if (!id) {
+    return {
+      error: 'Invalid event ID.',
+    };
+  }
+
+  try {
+    deleteEventFromDb(id);
+    revalidatePath('/events');
+    revalidatePath('/admin/events');
+    revalidatePath('/');
+  } catch (error) {
+    return {
+      error: 'Failed to delete event.'
+    }
+  }
 }

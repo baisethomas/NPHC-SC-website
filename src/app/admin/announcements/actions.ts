@@ -1,7 +1,7 @@
 'use server';
 
 import { z } from 'zod';
-import { addAnnouncement } from '@/lib/data';
+import { addAnnouncement, deleteAnnouncement as deleteAnnouncementFromDb } from '@/lib/data';
 import { revalidatePath } from 'next/cache';
 
 const formSchema = z.object({
@@ -30,4 +30,23 @@ export async function createAnnouncement(values: z.infer<typeof formSchema>) {
   }
 
   return {};
+}
+
+export async function deleteAnnouncement(formData: FormData) {
+    const id = formData.get('id') as string;
+    if (!id) {
+        return {
+            error: 'Invalid announcement ID.',
+        };
+    }
+
+    try {
+        deleteAnnouncementFromDb(id);
+        revalidatePath('/');
+        revalidatePath('/admin/announcements');
+    } catch (error) {
+        return {
+            error: 'Failed to delete announcement.'
+        }
+    }
 }
