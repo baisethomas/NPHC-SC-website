@@ -1,30 +1,21 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
-// Your web app's Firebase configuration.
-// These values should be stored in a .env.local file at the root of your project.
+// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  apiKey: "AIzaSyBHFOButhSLZ1OFa17LsOIr_8JwrG4zRRs",
+  authDomain: "sc-panhell.firebaseapp.com",
+  projectId: "sc-panhell",
+  storageBucket: "sc-panhell.appspot.com",
+  messagingSenderId: "372097989483",
+  appId: "1:372097989483:web:9bac533d3dd6f35499ea2e"
 };
 
-// HOW TO CONNECT TO FIREBASE:
-// 1. In the root of your project, create a file named `.env.local`.
-// 2. Open your Firebase project at https://console.firebase.google.com/
-// 3. Go to Project Settings (gear icon) > General tab.
-// 4. Under "Your apps", click the web icon (</>) to find your web app configuration.
-// 5. Copy the values from your Firebase config into the `.env.local` file,
-//    prefixing each variable name with `NEXT_PUBLIC_FIREBASE_`. For example:
-//    NEXT_PUBLIC_FIREBASE_API_KEY=...
-//    NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
-// 6. In Firebase, go to the "Firestore Database" section and create a database.
-// 7. Create a collection named "events".
-// 8. Add documents to the "events" collection that match the structure of the Event interface in src/lib/data.ts. The document ID should be the event's slug.
+// IMPORTANT: For production applications, it's strongly recommended to use
+// environment variables to store your Firebase credentials rather than hardcoding
+// them in your source code.
 
+// Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const db = getFirestore(app);
 

@@ -16,44 +16,34 @@ export interface Event {
 
 const slugify = (text: string) => text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
 
-// Note: The events data is now stored in your Firestore database.
-// You will need to manually add the initial data to your 'events' collection in Firebase
-// or build a seeding script to populate it.
-/*
-const initialEvents: Event[] = [
-    {
-    id: "annual-scholarship-gala",
-    slug: "annual-scholarship-gala",
-    title: "Annual Scholarship Gala",
-    date: "October 26, 2024",
-    time: "6:00 PM - 10:00 PM",
-    location: "The Wednesday Club of Suisun",
-    description: "Join us for an elegant evening of dining and celebration as we award scholarships to deserving local students. Formal attire requested.",
-    image: "https://placehold.co/600x400.png",
-    image_hint: "gala event",
-    rsvpLink: "#"
-  },
-  // ... other initial events
-];
-*/
-
 type NewEvent = Omit<Event, 'id' | 'slug' | 'image' | 'image_hint' | 'rsvpLink'>;
 
 export async function getEvents(): Promise<Event[]> {
-  const eventsCol = collection(db, 'events');
-  const eventSnapshot = await getDocs(eventsCol);
-  const eventList = eventSnapshot.docs.map(doc => doc.data() as Event);
-  // Note: For more consistent ordering, consider storing dates as ISO strings or Firestore Timestamps
-  return eventList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  try {
+    const eventsCol = collection(db, 'events');
+    const eventSnapshot = await getDocs(eventsCol);
+    const eventList = eventSnapshot.docs.map(doc => doc.data() as Event);
+    return eventList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  } catch (error) {
+    console.error("FIREBASE READ ERROR: Failed to fetch events.", error);
+    console.log("This is likely due to Firestore security rules. Please check your Firebase console. Returning an empty array to prevent a crash.");
+    return [];
+  }
 }
 
 export async function getEventBySlug(slug: string): Promise<Event | undefined> {
-  const eventDocRef = doc(db, 'events', slug);
-  const eventSnap = await getDoc(eventDocRef);
-  
-  if (eventSnap.exists()) {
-    return eventSnap.data() as Event;
-  } else {
+  try {
+    const eventDocRef = doc(db, 'events', slug);
+    const eventSnap = await getDoc(eventDocRef);
+    
+    if (eventSnap.exists()) {
+      return eventSnap.data() as Event;
+    } else {
+      return undefined;
+    }
+  } catch (error) {
+    console.error(`FIREBASE READ ERROR: Failed to fetch event with slug '${slug}'.`, error);
+    console.log("This is likely due to Firestore security rules. Please check your Firebase console.");
     return undefined;
   }
 }
@@ -68,12 +58,10 @@ export async function addEvent(event: NewEvent): Promise<void> {
     image_hint: "new event",
     rsvpLink: "#",
   };
-  // Use the slug as the document ID for easy retrieval
   await setDoc(doc(db, "events", slug), newEvent);
 }
 
 export async function deleteEvent(id: string): Promise<void> {
-  // The 'id' is the slug, which is the document ID
   await deleteDoc(doc(db, "events", id));
 }
 
@@ -176,7 +164,7 @@ export interface Organization {
 }
 
 let organizations: Organization[] = [
-  {
+    {
     id: "alpha-kappa-alpha-sorority-inc--kappa-beta-omega-chapter",
     name: "Alpha Kappa Alpha Sorority, Inc.",
     logo: "https://aka1908.com/wp-content/uploads/2022/06/bg_logo_aka.svg",
@@ -203,7 +191,7 @@ let organizations: Organization[] = [
     chapter: "Kappa Omicron Lambda Chapter",
     link: "#",
   },
-  {
+    {
     id: "delta-sigma-theta-sorority-inc--fairfield-suisun-valley-alumnae-chapter",
     name: "Delta Sigma Theta Sorority, Inc.",
     logo: "https://www.deltasigmatheta.org/wp-content/uploads/2023/01/Crest_Logo_rszd.png",
