@@ -3,12 +3,12 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight, Calendar, Clock, MapPin } from "lucide-react";
-import { getEvents, getAnnouncements, getOrganizations } from "@/lib/data";
+import { getEvents, getAnnouncements, getDivineNineOrganizations } from "@/lib/data";
 
 export default function Home() {
   const events = getEvents().slice(0, 2);
   const announcements = getAnnouncements();
-  const organizations = getOrganizations();
+  const organizations = getDivineNineOrganizations();
 
   return (
     <div className="flex flex-col">
