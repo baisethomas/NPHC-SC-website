@@ -150,7 +150,7 @@ export interface Organization {
 let organizations: Organization[] = [
   {
     name: "Alpha Kappa Alpha Sorority, Inc.",
-    logo: "https://placehold.co/200x200.png",
+    logo: "https://aka1908.com/wp-content/uploads/2022/06/bg_logo_aka.svg",
     hint: "organization crest",
     description: "The first intercollegiate historically African American Greek-lettered sorority.",
     chapter: "Mu Eta Omega Chapter",
@@ -158,7 +158,7 @@ let organizations: Organization[] = [
   },
   {
     name: "Alpha Phi Alpha Fraternity, Inc.",
-    logo: "https://placehold.co/200x200.png",
+    logo: "https://apa1906.net/wp-content/uploads/2018/08/apa_crest_132_c.png",
     hint: "organization crest",
     description: "The first intercollegiate Greek-letter fraternity established for African American Men.",
     chapter: "Zeta Beta Lambda Chapter",

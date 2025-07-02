@@ -108,7 +108,7 @@ export default function Home() {
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-8 items-center justify-center">
             {organizations.map((org, index) => (
               <div key={index} className="flex flex-col items-center text-center">
-                <Image src={org.logo} alt={`${org.name} logo`} width={100} height={100} className="rounded-full mb-4" data-ai-hint={org.hint} />
+                <Image src={org.logo} alt={`${org.name} logo`} width={200} height={200} className="h-28 w-28 object-contain mb-4" data-ai-hint={org.hint} />
                 <p className="font-semibold text-sm">{org.name}</p>
               </div>
             ))}

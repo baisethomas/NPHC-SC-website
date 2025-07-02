@@ -25,7 +25,7 @@ export default function OrganizationsPage() {
             {organizations.map((org) => (
               <Card key={org.name} className="flex flex-col">
                 <CardHeader className="items-center text-center">
-                  <Image src={org.logo} alt={`${org.name} logo`} width={100} height={100} className="mb-4 rounded-full" data-ai-hint={org.hint} />
+                  <Image src={org.logo} alt={`${org.name} logo`} width={200} height={200} className="h-28 w-28 object-contain mb-4" data-ai-hint={org.hint} />
                   <CardTitle className="font-headline text-2xl">{org.name}</CardTitle>
                   <CardDescription className="font-semibold">{org.chapter}</CardDescription>
                 </CardHeader>
