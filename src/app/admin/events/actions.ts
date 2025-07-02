@@ -34,7 +34,7 @@ export async function createEvent(formData: FormData) {
   });
 
   if (!validatedFields.success) {
-    console.error(validatedFields.error.flatten().fieldErrors);
+    console.error('Validation failed:', validatedFields.error.flatten().fieldErrors);
     return {
       error: 'Invalid fields. Please check the form and try again.',
     };
@@ -59,9 +59,15 @@ export async function createEvent(formData: FormData) {
     revalidatePath('/admin/events');
     revalidatePath('/');
   } catch (error) {
-    console.error(error);
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
+    console.error('Failed to create event:', errorMessage);
+    
+    if (errorMessage.includes('storage/unauthorized')) {
+         return { error: 'Failed to create event: Firebase Storage permission denied. Please check your storage rules in the Firebase console.' };
+    }
+    
     return {
-      error: 'Failed to create event.'
+      error: 'Failed to create event. See server logs for details.'
     }
   }
 
