@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -23,6 +24,7 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const formSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters."),
@@ -39,6 +41,11 @@ const formSchema = z.object({
 export default function NewEventPage() {
   const { toast } = useToast();
   const router = useRouter();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -74,6 +81,28 @@ export default function NewEventPage() {
       });
       router.push("/admin/events");
     }
+  }
+
+  if (!isClient) {
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Create New Event</CardTitle>
+                <CardDescription>Fill out the form below to add a new event to the website.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-8">
+                <Skeleton className="h-10 w-full" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                </div>
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-10 w-32" />
+            </CardContent>
+        </Card>
+    );
   }
 
   return (
