@@ -20,7 +20,7 @@ export async function createAnnouncement(values: z.infer<typeof formSchema>) {
   }
   
   try {
-    addAnnouncement(validatedFields.data);
+    await addAnnouncement(validatedFields.data);
     revalidatePath('/');
     revalidatePath('/admin/announcements');
   } catch (error) {
@@ -41,7 +41,7 @@ export async function deleteAnnouncement(formData: FormData) {
     }
 
     try {
-        deleteAnnouncementFromDb(id);
+        await deleteAnnouncementFromDb(id);
         revalidatePath('/');
         revalidatePath('/admin/announcements');
     } catch (error) {

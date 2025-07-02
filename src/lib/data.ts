@@ -26,7 +26,7 @@ export async function getEvents(): Promise<Event[]> {
     return eventList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   } catch (error) {
     console.error("FIREBASE READ ERROR: Failed to fetch events.", error);
-    console.log("This is often due to Firestore security rules. Please check your Firebase console and ensure the 'events' collection has public read access. Returning an empty array to prevent a crash.");
+    console.log("This is often due to Firestore security rules. Please check your Firebase console and ensure the 'events' collection has public read access using the rules provided in the conversation. Returning an empty array to prevent a crash.");
     return [];
   }
 }
@@ -72,41 +72,32 @@ export interface Announcement {
   description: string;
 }
 
-let announcements: Announcement[] = [
-  {
-    id: 'annual-scholarship-gala',
-    title: "Annual Scholarship Gala",
-    date: "August 15, 2024",
-    description: "Join us for our biggest fundraising event of the year. All proceeds go to our student scholarship fund."
-  },
-  {
-    id: 'new-member-intake',
-    title: "New Member Intake",
-    date: "July 30, 2024",
-    description: "Several of our member organizations will be starting their new member intake process soon. Stay tuned for details."
-  },
-  {
-    id: 'community-service-day',
-    title: "Community Service Day",
-    date: "July 20, 2024",
-    description: "We're partnering with local charities for a county-wide day of service. Sign up to volunteer!"
-  }
-];
+type NewAnnouncement = Omit<Announcement, 'id'>;
 
-export function getAnnouncements() {
-  return announcements;
+export async function getAnnouncements(): Promise<Announcement[]> {
+  try {
+    const announcementsCol = collection(db, 'announcements');
+    const announcementSnapshot = await getDocs(announcementsCol);
+    const announcementList = announcementSnapshot.docs.map(doc => doc.data() as Announcement);
+    return announcementList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  } catch (error) {
+    console.error("FIREBASE READ ERROR: Failed to fetch announcements.", error);
+    console.log("This is often due to Firestore security rules. Please check your Firebase console and ensure the 'announcements' collection has public read access. Returning an empty array to prevent a crash.");
+    return [];
+  }
 }
 
-export function addAnnouncement(announcement: Omit<Announcement, 'id'>) {
+export async function addAnnouncement(announcement: NewAnnouncement) {
+  const slug = slugify(announcement.title);
   const newAnnouncement: Announcement = {
-    id: slugify(announcement.title),
+    id: slug,
     ...announcement,
   };
-  announcements = [newAnnouncement, ...announcements];
+  await setDoc(doc(db, "announcements", slug), newAnnouncement);
 }
 
-export function deleteAnnouncement(id: string) {
-  announcements = announcements.filter((ann) => ann.id !== id);
+export async function deleteAnnouncement(id: string) {
+  await deleteDoc(doc(db, "announcements", id));
 }
 
 export interface BoardMember {

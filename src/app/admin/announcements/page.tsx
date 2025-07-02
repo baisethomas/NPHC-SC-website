@@ -6,8 +6,8 @@ import { PlusCircle, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { deleteAnnouncement } from "./actions";
 
-export default function AdminAnnouncementsPage() {
-  const announcements = getAnnouncements();
+export default async function AdminAnnouncementsPage() {
+  const announcements = await getAnnouncements();
 
   return (
     <Card>

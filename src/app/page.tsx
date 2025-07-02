@@ -7,7 +7,7 @@ import { getEvents, getAnnouncements, getDivineNineOrganizations } from "@/lib/d
 
 export default async function Home() {
   const events = (await getEvents()).slice(0, 2);
-  const announcements = getAnnouncements();
+  const announcements = await getAnnouncements();
   const organizations = getDivineNineOrganizations();
 
   return (
