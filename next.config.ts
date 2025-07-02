@@ -63,6 +63,12 @@ const nextConfig: NextConfig = {
         hostname: 'www.pngall.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.etsu.edu',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
