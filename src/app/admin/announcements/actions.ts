@@ -28,11 +28,11 @@ export async function createAnnouncement(values: z.infer<typeof formSchema>) {
     console.error('Failed to create announcement:', errorMessage);
     
     if (errorMessage.includes('permission-denied') || errorMessage.includes('insufficient permissions')) {
-        return { error: 'Failed to create announcement: Firestore permission denied. Please check your Firestore security rules in the Firebase console to allow writes to the "announcements" collection.' };
+        return { error: 'Database write failed: Firestore permission denied. Please check your security rules for the "announcements" collection in the Firebase console.' };
     }
 
     return {
-      error: 'Failed to create announcement. See server logs for details.'
+      error: `An unexpected server error occurred: ${errorMessage}`
     }
   }
 
