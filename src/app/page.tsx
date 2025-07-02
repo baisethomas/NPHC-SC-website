@@ -2,12 +2,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, Calendar, Clock, MapPin } from "lucide-react";
+import { ArrowRight, Calendar, Clock, MapPin, Terminal } from "lucide-react";
 import { getEvents, getAnnouncements, getDivineNineOrganizations } from "@/lib/data";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default async function Home() {
   const events = (await getEvents()).slice(0, 2);
-  const announcements = await getAnnouncements();
+  const { announcements, error: announcementsError } = await getAnnouncements();
   const organizations = getDivineNineOrganizations();
 
   return (
@@ -40,19 +41,34 @@ export default async function Home() {
             <h2 className="text-3xl font-headline font-bold">News & Announcements</h2>
             <p className="text-muted-foreground mt-2">The latest updates from our council and member chapters.</p>
           </div>
-          <div className="grid gap-8 md:grid-cols-3">
-            {announcements.map((item, index) => (
-              <Card key={index} className="flex flex-col">
-                <CardHeader>
-                  <CardTitle className="text-xl font-headline">{item.title}</CardTitle>
-                  <CardDescription>{item.date}</CardDescription>
-                </CardHeader>
-                <CardContent className="flex-grow">
-                  <p>{item.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          
+          {announcementsError ? (
+            <Alert variant="destructive" className="max-w-xl mx-auto">
+              <Terminal className="h-4 w-4" />
+              <AlertTitle>Error Loading Announcements</AlertTitle>
+              <AlertDescription>
+                Could not fetch announcements from the database. This may be due to a configuration issue.
+              </AlertDescription>
+            </Alert>
+          ) : announcements.length > 0 ? (
+            <div className="grid gap-8 md:grid-cols-3">
+              {announcements.map((item) => (
+                <Card key={item.id} className="flex flex-col">
+                  <CardHeader>
+                    <CardTitle className="text-xl font-headline">{item.title}</CardTitle>
+                    <CardDescription>{item.date}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="flex-grow">
+                    <p>{item.description}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">There are no announcements at this time.</p>
+            </div>
+          )}
         </div>
       </section>
 

@@ -25,8 +25,7 @@ export async function getEvents(): Promise<Event[]> {
     const eventList = eventSnapshot.docs.map(doc => doc.data() as Event);
     return eventList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   } catch (error) {
-    console.error("FIREBASE READ ERROR: Failed to fetch events.", error);
-    console.log("This is often due to Firestore security rules. Please check your Firebase console and ensure the 'events' collection has public read access using the rules provided in the conversation. Returning an empty array to prevent a crash.");
+    console.error("FIREBASE READ ERROR: Failed to fetch events. This is often due to Firestore security rules. Please check your Firebase console and ensure the 'events' collection has public read access using the rules provided in the conversation. Returning an empty array to prevent a crash.");
     return [];
   }
 }
@@ -74,16 +73,17 @@ export interface Announcement {
 
 type NewAnnouncement = Omit<Announcement, 'id'>;
 
-export async function getAnnouncements(): Promise<Announcement[]> {
+export async function getAnnouncements(): Promise<{announcements: Announcement[], error: string | null}> {
   try {
     const announcementsCol = collection(db, 'announcements');
     const announcementSnapshot = await getDocs(announcementsCol);
     const announcementList = announcementSnapshot.docs.map(doc => doc.data() as Announcement);
-    return announcementList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    const sortedList = announcementList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    return { announcements: sortedList, error: null };
   } catch (error) {
-    console.error("FIREBASE READ ERROR: Failed to fetch announcements.", error);
-    console.log("This is often due to Firestore security rules. Please check your Firebase console and ensure the 'announcements' collection has public read access. Returning an empty array to prevent a crash.");
-    return [];
+    const errorMessage = "FIREBASE READ ERROR: Failed to fetch announcements. This is often due to Firestore security rules. Please check your Firebase console and ensure the 'announcements' collection has public read access using the rules provided in the conversation.";
+    console.error(errorMessage, error);
+    return { announcements: [], error: errorMessage };
   }
 }
 

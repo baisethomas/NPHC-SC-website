@@ -2,12 +2,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getAnnouncements } from "@/lib/data";
-import { PlusCircle, Trash2 } from "lucide-react";
+import { PlusCircle, Trash2, Terminal } from "lucide-react";
 import Link from "next/link";
 import { deleteAnnouncement } from "./actions";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default async function AdminAnnouncementsPage() {
-  const announcements = await getAnnouncements();
+  const { announcements, error } = await getAnnouncements();
 
   return (
     <Card>
@@ -24,6 +25,15 @@ export default async function AdminAnnouncementsPage() {
         </Button>
       </CardHeader>
       <CardContent>
+        {error && (
+            <Alert variant="destructive" className="mb-4">
+                <Terminal className="h-4 w-4" />
+                <AlertTitle>Error Loading Data</AlertTitle>
+                <AlertDescription>
+                   There was an issue fetching announcements from the database. Please check the server logs and your Firestore security rules.
+                </AlertDescription>
+            </Alert>
+        )}
         <Table>
           <TableHeader>
             <TableRow>
