@@ -1,9 +1,24 @@
 'use server';
 
 import { z } from 'zod';
-import { addEvent, deleteEvent as deleteEventFromDb } from '@/lib/data';
+
+// Test server action
+export async function testServerAction() {
+  console.log('TEST SERVER ACTION CALLED');
+  return { message: 'Server action is working!' };
+}
 import { revalidatePath } from 'next/cache';
-import { uploadFile } from '@/lib/storage';
+
+// Lazy import Firebase functions to avoid import errors
+async function getFirebaseFunctions() {
+  const dataModule = await import('@/lib/data');
+  const storageModule = await import('@/lib/storage');
+  return { 
+    addEvent: dataModule.addEvent, 
+    deleteEvent: dataModule.deleteEvent, 
+    uploadFile: storageModule.uploadFile 
+  };
+}
 
 const fileSchema = z.instanceof(File, { message: "Image is required." })
   .refine((file) => file.size > 0, "Image is required.")
@@ -24,7 +39,23 @@ const formSchema = z.object({
 
 
 export async function createEvent(formData: FormData) {
+  console.log('=== EVENT CREATION DEBUG - SERVER ACTION CALLED ===');
+  
   try {
+    console.log('Form data entries:', [...formData.entries()]);
+    
+    // Basic validation first
+    const title = formData.get('title');
+    const date = formData.get('date');
+    const photo = formData.get('photo');
+    
+    console.log('Basic form data check:', { title, date, photo: photo instanceof File });
+    
+    if (!title || !date || !photo) {
+      console.error('Missing required fields');
+      return { error: 'Missing required fields' };
+    }
+    
     const validatedFields = formSchema.safeParse({
       title: formData.get('title'),
       date: formData.get('date'),
@@ -43,19 +74,47 @@ export async function createEvent(formData: FormData) {
       };
     }
   
-    const { photo, ...eventData } = validatedFields.data;
-    const imageUrl = await uploadFile(photo);
+    console.log('Validation passed, uploading file...');
+    const { photo: validatedPhoto, ...eventData } = validatedFields.data;
     
-    const formattedDate = new Date(eventData.date).toLocaleDateString('en-US', {
+    console.log('Photo details:', {
+      name: validatedPhoto.name,
+      size: validatedPhoto.size,
+      type: validatedPhoto.type
+    });
+    
+    const { uploadFile } = await getFirebaseFunctions();
+    const imageUrl = await uploadFile(validatedPhoto);
+    console.log('File uploaded successfully:', imageUrl);
+    
+    const parsedDate = new Date(eventData.date);
+    if (isNaN(parsedDate.getTime())) {
+      console.error('Invalid date format:', eventData.date);
+      return { error: 'Invalid date format provided.' };
+    }
+    
+    const formattedDate = parsedDate.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
     });
 
-    await addEvent({
-      ...eventData,
-      date: formattedDate,
-    }, imageUrl);
+    console.log('Adding event to database...');
+    try {
+      const { addEvent } = await getFirebaseFunctions();
+      await addEvent({
+        ...eventData,
+        date: formattedDate,
+      }, imageUrl);
+      console.log('Event added successfully!');
+    } catch (dbError) {
+      console.error('Database operation failed:', dbError);
+      const error = dbError instanceof Error ? dbError : new Error('Database operation failed');
+      if (error.message.includes('permission-denied') || error.message.includes('insufficient permissions')) {
+        return { error: 'Database operation failed: Firestore permission denied. Please check your security rules.' };
+      }
+      throw error; // Re-throw for the outer catch block
+    }
 
     revalidatePath('/events');
     revalidatePath('/admin/events');
@@ -65,6 +124,8 @@ export async function createEvent(formData: FormData) {
   } catch (e: unknown) {
     const error = e instanceof Error ? e : new Error('An unknown server error occurred.');
     console.error(`Event Creation Failed: ${error.message}`, {cause: error});
+    console.error('Full error object:', error);
+    console.error('Error stack:', error.stack);
 
     if (error.message.includes('storage/unauthorized')) {
         return { error: 'Upload failed: Firebase Storage permission denied. Please check your storage rules.' };
@@ -86,6 +147,7 @@ export async function deleteEvent(formData: FormData) {
       };
     }
     
+    const { deleteEvent: deleteEventFromDb } = await getFirebaseFunctions();
     await deleteEventFromDb(id);
     revalidatePath('/events');
     revalidatePath('/admin/events');

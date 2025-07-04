@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { createEvent } from "../actions";
+import { createEvent, testServerAction } from "../actions";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -58,6 +58,8 @@ export default function NewEventPage() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log("Form submission started with values:", values);
+    
     const formData = new FormData();
     formData.append("title", values.title);
     formData.append("date", values.date.toISOString());
@@ -66,8 +68,11 @@ export default function NewEventPage() {
     formData.append("description", values.description);
     formData.append("photo", values.photo[0]);
 
+    console.log("FormData prepared, calling createEvent...");
+    
     try {
       const result = await createEvent(formData);
+      console.log("createEvent returned:", result);
 
       if (result?.error) {
         toast({
@@ -84,11 +89,31 @@ export default function NewEventPage() {
       }
     } catch (error) {
        console.error("Submission failed:", error);
+       console.error("Error details:", JSON.stringify(error, null, 2));
        toast({
         variant: "destructive",
         title: "Submission Error",
-        description: "An unexpected error occurred. Please try again.",
+        description: `An unexpected error occurred: ${error instanceof Error ? error.message : 'Unknown error'}`,
        });
+    }
+  }
+
+  async function testServer() {
+    console.log('Testing server action...');
+    try {
+      const result = await testServerAction();
+      console.log('Test result:', result);
+      toast({
+        title: "Test Successful",
+        description: result.message,
+      });
+    } catch (error) {
+      console.error('Test failed:', error);
+      toast({
+        variant: "destructive",
+        title: "Test Failed",
+        description: "Server action test failed",
+      });
     }
   }
 
@@ -232,9 +257,14 @@ export default function NewEventPage() {
                 <FormMessage />
               </FormItem>
             )} />
-            <Button type="submit" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? "Creating..." : "Create Event"}
-            </Button>
+            <div className="flex gap-4">
+              <Button type="submit" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? "Creating..." : "Create Event"}
+              </Button>
+              <Button type="button" variant="outline" onClick={testServer}>
+                Test Server
+              </Button>
+            </div>
           </form>
         </Form>
       </CardContent>
