@@ -35,9 +35,11 @@ export async function createEvent(formData: FormData) {
     });
 
     if (!validatedFields.success) {
-      console.error('Validation failed:', validatedFields.error.flatten().fieldErrors);
+      const validationErrors = validatedFields.error.flatten().fieldErrors;
+      console.error('Validation failed:', validationErrors);
+      const errorMessages = Object.values(validationErrors).flat().join(', ');
       return {
-        error: 'Invalid fields. Please check the form and try again.',
+        error: `Invalid fields: ${errorMessages || 'Please check the form and try again.'}`,
       };
     }
   
@@ -59,8 +61,9 @@ export async function createEvent(formData: FormData) {
     revalidatePath('/admin/events');
     revalidatePath('/');
     
+    return {};
   } catch (e: unknown) {
-    const error = e instanceof Error ? e : new Error('An unknown error occurred during event creation.');
+    const error = e instanceof Error ? e : new Error('An unknown server error occurred.');
     console.error(`Event Creation Failed: ${error.message}`, {cause: error});
 
     if (error.message.includes('storage/unauthorized')) {
@@ -70,10 +73,8 @@ export async function createEvent(formData: FormData) {
         return { error: 'Database operation failed: Firestore permission denied. Please check your security rules.' };
     }
 
-    return { error: 'An unexpected server error occurred. Please try again later.' };
+    return { error: `Server error: ${error.message}` };
   }
-  
-  return {};
 }
 
 export async function deleteEvent(formData: FormData) {
@@ -89,6 +90,7 @@ export async function deleteEvent(formData: FormData) {
     revalidatePath('/events');
     revalidatePath('/admin/events');
     revalidatePath('/');
+    return {};
   } catch (e: unknown) {
     const error = e instanceof Error ? e : new Error('An unknown error occurred during event deletion.');
     console.error(`Event Deletion Failed: ${error.message}`, {cause: error});
@@ -96,6 +98,6 @@ export async function deleteEvent(formData: FormData) {
     if (error.message.includes('permission-denied') || error.message.includes('insufficient permissions')) {
       return { error: 'Database delete failed: Firestore permission denied. Check security rules.' };
     }
-    return { error: 'An unexpected server error occurred while deleting the event.' };
+    return { error: `Server error while deleting: ${error.message}` };
   }
 }
