@@ -1,22 +1,24 @@
 "use client";
 
 import Link from "next/link";
-import { Menu } from "lucide-react";
+import { Menu, LogOut } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { useAuth } from "@/contexts/AuthContext";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
-const navLinks = [
+const baseNavLinks = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About Us" },
   { href: "/organizations", label: "Organizations" },
   { href: "/events", label: "Events" },
   { href: "/gallery", label: "Gallery" },
   { href: "/contact", label: "Contact Us" },
-  { href: "/admin", label: "Admin" },
 ];
 
 const logoUrl = "https://www.nphchq.com/wp-content/uploads/2020/04/NPHC-Official-Logo-sq.png";
@@ -24,6 +26,14 @@ const logoUrl = "https://www.nphchq.com/wp-content/uploads/2020/04/NPHC-Official
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const { user, loading } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    setIsOpen(false);
+  };
+
+  const navLinks = user ? [...baseNavLinks, { href: "/admin", label: "Admin" }] : baseNavLinks;
 
   return (
     <header className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b">
@@ -47,9 +57,18 @@ export function Header() {
               </Link>
             ))}
           </nav>
-          <Button asChild>
-            <Link href="#">Donate</Link>
-          </Button>
+          {!loading && (
+            user ? (
+              <Button onClick={handleLogout} variant="outline" size="sm">
+                <LogOut className="mr-2 h-4 w-4" />
+                Logout
+              </Button>
+            ) : (
+              <Button asChild size="sm">
+                <Link href="/login">Login</Link>
+              </Button>
+            )
+          )}
         </div>
 
         <div className="md:hidden">
@@ -61,8 +80,6 @@ export function Header() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-[300px] sm:w-[400px] bg-background p-0">
-              <SheetTitle className="sr-only">Mobile Navigation</SheetTitle>
-              <SheetDescription className="sr-only">A list of links to navigate the NPHC Solano website.</SheetDescription>
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between p-4 border-b">
                   <Link href="/" className="flex items-center space-x-2" onClick={() => setIsOpen(false)}>
@@ -86,9 +103,18 @@ export function Header() {
                   ))}
                 </nav>
                 <div className="mt-auto p-4 border-t">
-                  <Button asChild className="w-full">
-                    <Link href="#">Donate</Link>
-                  </Button>
+                  {!loading && (
+                    user ? (
+                      <Button onClick={handleLogout} className="w-full">
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Logout
+                      </Button>
+                    ) : (
+                      <Button asChild className="w-full">
+                        <Link href="/login">Login</Link>
+                      </Button>
+                    )
+                  )}
                 </div>
               </div>
             </SheetContent>

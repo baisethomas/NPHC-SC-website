@@ -16,7 +16,7 @@ export interface Event {
 
 const slugify = (text: string) => text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
 
-type NewEvent = Omit<Event, 'id' | 'slug' | 'image' | 'image_hint' | 'rsvpLink'>;
+type NewEvent = Omit<Event, 'id' | 'slug' | 'image_hint' | 'rsvpLink'>;
 
 export async function getEvents(): Promise<Event[]> {
   try {
@@ -53,7 +53,6 @@ export async function addEvent(event: NewEvent): Promise<void> {
     ...event,
     id: slug,
     slug: slug,
-    image: "https://placehold.co/800x600.png",
     image_hint: "community event",
     rsvpLink: "#",
   };

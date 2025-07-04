@@ -24,6 +24,9 @@ import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+
 const formSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters."),
   date: z.date({
@@ -32,6 +35,14 @@ const formSchema = z.object({
   time: z.string().min(2, "Time is required."),
   location: z.string().min(2, "Location is required."),
   description: z.string().min(10, "Description must be at least 10 characters."),
+  image: z
+    .any()
+    .refine((files) => files?.length == 1, "Image is required.")
+    .refine((files) => files?.[0]?.size <= MAX_FILE_SIZE, `Max file size is 5MB.`)
+    .refine(
+      (files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
+      ".jpg, .jpeg, .png and .webp files are accepted."
+    ),
 });
 
 export default function NewEventPage() {
@@ -45,12 +56,23 @@ export default function NewEventPage() {
       time: "",
       location: "",
       description: "",
+      image: undefined,
     },
   });
 
+  const fileRef = form.register("image");
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    const formData = new FormData();
+    formData.append("title", values.title);
+    formData.append("date", values.date.toISOString());
+    formData.append("time", values.time);
+    formData.append("location", values.location);
+    formData.append("description", values.description);
+    formData.append("image", values.image[0]);
+
     try {
-      const result = await createEvent(values);
+      const result = await createEvent(formData);
 
       if (result?.error) {
         toast({
@@ -147,6 +169,15 @@ export default function NewEventPage() {
                 <FormControl><Input placeholder="The Wednesday Club..." {...field} /></FormControl>
                 <FormMessage />
               </FormItem>
+            )} />
+            <FormField control={form.control} name="image" render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Event Image</FormLabel>
+                    <FormControl>
+                        <Input type="file" {...fileRef} />
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
             )} />
             <FormField control={form.control} name="description" render={({ field }) => (
               <FormItem>

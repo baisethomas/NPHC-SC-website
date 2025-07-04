@@ -3,36 +3,53 @@
 import { z } from 'zod';
 import { addEvent, deleteEvent as deleteEventFromDb } from '@/lib/data';
 import { revalidatePath } from 'next/cache';
+import { uploadFile } from '@/lib/storage';
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
 const formSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters."),
-  date: z.date(),
+  date: z.string(),
   time: z.string().min(2, "Time is required."),
   location: z.string().min(2, "Location is required."),
   description: z.string().min(10, "Description must be at least 10 characters."),
+  image: z
+    .any()
+    .refine((file) => file, "Image is required.")
+    .refine((file) => file?.size <= MAX_FILE_SIZE, `Max file size is 5MB.`)
+    .refine(
+      (file) => ACCEPTED_IMAGE_TYPES.includes(file?.type),
+      ".jpg, .jpeg, .png and .webp files are accepted."
+    ),
 });
 
-export async function createEvent(values: z.infer<typeof formSchema>) {
+export async function createEvent(formData: FormData) {
   try {
-    const validatedFields = formSchema.safeParse(values);
-
+    const rawFormData = Object.fromEntries(formData.entries());
+    const validatedFields = formSchema.safeParse(rawFormData);
+    
     if (!validatedFields.success) {
+      console.error(validatedFields.error.flatten().fieldErrors);
       return {
-        error: 'Invalid fields!',
+        error: 'Invalid fields! Please check the form and try again.',
       };
     }
     
-    const { date, ...eventData } = validatedFields.data;
+    const { image, date, ...eventData } = validatedFields.data;
     
-    const formattedDate = date.toLocaleDateString('en-US', {
+    const formattedDate = new Date(date).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
     });
 
+    const imageUrl = await uploadFile(image);
+    
     await addEvent({
       ...eventData,
       date: formattedDate,
+      image: imageUrl,
     });
     
     revalidatePath('/events');
@@ -44,8 +61,8 @@ export async function createEvent(values: z.infer<typeof formSchema>) {
     const error = e instanceof Error ? e : new Error('An unknown error occurred during event creation.');
     console.error(`Event Creation Failed: ${error.message}`, {cause: error});
     
-    if (error.message.includes('permission-denied') || error.message.includes('insufficient permissions')) {
-        return { error: 'Database write failed: Firestore permission denied. Please check your security rules.' };
+    if (error.message.includes('storage/unauthorized') || error.message.includes('permission-denied')) {
+        return { error: 'Image upload failed: Permission denied. Please ensure you are logged in and have the correct Firebase Storage rules.' };
     }
 
     return { error: `Server error: ${error.message}` };
