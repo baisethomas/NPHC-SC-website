@@ -3,19 +3,15 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { getAuth } from "firebase/auth";
 
-// Your web app's Firebase configuration for project 'nphc-solano-hub'
+// Your web app's Firebase configuration read from environment variables
 const firebaseConfig = {
-  apiKey: "AIzaSyCK9lhuocccN4icc56lnxPabVhnzeWzxC8",
-  authDomain: "nphc-solano-hub.firebaseapp.com",
-  projectId: "nphc-solano-hub",
-  storageBucket: "nphc-solano-hub.firebasestorage.app",
-  messagingSenderId: "114000308171",
-  appId: "1:114000308171:web:083414be67b8f03b24784e"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
-
-// IMPORTANT: Please go to your Firebase project settings and ensure all of these
-// credentials are correct. Using environment variables is strongly recommended
-// for production.
 
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
