@@ -18,23 +18,28 @@ let db: Firestore;
 let storage: FirebaseStorage;
 let auth: Auth;
 
-const allVarsDefined = Object.values(firebaseConfig).every(v => v);
+// Wrap the entire initialization in a try-catch to provide a clear error message if it fails.
+try {
+  // Check if all environment variables are defined.
+  const allVarsDefined = Object.values(firebaseConfig).every(v => v);
+  if (!allVarsDefined) {
+    // This will be caught below and logged.
+    throw new Error("One or more Firebase environment variables are missing in .env.local. Please ensure all NEXT_PUBLIC_FIREBASE_* variables are set.");
+  }
 
-if (!allVarsDefined) {
-  console.error("🔴 FIREBASE CONFIG ERROR: One or more environment variables are missing.");
-  console.error("Please copy .env.local.example to .env.local and fill in your Firebase project's credentials.");
-  console.error("After creating/updating .env.local, you MUST restart the Next.js development server.");
-  // Assign dummy objects to prevent hard crashes when importing these variables elsewhere.
-  app = {} as FirebaseApp;
-  db = {} as Firestore;
-  storage = {} as FirebaseStorage;
-  auth = {} as Auth;
-} else {
   // Initialize Firebase
   app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
   db = getFirestore(app);
   storage = getStorage(app);
   auth = getAuth(app);
+} catch (error) {
+  console.error("🔴 CRITICAL FIREBASE CONFIG ERROR:", error instanceof Error ? error.message : String(error));
+  console.error("🔴 The application will not function correctly. Please check your .env.local file and restart the server.");
+  // Assign dummy objects to prevent hard crashes on import, but functions will fail at runtime.
+  app = {} as FirebaseApp;
+  db = {} as Firestore;
+  storage = {} as FirebaseStorage;
+  auth = {} as Auth;
 }
 
 export { db, storage, auth };

@@ -59,14 +59,22 @@ export async function createEvent(formData: FormData) {
     return { success: true };
   } catch (e: unknown) {
     const error = e instanceof Error ? e : new Error(String(e));
-    console.error('Event Creation Failed:', error);
+    // Log the full error to the server console for debugging.
+    console.error("--- FULL ERROR IN createEvent ACTION ---");
+    console.error(error);
+    console.error("--------------------------------------");
 
+    // Provide a more specific error message to the user.
     if (error.message.includes('storage/unauthorized') || error.message.includes('permission-denied')) {
       return { error: 'Image upload failed due to permissions. Please ensure you are logged in and that Firebase Storage security rules are correctly configured.' };
     }
     
     if (error.message.includes('insufficient permissions')) {
       return { error: 'Database write failed due to permissions. Please check your Firestore security rules.' };
+    }
+    
+    if (error.message.toLowerCase().includes('firebase')) {
+        return { error: `A Firebase error occurred: ${error.message}. Please check your configuration and security rules.` };
     }
 
     return { error: `An unexpected server error occurred: ${error.message}` };
