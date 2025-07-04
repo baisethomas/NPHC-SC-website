@@ -23,9 +23,10 @@ export async function createAnnouncement(values: z.infer<typeof formSchema>) {
     await addAnnouncement(validatedFields.data);
     revalidatePath('/');
     revalidatePath('/admin/announcements');
+    return { success: true };
 
   } catch (e: unknown) {
-    const error = e instanceof Error ? e : new Error('An unknown error occurred during announcement creation.');
+    const error = e instanceof Error ? e : new Error(String(e));
     console.error(`Announcement Creation Failed: ${error.message}`, {cause: error});
     
     if (error.message.includes('permission-denied') || error.message.includes('insufficient permissions')) {
@@ -34,8 +35,6 @@ export async function createAnnouncement(values: z.infer<typeof formSchema>) {
 
     return { error: 'An unexpected server error occurred. Please try again later.' };
   }
-
-  return {};
 }
 
 export async function deleteAnnouncement(formData: FormData) {
@@ -50,9 +49,10 @@ export async function deleteAnnouncement(formData: FormData) {
     await deleteAnnouncementFromDb(id);
     revalidatePath('/');
     revalidatePath('/admin/announcements');
+    return { success: true };
 
   } catch (e: unknown) {
-    const error = e instanceof Error ? e : new Error('An unknown error occurred during announcement deletion.');
+    const error = e instanceof Error ? e : new Error(String(e));
     console.error(`Announcement Deletion Failed: ${error.message}`, {cause: error});
 
     if (error.message.includes('permission-denied') || error.message.includes('insufficient permissions')) {

@@ -25,14 +25,13 @@ export async function createOrganization(values: z.infer<typeof formSchema>) {
     revalidatePath('/organizations');
     revalidatePath('/admin/organizations');
     revalidatePath('/');
+    return { success: true };
 
   } catch (e: unknown) {
-    const error = e instanceof Error ? e : new Error('An unknown error occurred during organization creation.');
+    const error = e instanceof Error ? e : new Error(String(e));
     console.error(`Organization Creation Failed: ${error.message}`, {cause: error});
     return { error: 'An unexpected server error occurred. Please try again later.' };
   }
-
-  return {};
 }
 
 export async function deleteOrganization(formData: FormData) {
@@ -48,8 +47,9 @@ export async function deleteOrganization(formData: FormData) {
     revalidatePath('/organizations');
     revalidatePath('/admin/organizations');
     revalidatePath('/');
+    return { success: true };
   } catch (e: unknown) {
-    const error = e instanceof Error ? e : new Error('An unknown error occurred during organization deletion.');
+    const error = e instanceof Error ? e : new Error(String(e));
     console.error(`Organization Deletion Failed: ${error.message}`, {cause: error});
     return { error: 'An unexpected server error occurred while deleting the organization.' };
   }

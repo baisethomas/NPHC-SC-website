@@ -22,14 +22,13 @@ export async function createBoardMember(values: z.infer<typeof formSchema>) {
     addBoardMember(validatedFields.data);
     revalidatePath('/about');
     revalidatePath('/admin/board');
+    return { success: true };
 
   } catch (e: unknown) {
-    const error = e instanceof Error ? e : new Error('An unknown error occurred during board member creation.');
+    const error = e instanceof Error ? e : new Error(String(e));
     console.error(`Board Member Creation Failed: ${error.message}`, {cause: error});
     return { error: 'An unexpected server error occurred. Please try again later.' };
   }
-
-  return {};
 }
 
 export async function deleteBoardMember(formData: FormData) {
@@ -44,9 +43,10 @@ export async function deleteBoardMember(formData: FormData) {
     deleteBoardMemberFromDb(id);
     revalidatePath('/about');
     revalidatePath('/admin/board');
+    return { success: true };
 
   } catch (e: unknown) {
-    const error = e instanceof Error ? e : new Error('An unknown error occurred during board member deletion.');
+    const error = e instanceof Error ? e : new Error(String(e));
     console.error(`Board Member Deletion Failed: ${error.message}`, {cause: error});
     return { error: 'An unexpected server error occurred while deleting the board member.' };
   }

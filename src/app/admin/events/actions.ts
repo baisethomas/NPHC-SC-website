@@ -1,4 +1,3 @@
-
 'use server';
 
 import { z } from 'zod';
@@ -59,21 +58,18 @@ export async function createEvent(formData: FormData) {
     
     return { success: true };
   } catch (e: unknown) {
-    let errorMessage = 'An unknown error occurred.';
-    if (e instanceof Error) {
-        errorMessage = e.message;
+    const error = e instanceof Error ? e : new Error(String(e));
+    console.error('Event Creation Failed:', error);
+
+    if (error.message.includes('storage/unauthorized') || error.message.includes('permission-denied')) {
+      return { error: 'Image upload failed due to permissions. Please ensure you are logged in and that Firebase Storage security rules are correctly configured.' };
     }
     
-    console.error(`Event Creation Failed: ${errorMessage}`, e);
-    
-    let userFriendlyError = `Server error: ${errorMessage}`;
-    if (errorMessage.includes('storage/unauthorized') || errorMessage.includes('permission-denied')) {
-        userFriendlyError = 'Image upload failed due to permissions. Please ensure you are logged in and your Firebase Storage security rules are correct.';
-    } else if (errorMessage.includes('insufficient permissions')) {
-        userFriendlyError = 'Database write failed due to permissions. Please check your Firestore security rules.';
+    if (error.message.includes('insufficient permissions')) {
+      return { error: 'Database write failed due to permissions. Please check your Firestore security rules.' };
     }
 
-    return { error: userFriendlyError };
+    return { error: `An unexpected server error occurred: ${error.message}` };
   }
 }
 
@@ -90,9 +86,9 @@ export async function deleteEvent(formData: FormData) {
     revalidatePath('/events');
     revalidatePath('/admin/events');
     revalidatePath('/');
-    return {};
+    return { success: true };
   } catch (e: unknown) {
-    const error = e instanceof Error ? e : new Error('An unknown error occurred during event deletion.');
+    const error = e instanceof Error ? e : new Error(String(e));
     console.error(`Event Deletion Failed: ${error.message}`, {cause: error});
 
     if (error.message.includes('permission-denied') || error.message.includes('insufficient permissions')) {
