@@ -11,35 +11,35 @@ const formSchema = z.object({
 });
 
 export async function createAnnouncement(values: z.infer<typeof formSchema>) {
-  const validatedFields = formSchema.safeParse(values);
-
-  if (!validatedFields.success) {
-    return {
-      error: 'Invalid fields!',
-    };
-  }
-  
   try {
+    const validatedFields = formSchema.safeParse(values);
+
+    if (!validatedFields.success) {
+      return {
+        error: 'Invalid fields!',
+      };
+    }
+    
     await addAnnouncement(validatedFields.data);
     revalidatePath('/');
     revalidatePath('/admin/announcements');
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
-    console.error('Failed to create announcement:', errorMessage);
+
+  } catch (e: unknown) {
+    const error = e instanceof Error ? e : new Error('An unknown error occurred during announcement creation.');
+    console.error(`Announcement Creation Failed: ${error.message}`, {cause: error});
     
-    if (errorMessage.includes('permission-denied') || errorMessage.includes('insufficient permissions')) {
-        return { error: 'Database write failed: Firestore permission denied. Please check your security rules for the "announcements" collection in the Firebase console.' };
+    if (error.message.includes('permission-denied') || error.message.includes('insufficient permissions')) {
+        return { error: 'Database write failed: Firestore permission denied. Please check your security rules.' };
     }
 
-    return {
-      error: `An unexpected server error occurred: ${errorMessage}`
-    }
+    return { error: 'An unexpected server error occurred. Please try again later.' };
   }
 
   return {};
 }
 
 export async function deleteAnnouncement(formData: FormData) {
+  try {
     const id = formData.get('id') as string;
     if (!id) {
         return {
@@ -47,16 +47,17 @@ export async function deleteAnnouncement(formData: FormData) {
         };
     }
 
-    try {
-        await deleteAnnouncementFromDb(id);
-        revalidatePath('/');
-        revalidatePath('/admin/announcements');
-    } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
-        console.error('Failed to delete announcement:', errorMessage);
-        if (errorMessage.includes('permission-denied') || errorMessage.includes('insufficient permissions')) {
-            return { error: 'Database delete failed: Firestore permission denied. Check security rules.' };
-        }
-        return { error: `Failed to delete announcement: ${errorMessage}` };
+    await deleteAnnouncementFromDb(id);
+    revalidatePath('/');
+    revalidatePath('/admin/announcements');
+
+  } catch (e: unknown) {
+    const error = e instanceof Error ? e : new Error('An unknown error occurred during announcement deletion.');
+    console.error(`Announcement Deletion Failed: ${error.message}`, {cause: error});
+
+    if (error.message.includes('permission-denied') || error.message.includes('insufficient permissions')) {
+        return { error: 'Database delete failed: Firestore permission denied. Check security rules.' };
     }
+    return { error: 'An unexpected server error occurred while deleting the announcement.' };
+  }
 }

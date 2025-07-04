@@ -12,46 +12,45 @@ const formSchema = z.object({
 });
 
 export async function createOrganization(values: z.infer<typeof formSchema>) {
-  const validatedFields = formSchema.safeParse(values);
-
-  if (!validatedFields.success) {
-    return {
-      error: 'Invalid fields!',
-    };
-  }
-  
   try {
+    const validatedFields = formSchema.safeParse(values);
+
+    if (!validatedFields.success) {
+      return {
+        error: 'Invalid fields!',
+      };
+    }
+    
     addOrganization(validatedFields.data);
     revalidatePath('/organizations');
     revalidatePath('/admin/organizations');
     revalidatePath('/');
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
-    return {
-      error: `Failed to create organization: ${errorMessage}`
-    }
+
+  } catch (e: unknown) {
+    const error = e instanceof Error ? e : new Error('An unknown error occurred during organization creation.');
+    console.error(`Organization Creation Failed: ${error.message}`, {cause: error});
+    return { error: 'An unexpected server error occurred. Please try again later.' };
   }
 
   return {};
 }
 
 export async function deleteOrganization(formData: FormData) {
-  const id = formData.get('id') as string;
-  if (!id) {
-    return {
-      error: 'Invalid organization ID.',
-    };
-  }
-
   try {
+    const id = formData.get('id') as string;
+    if (!id) {
+      return {
+        error: 'Invalid organization ID.',
+      };
+    }
+
     deleteOrganizationFromDb(id);
     revalidatePath('/organizations');
     revalidatePath('/admin/organizations');
     revalidatePath('/');
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
-    return {
-      error: `Failed to delete organization: ${errorMessage}`
-    }
+  } catch (e: unknown) {
+    const error = e instanceof Error ? e : new Error('An unknown error occurred during organization deletion.');
+    console.error(`Organization Deletion Failed: ${error.message}`, {cause: error});
+    return { error: 'An unexpected server error occurred while deleting the organization.' };
   }
 }

@@ -24,23 +24,23 @@ const formSchema = z.object({
 
 
 export async function createEvent(formData: FormData) {
-  const validatedFields = formSchema.safeParse({
-    title: formData.get('title'),
-    date: formData.get('date'),
-    time: formData.get('time'),
-    location: formData.get('location'),
-    description: formData.get('description'),
-    photo: formData.get('photo'),
-  });
-
-  if (!validatedFields.success) {
-    console.error('Validation failed:', validatedFields.error.flatten().fieldErrors);
-    return {
-      error: 'Invalid fields. Please check the form and try again.',
-    };
-  }
-  
   try {
+    const validatedFields = formSchema.safeParse({
+      title: formData.get('title'),
+      date: formData.get('date'),
+      time: formData.get('time'),
+      location: formData.get('location'),
+      description: formData.get('description'),
+      photo: formData.get('photo'),
+    });
+
+    if (!validatedFields.success) {
+      console.error('Validation failed:', validatedFields.error.flatten().fieldErrors);
+      return {
+        error: 'Invalid fields. Please check the form and try again.',
+      };
+    }
+  
     const { photo, ...eventData } = validatedFields.data;
     const imageUrl = await uploadFile(photo);
     
@@ -58,45 +58,44 @@ export async function createEvent(formData: FormData) {
     revalidatePath('/events');
     revalidatePath('/admin/events');
     revalidatePath('/');
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
-    console.error('Failed to create event:', errorMessage);
     
-    if (errorMessage.includes('storage/unauthorized')) {
-         return { error: 'Upload failed: Firebase Storage permission denied. Please check your storage rules in the Firebase console.' };
+  } catch (e: unknown) {
+    const error = e instanceof Error ? e : new Error('An unknown error occurred during event creation.');
+    console.error(`Event Creation Failed: ${error.message}`, {cause: error});
+
+    if (error.message.includes('storage/unauthorized')) {
+        return { error: 'Upload failed: Firebase Storage permission denied. Please check your storage rules.' };
+    }
+    if (error.message.includes('permission-denied') || error.message.includes('insufficient permissions')) {
+        return { error: 'Database operation failed: Firestore permission denied. Please check your security rules.' };
     }
 
-    if (errorMessage.includes('permission-denied') || errorMessage.includes('insufficient permissions')) {
-        return { error: 'Database write failed: Firestore permission denied. Please check your security rules in the Firebase console.' };
-    }
-    
-    return {
-      error: `An unexpected server error occurred: ${errorMessage}`
-    }
+    return { error: 'An unexpected server error occurred. Please try again later.' };
   }
-
+  
   return {};
 }
 
 export async function deleteEvent(formData: FormData) {
-  const id = formData.get('id') as string;
-  if (!id) {
-    return {
-      error: 'Invalid event ID.',
-    };
-  }
-
   try {
+    const id = formData.get('id') as string;
+    if (!id) {
+      return {
+        error: 'Invalid event ID.',
+      };
+    }
+    
     await deleteEventFromDb(id);
     revalidatePath('/events');
     revalidatePath('/admin/events');
     revalidatePath('/');
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
-    console.error('Failed to delete event:', errorMessage);
-    if (errorMessage.includes('permission-denied') || errorMessage.includes('insufficient permissions')) {
+  } catch (e: unknown) {
+    const error = e instanceof Error ? e : new Error('An unknown error occurred during event deletion.');
+    console.error(`Event Deletion Failed: ${error.message}`, {cause: error});
+
+    if (error.message.includes('permission-denied') || error.message.includes('insufficient permissions')) {
       return { error: 'Database delete failed: Firestore permission denied. Check security rules.' };
     }
-    return { error: `Failed to delete event: ${errorMessage}` };
+    return { error: 'An unexpected server error occurred while deleting the event.' };
   }
 }

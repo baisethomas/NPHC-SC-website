@@ -10,29 +10,30 @@ const formSchema = z.object({
 });
 
 export async function createBoardMember(values: z.infer<typeof formSchema>) {
-  const validatedFields = formSchema.safeParse(values);
-
-  if (!validatedFields.success) {
-    return {
-      error: 'Invalid fields!',
-    };
-  }
-  
   try {
+    const validatedFields = formSchema.safeParse(values);
+
+    if (!validatedFields.success) {
+      return {
+        error: 'Invalid fields!',
+      };
+    }
+    
     addBoardMember(validatedFields.data);
     revalidatePath('/about');
     revalidatePath('/admin/board');
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
-    return {
-      error: `Failed to create board member: ${errorMessage}`
-    }
+
+  } catch (e: unknown) {
+    const error = e instanceof Error ? e : new Error('An unknown error occurred during board member creation.');
+    console.error(`Board Member Creation Failed: ${error.message}`, {cause: error});
+    return { error: 'An unexpected server error occurred. Please try again later.' };
   }
 
   return {};
 }
 
 export async function deleteBoardMember(formData: FormData) {
+  try {
     const id = formData.get('id') as string;
     if (!id) {
         return {
@@ -40,14 +41,13 @@ export async function deleteBoardMember(formData: FormData) {
         };
     }
 
-    try {
-        deleteBoardMemberFromDb(id);
-        revalidatePath('/about');
-        revalidatePath('/admin/board');
-    } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
-        return {
-            error: `Failed to delete board member: ${errorMessage}`
-        }
-    }
+    deleteBoardMemberFromDb(id);
+    revalidatePath('/about');
+    revalidatePath('/admin/board');
+
+  } catch (e: unknown) {
+    const error = e instanceof Error ? e : new Error('An unknown error occurred during board member deletion.');
+    console.error(`Board Member Deletion Failed: ${error.message}`, {cause: error});
+    return { error: 'An unexpected server error occurred while deleting the board member.' };
+  }
 }
