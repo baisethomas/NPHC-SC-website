@@ -1,3 +1,4 @@
+
 'use server';
 
 import { z } from 'zod';
@@ -30,7 +31,7 @@ export async function createEvent(formData: FormData) {
     const validatedFields = formSchema.safeParse(rawFormData);
     
     if (!validatedFields.success) {
-      console.error(validatedFields.error.flatten().fieldErrors);
+      console.error("Event form validation failed:", validatedFields.error.flatten());
       return {
         error: 'Invalid fields! Please check the form and try again.',
       };
@@ -56,16 +57,23 @@ export async function createEvent(formData: FormData) {
     revalidatePath('/admin/events');
     revalidatePath('/');
     
-    return {};
+    return { success: true };
   } catch (e: unknown) {
-    const error = e instanceof Error ? e : new Error('An unknown error occurred during event creation.');
-    console.error(`Event Creation Failed: ${error.message}`, {cause: error});
+    let errorMessage = 'An unknown error occurred.';
+    if (e instanceof Error) {
+        errorMessage = e.message;
+    }
     
-    if (error.message.includes('storage/unauthorized') || error.message.includes('permission-denied')) {
-        return { error: 'Image upload failed: Permission denied. Please ensure you are logged in and have the correct Firebase Storage rules.' };
+    console.error(`Event Creation Failed: ${errorMessage}`, e);
+    
+    let userFriendlyError = `Server error: ${errorMessage}`;
+    if (errorMessage.includes('storage/unauthorized') || errorMessage.includes('permission-denied')) {
+        userFriendlyError = 'Image upload failed due to permissions. Please ensure you are logged in and your Firebase Storage security rules are correct.';
+    } else if (errorMessage.includes('insufficient permissions')) {
+        userFriendlyError = 'Database write failed due to permissions. Please check your Firestore security rules.';
     }
 
-    return { error: `Server error: ${error.message}` };
+    return { error: userFriendlyError };
   }
 }
 
