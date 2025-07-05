@@ -49,10 +49,11 @@ export const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({ fiel
         instanceId: instanceId, // To avoid duplicate ID warnings
         classNames: {
             control: (state) => cn(
-                "flex h-10 w-full items-center rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background disabled:cursor-not-allowed disabled:opacity-50",
+                "h-10 w-full rounded-md border border-input bg-background text-sm ring-offset-background disabled:cursor-not-allowed disabled:opacity-50",
                 // This is a workaround to mimic focus-visible for this component
                 (state.isFocused || state.menuIsOpen) && "ring-2 ring-ring ring-offset-2"
             ),
+            valueContainer: () => "h-full w-full px-3 flex items-center",
             input: () => "text-base md:text-sm",
             menu: () => "mt-1 rounded-md border bg-popover text-popover-foreground shadow-md z-10",
             option: (state) => cn(
