@@ -41,7 +41,7 @@ export default function AboutPage() {
             </p>
           </div>
           <div className="md:col-span-2">
-            <Image src="https://placehold.co/600x400.png" alt="Historical photo of NPHC members" width={600} height={400} className="rounded-lg shadow-md" data-ai-hint="historic photo" />
+            <Image src="https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/photos%2F485807499_4131253293764172_7067333595532137802_n.jpg?alt=media&token=b4e7804b-b196-4062-8330-364772ac8a9c" alt="Historical photo of NPHC members" width={600} height={400} className="rounded-lg shadow-md" data-ai-hint="group photo" />
           </div>
         </div>
       </section>
