@@ -15,7 +15,7 @@ export interface Event {
   rsvpLink: string;
 }
 
-const slugify = (text: string) => text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
+export const slugify = (text: string) => text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
 
 type NewEvent = Omit<Event, 'id' | 'slug' | 'image_hint' | 'rsvpLink'>;
 

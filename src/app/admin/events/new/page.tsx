@@ -15,7 +15,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { createEvent } from "../actions";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -23,6 +22,12 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
+
+import { uploadFile } from "@/lib/storage";
+import { db } from "@/lib/firebase";
+import { doc, setDoc } from "firebase/firestore";
+import type { Event } from "@/lib/data";
+import { slugify } from "@/lib/data";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
@@ -63,37 +68,50 @@ export default function NewEventPage() {
   const fileRef = form.register("image");
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const formData = new FormData();
-    formData.append("title", values.title);
-    formData.append("date", values.date.toISOString());
-    formData.append("time", values.time);
-    formData.append("location", values.location);
-    formData.append("description", values.description);
-    formData.append("image", values.image[0]);
+    const imageFile = values.image[0] as File;
 
     try {
-      const result = await createEvent(formData);
+      const imageUrl = await uploadFile(imageFile);
+      
+      const slug = slugify(values.title);
 
-      if (result?.error) {
-        toast({
-          variant: "destructive",
-          title: "Uh oh! Something went wrong.",
-          description: result.error,
-        });
-      } else {
-        toast({
-          title: "Event Created!",
-          description: "The new event has been added successfully.",
-        });
-        router.push("/admin/events");
-      }
+      const formattedDate = new Date(values.date).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+
+      const newEvent: Event = {
+        id: slug,
+        slug: slug,
+        title: values.title,
+        date: formattedDate,
+        time: values.time,
+        location: values.location,
+        description: values.description,
+        image: imageUrl,
+        image_hint: "community event",
+        rsvpLink: "#",
+      };
+
+      await setDoc(doc(db, "events", slug), newEvent);
+
+      toast({
+        title: "Event Created!",
+        description: "The new event has been added successfully.",
+      });
+
+      router.push("/admin/events");
+      router.refresh();
+
     } catch (error) {
-       console.error("Submission failed:", error);
-       toast({
+      console.error("Event creation failed:", error);
+      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+      toast({
         variant: "destructive",
-        title: "Submission Error",
-        description: `An unexpected error occurred: ${error instanceof Error ? error.message : 'Unknown error'}`,
-       });
+        title: "Uh oh! Something went wrong.",
+        description: `There was a problem creating the event: ${errorMessage}`,
+      });
     }
   }
 

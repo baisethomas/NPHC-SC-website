@@ -15,9 +15,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { createAnnouncement } from "../actions";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { db } from "@/lib/firebase";
+import { doc, setDoc } from "firebase/firestore";
+import { slugify, type Announcement } from "@/lib/data";
 
 const formSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters."),
@@ -40,27 +42,32 @@ export default function NewAnnouncementPage() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const result = await createAnnouncement(values);
+      const slug = slugify(values.title);
 
-      if (result?.error) {
-        toast({
-          variant: "destructive",
-          title: "Uh oh! Something went wrong.",
-          description: result.error,
-        });
-      } else {
-        toast({
-          title: "Announcement Created!",
-          description: "The new announcement has been added successfully.",
-        });
-        router.push("/admin/announcements");
-      }
+      const newAnnouncement: Announcement = {
+        id: slug,
+        title: values.title,
+        date: values.date,
+        description: values.description,
+      };
+
+      await setDoc(doc(db, "announcements", slug), newAnnouncement);
+      
+      toast({
+        title: "Announcement Created!",
+        description: "The new announcement has been added successfully.",
+      });
+
+      router.push("/admin/announcements");
+      router.refresh();
+
     } catch (error) {
        console.error("Submission failed:", error);
+       const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
        toast({
         variant: "destructive",
         title: "Submission Error",
-        description: "An unexpected error occurred. Please try again.",
+        description: `An unexpected error occurred: ${errorMessage}`,
        });
     }
   }
