@@ -17,7 +17,6 @@ const baseNavLinks = [
   { href: "/about", label: "About Us" },
   { href: "/organizations", label: "Organizations" },
   { href: "/events", label: "Events" },
-  { href: "/gallery", label: "Gallery" },
   { href: "/contact", label: "Contact Us" },
 ];
 
