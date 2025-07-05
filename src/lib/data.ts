@@ -1,5 +1,6 @@
 import { db } from './firebase';
-import { collection, getDocs, doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
+import { adminDb } from './firebase-admin';
 
 export interface Event {
   id: string;
@@ -25,7 +26,7 @@ export async function getEvents(): Promise<Event[]> {
     const eventList = eventSnapshot.docs.map(doc => doc.data() as Event);
     return eventList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   } catch (error) {
-    console.error("FIREBASE READ ERROR: Failed to fetch events. This is often due to Firestore security rules. Please check your Firebase console and ensure the 'events' collection has public read access using the rules provided in the conversation. Returning an empty array to prevent a crash.");
+    console.error("FIREBASE READ ERROR: Failed to fetch events. This is often due to Firestore security rules. Please check your Firebase console and ensure the 'events' collection has public read access. Returning an empty array to prevent a crash.");
     return [];
   }
 }
@@ -42,7 +43,6 @@ export async function getEventBySlug(slug: string): Promise<Event | undefined> {
     }
   } catch (error) {
     console.error(`FIREBASE READ ERROR: Failed to fetch event with slug '${slug}'.`, error);
-    console.log("This is often due to Firestore security rules. Please check your Firebase console and ensure the 'events' collection has public read access.");
     return undefined;
   }
 }
@@ -56,11 +56,11 @@ export async function addEvent(event: NewEvent): Promise<void> {
     image_hint: "community event",
     rsvpLink: "#",
   };
-  await setDoc(doc(db, "events", slug), newEvent);
+  await adminDb.collection("events").doc(slug).set(newEvent);
 }
 
 export async function deleteEvent(id: string): Promise<void> {
-  await deleteDoc(doc(db, "events", id));
+  await adminDb.collection("events").doc(id).delete();
 }
 
 export interface Announcement {
@@ -80,7 +80,7 @@ export async function getAnnouncements(): Promise<{announcements: Announcement[]
     const sortedList = announcementList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     return { announcements: sortedList, error: null };
   } catch (error) {
-    const errorMessage = "FIREBASE READ ERROR: Failed to fetch announcements. This is often due to Firestore security rules. Please check your Firebase console and ensure the 'announcements' collection has public read access using the rules provided in the conversation.";
+    const errorMessage = "FIREBASE READ ERROR: Failed to fetch announcements. This is often due to Firestore security rules. Please check your Firebase console and ensure the 'announcements' collection has public read access.";
     console.error(errorMessage, error);
     return { announcements: [], error: errorMessage };
   }
@@ -92,11 +92,11 @@ export async function addAnnouncement(announcement: NewAnnouncement) {
     id: slug,
     ...announcement,
   };
-  await setDoc(doc(db, "announcements", slug), newAnnouncement);
+  await adminDb.collection("announcements").doc(slug).set(newAnnouncement);
 }
 
 export async function deleteAnnouncement(id: string) {
-  await deleteDoc(doc(db, "announcements", id));
+  await adminDb.collection("announcements").doc(id).delete();
 }
 
 export interface BoardMember {
