@@ -32,8 +32,6 @@ export function Header() {
     setIsOpen(false);
   };
 
-  const navLinks = user ? [...baseNavLinks, { href: "/admin", label: "Admin" }] : baseNavLinks;
-
   return (
     <header className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b">
       <div className="container flex h-32 items-center justify-between">
@@ -43,7 +41,7 @@ export function Header() {
         
         <div className="hidden md:flex items-center gap-6">
           <nav className="flex items-center gap-6 text-sm font-medium">
-            {navLinks.map((link) => (
+            {baseNavLinks.map((link) => (
               <Link 
                 key={link.href} 
                 href={link.href} 
@@ -55,6 +53,11 @@ export function Header() {
                 {link.label}
               </Link>
             ))}
+             {!loading && user && (
+                <Link href="/admin" className={cn("transition-colors hover:text-foreground/80", pathname === "/admin" ? "text-foreground" : "text-foreground/60")}>
+                  Admin
+                </Link>
+            )}
           </nav>
           {!loading && (
             user ? (
@@ -87,7 +90,7 @@ export function Header() {
                   </Link>
                 </div>
                 <nav className="flex flex-col items-start space-y-1 p-4">
-                  {navLinks.map((link) => (
+                  {baseNavLinks.map((link) => (
                     <Link
                       key={link.href}
                       href={link.href}
@@ -100,6 +103,18 @@ export function Header() {
                       {link.label}
                     </Link>
                   ))}
+                  {!loading && user && (
+                     <Link
+                      href="/admin"
+                      onClick={() => setIsOpen(false)}
+                      className={cn(
+                        "text-lg font-medium transition-colors hover:text-primary rounded-md px-3 py-2 w-full",
+                        pathname === "/admin" && "bg-muted"
+                      )}
+                    >
+                      Admin
+                    </Link>
+                  )}
                 </nav>
                 <div className="mt-auto p-4 border-t">
                   {!loading && (
