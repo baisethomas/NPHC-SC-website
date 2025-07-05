@@ -13,6 +13,7 @@ interface LocationAutocompleteProps {
 
 export const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({ field }) => {
   const [apiKey, setApiKey] = React.useState<string | undefined>(undefined);
+  const instanceId = React.useId();
 
   React.useEffect(() => {
     // We need to access process.env on the client, so we do it in useEffect
@@ -45,7 +46,7 @@ export const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({ fiel
         value: field.value ? { label: field.value, value: field.value } : null,
         onChange: handleSelect,
         placeholder: 'Start typing an address...',
-        instanceId: React.useId(), // To avoid duplicate ID warnings
+        instanceId: instanceId, // To avoid duplicate ID warnings
         classNames: {
             control: (state) => cn(
                 "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
