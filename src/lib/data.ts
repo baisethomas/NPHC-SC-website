@@ -1,6 +1,5 @@
 import { db } from './firebase';
 import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
-import { adminDb } from './firebase-admin';
 
 export interface Event {
   id: string;
@@ -16,8 +15,6 @@ export interface Event {
 }
 
 export const slugify = (text: string) => text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
-
-type NewEvent = Omit<Event, 'id' | 'slug' | 'image_hint' | 'rsvpLink'>;
 
 export async function getEvents(): Promise<Event[]> {
   try {
@@ -47,36 +44,12 @@ export async function getEventBySlug(slug: string): Promise<Event | undefined> {
   }
 }
 
-export async function addEvent(event: NewEvent): Promise<void> {
-  if (!adminDb) {
-    throw new Error("Firebase Admin SDK is not initialized. Cannot add event.");
-  }
-  const slug = slugify(event.title);
-  const newEvent: Event = {
-    ...event,
-    id: slug,
-    slug: slug,
-    image_hint: "community event",
-    rsvpLink: "#",
-  };
-  await adminDb.collection("events").doc(slug).set(newEvent);
-}
-
-export async function deleteEvent(id: string): Promise<void> {
-  if (!adminDb) {
-    throw new Error("Firebase Admin SDK is not initialized. Cannot delete event.");
-  }
-  await adminDb.collection("events").doc(id).delete();
-}
-
 export interface Announcement {
   id: string;
   title: string;
   date: string;
   description: string;
 }
-
-type NewAnnouncement = Omit<Announcement, 'id'>;
 
 export async function getAnnouncements(): Promise<{announcements: Announcement[], error: string | null}> {
   try {
@@ -90,25 +63,6 @@ export async function getAnnouncements(): Promise<{announcements: Announcement[]
     console.error(errorMessage, error);
     return { announcements: [], error: errorMessage };
   }
-}
-
-export async function addAnnouncement(announcement: NewAnnouncement) {
-  if (!adminDb) {
-    throw new Error("Firebase Admin SDK is not initialized. Cannot add announcement.");
-  }
-  const slug = slugify(announcement.title);
-  const newAnnouncement: Announcement = {
-    id: slug,
-    ...announcement,
-  };
-  await adminDb.collection("announcements").doc(slug).set(newAnnouncement);
-}
-
-export async function deleteAnnouncement(id: string) {
-  if (!adminDb) {
-    throw new Error("Firebase Admin SDK is not initialized. Cannot delete announcement.");
-  }
-  await adminDb.collection("announcements").doc(id).delete();
 }
 
 export interface BoardMember {
