@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { CalendarIcon, LoaderCircle } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
+import { LocationAutocomplete } from "@/components/location-autocomplete";
 
 import { uploadFile } from "@/lib/storage";
 import { db } from "@/lib/firebase";
@@ -128,7 +129,7 @@ export function EditEventForm({ event }: { event: Event }) {
                 <FormMessage />
               </FormItem>
             )} />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
               <FormField
                 control={form.control}
                 name="date"
@@ -176,13 +177,19 @@ export function EditEventForm({ event }: { event: Event }) {
                 </FormItem>
               )} />
             </div>
-            <FormField control={form.control} name="location" render={({ field }) => (
-              <FormItem>
-                <FormLabel>Location</FormLabel>
-                <FormControl><Input placeholder="The Wednesday Club..." {...field} /></FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
+            <FormField
+              control={form.control}
+              name="location"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Location</FormLabel>
+                  <FormControl>
+                    <LocationAutocomplete field={field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             
             <div className="space-y-2">
                 <Label>Current Image</Label>

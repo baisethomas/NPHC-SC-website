@@ -28,6 +28,7 @@ import { db } from "@/lib/firebase";
 import { doc, setDoc } from "firebase/firestore";
 import type { Event } from "@/lib/data";
 import { slugify } from "@/lib/data";
+import { LocationAutocomplete } from "@/components/location-autocomplete";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
@@ -131,7 +132,7 @@ export default function NewEventPage() {
                 <FormMessage />
               </FormItem>
             )} />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
               <FormField
                 control={form.control}
                 name="date"
@@ -181,13 +182,19 @@ export default function NewEventPage() {
                 </FormItem>
               )} />
             </div>
-            <FormField control={form.control} name="location" render={({ field }) => (
-              <FormItem>
-                <FormLabel>Location</FormLabel>
-                <FormControl><Input placeholder="The Wednesday Club..." {...field} /></FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
+            <FormField
+              control={form.control}
+              name="location"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Location</FormLabel>
+                  <FormControl>
+                    <LocationAutocomplete field={field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField control={form.control} name="image" render={({ field }) => (
                 <FormItem>
                     <FormLabel>Event Image</FormLabel>
