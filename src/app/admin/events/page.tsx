@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getEvents } from "@/lib/data";
-import { PlusCircle, Trash2 } from "lucide-react";
+import { PlusCircle, Trash2, Pencil } from "lucide-react";
 import Link from "next/link";
 import { deleteEvent } from "./actions";
 
@@ -40,6 +40,12 @@ export default async function AdminEventsPage() {
                 <TableCell>{event.date}</TableCell>
                 <TableCell>{event.location}</TableCell>
                 <TableCell className="text-right">
+                   <Button asChild variant="ghost" size="icon">
+                      <Link href={`/admin/events/${event.id}/edit`}>
+                        <Pencil className="h-4 w-4" />
+                        <span className="sr-only">Edit</span>
+                      </Link>
+                    </Button>
                    <form action={deleteEvent} className="inline-block">
                       <input type="hidden" name="id" value={event.id} />
                       <Button variant="ghost" size="icon" type="submit">
