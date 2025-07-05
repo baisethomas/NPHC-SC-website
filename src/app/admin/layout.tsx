@@ -8,16 +8,22 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
-  const { user, loading } = useAuth();
+  const { user, isAdmin, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.push('/login');
+    if (!loading) {
+      if (!user) {
+        router.push('/login');
+      } else if (!isAdmin) {
+        // Redirect non-admins home
+        router.push('/');
+      }
     }
-  }, [user, loading, router]);
+  }, [user, isAdmin, loading, router]);
 
   if (loading || !user) {
+    // This state covers loading, or a logged-out user before redirect.
     return (
       <div className="flex h-screen w-full items-center justify-center">
         <LoaderCircle className="h-8 w-8 animate-spin" />
@@ -25,6 +31,18 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     );
   }
 
+  // This state covers a logged-in user who is not an admin.
+  if (!isAdmin) {
+    return (
+      <div className="flex h-screen w-full flex-col items-center justify-center gap-2 text-center">
+        <h1 className="text-2xl font-bold">Unauthorized Access</h1>
+        <p className="text-muted-foreground">You do not have permission to view this page.</p>
+        <p className="text-muted-foreground">Redirecting to the homepage...</p>
+      </div>
+    );
+  }
+
+  // User is logged in and is an admin
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
       <div className="hidden border-r bg-muted/40 md:block">
