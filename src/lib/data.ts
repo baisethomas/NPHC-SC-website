@@ -48,6 +48,9 @@ export async function getEventBySlug(slug: string): Promise<Event | undefined> {
 }
 
 export async function addEvent(event: NewEvent): Promise<void> {
+  if (!adminDb) {
+    throw new Error("Firebase Admin SDK is not initialized. Cannot add event.");
+  }
   const slug = slugify(event.title);
   const newEvent: Event = {
     ...event,
@@ -60,6 +63,9 @@ export async function addEvent(event: NewEvent): Promise<void> {
 }
 
 export async function deleteEvent(id: string): Promise<void> {
+  if (!adminDb) {
+    throw new Error("Firebase Admin SDK is not initialized. Cannot delete event.");
+  }
   await adminDb.collection("events").doc(id).delete();
 }
 
@@ -87,6 +93,9 @@ export async function getAnnouncements(): Promise<{announcements: Announcement[]
 }
 
 export async function addAnnouncement(announcement: NewAnnouncement) {
+  if (!adminDb) {
+    throw new Error("Firebase Admin SDK is not initialized. Cannot add announcement.");
+  }
   const slug = slugify(announcement.title);
   const newAnnouncement: Announcement = {
     id: slug,
@@ -96,6 +105,9 @@ export async function addAnnouncement(announcement: NewAnnouncement) {
 }
 
 export async function deleteAnnouncement(id: string) {
+  if (!adminDb) {
+    throw new Error("Firebase Admin SDK is not initialized. Cannot delete announcement.");
+  }
   await adminDb.collection("announcements").doc(id).delete();
 }
 

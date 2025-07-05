@@ -29,6 +29,10 @@ export async function createAnnouncement(values: z.infer<typeof formSchema>) {
     const error = e instanceof Error ? e : new Error(String(e));
     console.error(`Announcement Creation Failed: ${error.message}`, {cause: error});
     
+    if (error.message.includes('Firebase Admin SDK is not initialized')) {
+      return { error: 'SERVER CONFIG ERROR: The Firebase Admin SDK is not initialized. Please check the server logs for more details.' };
+    }
+
     if (error.message.includes('permission-denied') || error.message.includes('insufficient permissions')) {
         return { error: 'Database write failed: Firestore permission denied. Please check your security rules.' };
     }
@@ -54,6 +58,10 @@ export async function deleteAnnouncement(formData: FormData) {
   } catch (e: unknown) {
     const error = e instanceof Error ? e : new Error(String(e));
     console.error(`Announcement Deletion Failed: ${error.message}`, {cause: error});
+
+    if (error.message.includes('Firebase Admin SDK is not initialized')) {
+      return { error: 'SERVER CONFIG ERROR: The Firebase Admin SDK is not initialized. Please check the server logs for more details.' };
+    }
 
     if (error.message.includes('permission-denied') || error.message.includes('insufficient permissions')) {
         return { error: 'Database delete failed: Firestore permission denied. Check security rules.' };
