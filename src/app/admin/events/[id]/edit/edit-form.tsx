@@ -128,12 +128,12 @@ export function EditEventForm({ event }: { event: Event }) {
                 <FormMessage />
               </FormItem>
             )} />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <FormField
                 control={form.control}
                 name="date"
                 render={({ field }) => (
-                  <FormItem className="flex flex-col">
+                  <FormItem>
                     <FormLabel>Date</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
