@@ -29,7 +29,7 @@ if (!serviceAccount.project_id) {
 
 // --- Step 3: Verify the user email ---
 // IMPORTANT: Replace this with the user's actual email!
-const userEmail = 'admin@example.com'; 
+const userEmail = 'baise.thomas@gmail.com'; 
 
 if (userEmail.includes('YOUR_ADMIN_EMAIL') || userEmail.includes('admin@example.com')) {
     console.error("🔴 FATAL ERROR: You must replace the placeholder email in this script.");
