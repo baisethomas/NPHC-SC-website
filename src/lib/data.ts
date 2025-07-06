@@ -17,7 +17,7 @@ export const slugify = (text: string) => text.toLowerCase().replace(/\s+/g, '-')
 
 const handleFirestoreError = (error: unknown, context: string): string => {
   const err = error instanceof Error ? error : new Error(String(error));
-  console.error(`FIREBASE READ ERROR: Failed to ${context}. Message: ${err.message}`);
+  console.warn(`FIREBASE READ WARNING: Failed to ${context}. Message: ${err.message}`);
   if (err.message.includes('Could not refresh access token')) {
     return `Database authentication failed. The server could not connect to Firebase. This is common in local development when Application Default Credentials are not configured. See server logs for details.`;
   }
@@ -30,7 +30,7 @@ const handleFirestoreError = (error: unknown, context: string): string => {
 
 export async function getEvents(): Promise<Event[]> {
   if (!adminDb) {
-    console.error("FIREBASE ADMIN SDK ERROR: SDK not initialized. Cannot fetch events.");
+    console.warn("FIREBASE ADMIN SDK WARNING: SDK not initialized. Cannot fetch events.");
     return [];
   }
   try {
@@ -45,7 +45,7 @@ export async function getEvents(): Promise<Event[]> {
 
 export async function getEventBySlug(slug: string): Promise<Event | undefined> {
   if (!adminDb) {
-    console.error("FIREBASE ADMIN SDK ERROR: SDK not initialized. Cannot fetch event.");
+    console.warn("FIREBASE ADMIN SDK WARNING: SDK not initialized. Cannot fetch event.");
     return undefined;
   }
   try {
@@ -72,8 +72,8 @@ export interface Announcement {
 
 export async function getAnnouncements(): Promise<{announcements: Announcement[], error: string | null}> {
   if (!adminDb) {
-    const errorMessage = "FIREBASE ADMIN SDK ERROR: SDK not initialized. Cannot fetch announcements.";
-    console.error(errorMessage);
+    const errorMessage = "FIREBASE ADMIN SDK WARNING: SDK not initialized. Cannot fetch announcements.";
+    console.warn(errorMessage);
     return { announcements: [], error: errorMessage };
   }
   try {
@@ -98,8 +98,8 @@ export interface BoardMember {
 
 export async function getBoardMembers(): Promise<{ boardMembers: BoardMember[], error: string | null }> {
   if (!adminDb) {
-    const errorMessage = "FIREBASE ADMIN SDK ERROR: SDK not initialized. Cannot fetch board members.";
-    console.error(errorMessage);
+    const errorMessage = "FIREBASE ADMIN SDK WARNING: SDK not initialized. Cannot fetch board members.";
+    console.warn(errorMessage);
     return { boardMembers: [], error: errorMessage };
   }
   try {
@@ -114,7 +114,7 @@ export async function getBoardMembers(): Promise<{ boardMembers: BoardMember[], 
 
 export async function getBoardMemberById(id: string): Promise<BoardMember | undefined> {
   if (!adminDb) {
-    console.error("FIREBASE ADMIN SDK ERROR: SDK not initialized. Cannot fetch board member.");
+    console.warn("FIREBASE ADMIN SDK WARNING: SDK not initialized. Cannot fetch board member.");
     return undefined;
   }
   try {

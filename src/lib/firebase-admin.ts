@@ -17,11 +17,11 @@ try {
   adminDb = admin.firestore();
   adminAuth = admin.auth();
 } catch (error) {
-  console.error("--- CRITICAL: FIREBASE ADMIN SDK INITIALIZATION FAILED ---");
-  console.error("This is likely due to missing or incorrect Application Default Credentials in the environment.");
-  console.error("All admin database operations (create, delete) will fail until this is resolved.");
-  console.error("Original error:", error);
-  console.error("---------------------------------------------------------");
+  console.warn("--- FIREBASE ADMIN SDK INITIALIZATION WARNING ---");
+  console.warn("This is likely due to missing or incorrect Application Default Credentials in the environment.");
+  console.warn("All admin database operations (create, delete) may fail until this is resolved.");
+  console.warn("Original error:", error);
+  console.warn("---------------------------------------------------------");
 }
 
 export { adminDb, adminAuth };
