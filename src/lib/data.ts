@@ -1,5 +1,4 @@
-import { db } from './firebase';
-import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
+import { adminDb } from './firebase-admin';
 
 export interface Event {
   id: string;
@@ -17,23 +16,30 @@ export interface Event {
 export const slugify = (text: string) => text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
 
 export async function getEvents(): Promise<Event[]> {
+  if (!adminDb) {
+    console.error("FIREBASE ADMIN SDK ERROR: SDK not initialized. Cannot fetch events.");
+    return [];
+  }
   try {
-    const eventsCol = collection(db, 'events');
-    const eventSnapshot = await getDocs(eventsCol);
+    const eventSnapshot = await adminDb.collection('events').get();
     const eventList = eventSnapshot.docs.map(doc => doc.data() as Event);
     return eventList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   } catch (error) {
-    console.error("FIREBASE READ ERROR: Failed to fetch events. This is often due to Firestore security rules. Please check your Firebase console and ensure the 'events' collection has public read access. Returning an empty array to prevent a crash.");
+    console.error("FIREBASE READ ERROR: Failed to fetch events. This could be due to Firestore permissions or other issues.", error);
     return [];
   }
 }
 
 export async function getEventBySlug(slug: string): Promise<Event | undefined> {
+  if (!adminDb) {
+    console.error("FIREBASE ADMIN SDK ERROR: SDK not initialized. Cannot fetch event.");
+    return undefined;
+  }
   try {
-    const eventDocRef = doc(db, 'events', slug);
-    const eventSnap = await getDoc(eventDocRef);
+    const eventDocRef = adminDb.collection('events').doc(slug);
+    const eventSnap = await eventDocRef.get();
     
-    if (eventSnap.exists()) {
+    if (eventSnap.exists) {
       return eventSnap.data() as Event;
     } else {
       return undefined;
@@ -52,14 +58,18 @@ export interface Announcement {
 }
 
 export async function getAnnouncements(): Promise<{announcements: Announcement[], error: string | null}> {
+  if (!adminDb) {
+    const errorMessage = "FIREBASE ADMIN SDK ERROR: SDK not initialized. Cannot fetch announcements.";
+    console.error(errorMessage);
+    return { announcements: [], error: errorMessage };
+  }
   try {
-    const announcementsCol = collection(db, 'announcements');
-    const announcementSnapshot = await getDocs(announcementsCol);
+    const announcementSnapshot = await adminDb.collection('announcements').get();
     const announcementList = announcementSnapshot.docs.map(doc => doc.data() as Announcement);
     const sortedList = announcementList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     return { announcements: sortedList, error: null };
   } catch (error) {
-    const errorMessage = "FIREBASE READ ERROR: Failed to fetch announcements. This is often due to Firestore security rules. Please check your Firebase console and ensure the 'announcements' collection has public read access.";
+    const errorMessage = "FIREBASE READ ERROR: Failed to fetch announcements. This could be due to Firestore permissions or other issues.";
     console.error(errorMessage, error);
     return { announcements: [], error: errorMessage };
   }
@@ -75,24 +85,32 @@ export interface BoardMember {
 }
 
 export async function getBoardMembers(): Promise<{ boardMembers: BoardMember[], error: string | null }> {
+  if (!adminDb) {
+    const errorMessage = "FIREBASE ADMIN SDK ERROR: SDK not initialized. Cannot fetch board members.";
+    console.error(errorMessage);
+    return { boardMembers: [], error: errorMessage };
+  }
   try {
-    const membersCol = collection(db, 'boardMembers');
-    const memberSnapshot = await getDocs(membersCol);
+    const memberSnapshot = await adminDb.collection('boardMembers').get();
     const memberList = memberSnapshot.docs.map(doc => doc.data() as BoardMember);
     return { boardMembers: memberList, error: null };
   } catch (error) {
-    const errorMessage = "FIREBASE READ ERROR: Failed to fetch board members. This is often due to Firestore security rules. Please check your Firebase console and ensure the 'boardMembers' collection has public read access.";
+    const errorMessage = "FIREBASE READ ERROR: Failed to fetch board members. This could be due to Firestore permissions or other issues.";
     console.error(errorMessage, error);
     return { boardMembers: [], error: errorMessage };
   }
 }
 
 export async function getBoardMemberById(id: string): Promise<BoardMember | undefined> {
+  if (!adminDb) {
+    console.error("FIREBASE ADMIN SDK ERROR: SDK not initialized. Cannot fetch board member.");
+    return undefined;
+  }
   try {
-    const memberDocRef = doc(db, 'boardMembers', id);
-    const memberSnap = await getDoc(memberDocRef);
+    const memberDocRef = adminDb.collection('boardMembers').doc(id);
+    const memberSnap = await memberDocRef.get();
     
-    if (memberSnap.exists()) {
+    if (memberSnap.exists) {
       return memberSnap.data() as BoardMember;
     } else {
       return undefined;
