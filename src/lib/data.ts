@@ -26,7 +26,7 @@ const handleFetchError = (error: unknown, context: string): string => {
   }
 
   if (err.message.includes('Could not refresh access token')) {
-    return `Database authentication failed. This is common in local development. To fix this, run 'gcloud auth application-default login' in your terminal and restart the server.`;
+    return `Database authentication failed. The server could not connect to Firebase. To fix this for local development, run 'gcloud auth application-default login' in your terminal and restart the server.`;
   }
   
   return `An unexpected error occurred while fetching ${context}. Please check the server logs for more details.`;
@@ -105,10 +105,20 @@ export async function getBoardMembers(): Promise<{ boardMembers: BoardMember[], 
   }
   try {
     const memberSnapshot = await adminDb.collection('boardMembers').get();
-    const memberList = memberSnapshot.docs.map(doc => doc.data() as BoardMember);
+    const memberList = memberSnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        name: data.name || '',
+        title: data.title || '',
+        initials: data.initials || '',
+        image: data.image || 'https://placehold.co/100x100.png',
+        hint: data.hint || 'person headshot',
+      } as BoardMember;
+    });
     return { boardMembers: memberList, error: null };
   } catch (error) {
-    const errorMessage = handleFetchError(error, 'boardMembers');
+    const errorMessage = handleFetchError(error, 'board members');
     return { boardMembers: [], error: errorMessage };
   }
 }
@@ -123,7 +133,16 @@ export async function getBoardMemberById(id: string): Promise<BoardMember | unde
     const memberSnap = await memberDocRef.get();
     
     if (memberSnap.exists) {
-      return memberSnap.data() as BoardMember;
+      const data = memberSnap.data();
+      if (!data) return undefined;
+      return {
+        id: memberSnap.id,
+        name: data.name || '',
+        title: data.title || '',
+        initials: data.initials || '',
+        image: data.image || 'https://placehold.co/100x100.png',
+        hint: data.hint || 'person headshot',
+      } as BoardMember
     } else {
       return undefined;
     }
