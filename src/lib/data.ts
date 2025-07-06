@@ -1,4 +1,6 @@
-import { adminDb } from './firebase-admin';
+
+import { db } from './firebase';
+import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 
 export interface Event {
   id: string;
@@ -15,50 +17,40 @@ export interface Event {
 
 export const slugify = (text: string) => text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
 
-const handleFirestoreError = (error: unknown, context: string): string => {
+const handleFetchError = (error: unknown, context: string): string => {
   const err = error instanceof Error ? error : new Error(String(error));
-  console.warn(`FIREBASE READ WARNING: Failed to ${context}. Message: ${err.message}`);
-  if (err.message.includes('Could not refresh access token')) {
-    return `Database authentication failed. The server could not connect to Firebase. This is common in local development when Application Default Credentials are not configured. See server logs for details.`;
+  console.error(`FIRESTORE FETCH ERROR (${context}):`, err.message);
+  if (err.message.includes('permission-denied') || err.message.includes('insufficient permissions')) {
+    return `Failed to fetch ${context}. This is likely due to Firestore security rules. Please ensure public read access is enabled for the '${context}' collection in your Firebase project.`;
   }
-  if (err.message.includes('permission-denied')) {
-    return `Database permission denied. Please check your Firestore security rules for this operation.`;
-  }
-  return `An unexpected error occurred while trying to ${context}.`;
+  return `An unexpected error occurred while fetching ${context}. Please check the server logs for more details.`;
 };
 
 
 export async function getEvents(): Promise<Event[]> {
-  if (!adminDb) {
-    console.warn("FIREBASE ADMIN SDK WARNING: SDK not initialized. Cannot fetch events.");
-    return [];
-  }
   try {
-    const eventSnapshot = await adminDb.collection('events').get();
+    const eventsCol = collection(db, 'events');
+    const eventSnapshot = await getDocs(eventsCol);
     const eventList = eventSnapshot.docs.map(doc => doc.data() as Event);
     return eventList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   } catch (error) {
-    handleFirestoreError(error, 'fetch events');
+    console.error("Error fetching events:", error);
     return [];
   }
 }
 
 export async function getEventBySlug(slug: string): Promise<Event | undefined> {
-  if (!adminDb) {
-    console.warn("FIREBASE ADMIN SDK WARNING: SDK not initialized. Cannot fetch event.");
-    return undefined;
-  }
   try {
-    const eventDocRef = adminDb.collection('events').doc(slug);
-    const eventSnap = await eventDocRef.get();
+    const eventDocRef = doc(db, 'events', slug);
+    const eventSnap = await getDoc(eventDocRef);
     
-    if (eventSnap.exists) {
+    if (eventSnap.exists()) {
       return eventSnap.data() as Event;
     } else {
       return undefined;
     }
   } catch (error) {
-    handleFirestoreError(error, `fetch event with slug '${slug}'`);
+    console.error(`Error fetching event by slug '${slug}':`, error);
     return undefined;
   }
 }
@@ -71,18 +63,13 @@ export interface Announcement {
 }
 
 export async function getAnnouncements(): Promise<{announcements: Announcement[], error: string | null}> {
-  if (!adminDb) {
-    const errorMessage = "FIREBASE ADMIN SDK WARNING: SDK not initialized. Cannot fetch announcements.";
-    console.warn(errorMessage);
-    return { announcements: [], error: errorMessage };
-  }
   try {
-    const announcementSnapshot = await adminDb.collection('announcements').get();
+    const announcementSnapshot = await getDocs(collection(db, 'announcements'));
     const announcementList = announcementSnapshot.docs.map(doc => doc.data() as Announcement);
     const sortedList = announcementList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     return { announcements: sortedList, error: null };
   } catch (error) {
-    const errorMessage = handleFirestoreError(error, 'fetch announcements');
+    const errorMessage = handleFetchError(error, 'announcements');
     return { announcements: [], error: errorMessage };
   }
 }
@@ -97,37 +84,28 @@ export interface BoardMember {
 }
 
 export async function getBoardMembers(): Promise<{ boardMembers: BoardMember[], error: string | null }> {
-  if (!adminDb) {
-    const errorMessage = "FIREBASE ADMIN SDK WARNING: SDK not initialized. Cannot fetch board members.";
-    console.warn(errorMessage);
-    return { boardMembers: [], error: errorMessage };
-  }
   try {
-    const memberSnapshot = await adminDb.collection('boardMembers').get();
+    const memberSnapshot = await getDocs(collection(db, 'boardMembers'));
     const memberList = memberSnapshot.docs.map(doc => doc.data() as BoardMember);
     return { boardMembers: memberList, error: null };
   } catch (error) {
-    const errorMessage = handleFirestoreError(error, 'fetch board members');
+    const errorMessage = handleFetchError(error, 'boardMembers');
     return { boardMembers: [], error: errorMessage };
   }
 }
 
 export async function getBoardMemberById(id: string): Promise<BoardMember | undefined> {
-  if (!adminDb) {
-    console.warn("FIREBASE ADMIN SDK WARNING: SDK not initialized. Cannot fetch board member.");
-    return undefined;
-  }
   try {
-    const memberDocRef = adminDb.collection('boardMembers').doc(id);
-    const memberSnap = await memberDocRef.get();
+    const memberDocRef = doc(db, 'boardMembers', id);
+    const memberSnap = await getDoc(memberDocRef);
     
-    if (memberSnap.exists) {
+    if (memberSnap.exists()) {
       return memberSnap.data() as BoardMember;
     } else {
       return undefined;
     }
   } catch (error) {
-    handleFirestoreError(error, `fetch board member with ID '${id}'`);
+    handleFetchError(error, `board member with ID '${id}'`);
     return undefined;
   }
 }
