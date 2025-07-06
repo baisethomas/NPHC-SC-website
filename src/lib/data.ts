@@ -20,12 +20,15 @@ export const slugify = (text: string) => text.toLowerCase().replace(/\s+/g, '-')
 const handleFetchError = (error: unknown, context: string): string => {
   const err = error instanceof Error ? error : new Error(String(error));
   console.warn(`FIREBASE FETCH WARNING (${context}):`, err.message);
+  
   if (err.message.includes('permission-denied') || err.message.includes('insufficient permissions')) {
-    return `Failed to fetch ${context}. This is likely due to Firestore security rules. Please ensure public read access is enabled for the '${context}' collection in your Firebase project.`;
+    return `Failed to fetch ${context}. This is due to Firestore security rules. Please check your Firebase project configuration and ensure public read access is enabled for this collection.`;
   }
+
   if (err.message.includes('Could not refresh access token')) {
-    return `Database authentication failed. The server could not connect to Firebase. This is common in local development when Application Default Credentials are not configured. See server logs for details.`;
+    return `Database authentication failed. This is common in local development. To fix this, run 'gcloud auth application-default login' in your terminal and restart the server.`;
   }
+  
   return `An unexpected error occurred while fetching ${context}. Please check the server logs for more details.`;
 };
 
