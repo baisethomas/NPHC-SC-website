@@ -89,6 +89,10 @@ export function getBoardMembers() {
   return boardMembers;
 }
 
+export function getBoardMemberById(id: string): BoardMember | undefined {
+  return boardMembers.find((member) => member.id === id);
+}
+
 export function addBoardMember(member: NewBoardMember) {
   const initials = member.name
     .split(' ')
@@ -103,6 +107,19 @@ export function addBoardMember(member: NewBoardMember) {
     hint: "person headshot",
   };
   boardMembers = [newMember, ...boardMembers];
+}
+
+export function updateBoardMember(id: string, data: { name: string; title: string }) {
+  boardMembers = boardMembers.map((member) => {
+    if (member.id === id) {
+      const initials = data.name
+        .split(' ')
+        .map((n) => n[0])
+        .join('');
+      return { ...member, ...data, initials };
+    }
+    return member;
+  });
 }
 
 export function deleteBoardMember(id: string) {
