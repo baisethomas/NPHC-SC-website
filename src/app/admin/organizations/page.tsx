@@ -1,8 +1,9 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getOrganizations } from "@/lib/data";
-import { PlusCircle, Trash2 } from "lucide-react";
+import { PlusCircle, Trash2, Pencil } from "lucide-react";
 import Link from "next/link";
 import { deleteOrganization } from "./actions";
 
@@ -29,6 +30,7 @@ export default function AdminOrganizationsPage() {
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Chapter</TableHead>
+              <TableHead>President</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -37,7 +39,14 @@ export default function AdminOrganizationsPage() {
               <TableRow key={org.id}>
                 <TableCell className="font-medium">{org.name}</TableCell>
                 <TableCell>{org.chapter}</TableCell>
+                <TableCell>{org.president}</TableCell>
                 <TableCell className="text-right">
+                  <Button asChild variant="ghost" size="icon">
+                    <Link href={`/admin/organizations/${org.id}/edit`}>
+                      <Pencil className="h-4 w-4" />
+                      <span className="sr-only">Edit</span>
+                    </Link>
+                  </Button>
                   <form action={deleteOrganization} className="inline-block">
                     <input type="hidden" name="id" value={org.id} />
                     <Button variant="ghost" size="icon" type="submit">

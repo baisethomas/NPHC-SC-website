@@ -1,3 +1,4 @@
+
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,7 @@ export default function OrganizationsPage() {
                   <Image src={org.logo} alt={`${org.name} logo`} width={200} height={200} className="h-28 w-28 object-contain mb-4" data-ai-hint={org.hint} />
                   <CardTitle className="font-headline text-2xl">{org.name}</CardTitle>
                   <CardDescription className="font-semibold">{org.chapter}</CardDescription>
+                  <CardDescription>President: {org.president}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-grow">
                   <p className="text-muted-foreground text-center">
@@ -36,7 +38,7 @@ export default function OrganizationsPage() {
                 </CardContent>
                 <CardFooter>
                   <Button asChild className="w-full">
-                    <Link href={org.link}>
+                    <Link href={org.link} target="_blank" rel="noopener noreferrer">
                       Visit Chapter Site <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>

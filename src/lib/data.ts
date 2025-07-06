@@ -17,7 +17,7 @@ export interface Event {
 
 export const slugify = (text: string) => text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
 
-const handleFetchError = (error: unknown, context: string): string => {
+const handleFetchWarning = (error: unknown, context: string): string => {
   const err = error instanceof Error ? error : new Error(String(error));
   console.warn(`FIREBASE FETCH WARNING (${context}):`, err.message);
   
@@ -85,7 +85,7 @@ export async function getAnnouncements(): Promise<{announcements: Announcement[]
     const sortedList = announcementList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     return { announcements: sortedList, error: null };
   } catch (error) {
-    const errorMessage = handleFetchError(error, 'announcements');
+    const errorMessage = handleFetchWarning(error, 'announcements');
     return { announcements: [], error: errorMessage };
   }
 }
@@ -135,7 +135,7 @@ export async function getBoardMembers(): Promise<{ boardMembers: BoardMember[], 
 
     return { boardMembers: memberList, error: null };
   } catch (error) {
-    const errorMessage = handleFetchError(error, 'board members');
+    const errorMessage = handleFetchWarning(error, 'board members');
     return { boardMembers: [], error: errorMessage };
   }
 }
@@ -164,7 +164,7 @@ export async function getBoardMemberById(id: string): Promise<BoardMember | unde
       return undefined;
     }
   } catch (error) {
-    handleFetchError(error, `board member with ID '${id}'`);
+    handleFetchWarning(error, `board member with ID '${id}'`);
     return undefined;
   }
 }
@@ -177,6 +177,7 @@ export interface Organization {
   description: string;
   chapter: string;
   link: string;
+  president: string;
 }
 
 let organizations: Organization[] = [
@@ -188,6 +189,7 @@ let organizations: Organization[] = [
     description: "The first intercollegiate historically African American Greek-lettered sorority.",
     chapter: "Kappa Beta Omega Chapter",
     link: "#",
+    president: "TBD",
   },
   {
     id: "alpha-kappa-alpha-sorority-inc--tau-upsilon-omega-chapter",
@@ -197,6 +199,7 @@ let organizations: Organization[] = [
     description: "The first intercollegiate historically African American Greek-lettered sorority.",
     chapter: "Tau Upsilon Omega Chapter",
     link: "#",
+    president: "TBD",
   },
   {
     id: "alpha-phi-alpha-fraternity-inc--kappa-omicron-lambda-chapter",
@@ -206,6 +209,7 @@ let organizations: Organization[] = [
     description: "The first intercollegiate Greek-letter fraternity established for African American Men.",
     chapter: "Kappa Omicron Lambda Chapter",
     link: "#",
+    president: "TBD",
   },
     {
     id: "delta-sigma-theta-sorority-inc--fairfield-suisun-valley-alumnae-chapter",
@@ -215,6 +219,7 @@ let organizations: Organization[] = [
     description: "An organization of college educated women committed to the constructive development of its members and to public service.",
     chapter: "Fairfield-Suisun Valley Alumnae Chapter",
     link: "#",
+    president: "TBD",
   },
    {
     id: "delta-sigma-theta-sorority-inc--vallejo-alumnae-chapter",
@@ -224,6 +229,7 @@ let organizations: Organization[] = [
     description: "An organization of college educated women committed to the constructive development of its members and to public service.",
     chapter: "Vallejo Alumnae Chapter",
     link: "#",
+    president: "TBD",
   },
   {
     id: "kappa-alpha-psi-fraternity-inc--fairfield-vacaville-alumni-chapter",
@@ -233,6 +239,7 @@ let organizations: Organization[] = [
     description: "A collegiate Greek-letter fraternity with a predominantly African-American membership, focused on achievement in every field of human endeavor.",
     chapter: "Fairfield-Vacaville Alumni Chapter",
     link: "#",
+    president: "TBD",
   },
   {
     id: "omega-psi-phi-fraternity-inc--theta-pi-chapter",
@@ -242,6 +249,7 @@ let organizations: Organization[] = [
     description: "The first international fraternal organization founded on the campus of a historically black college, based on Friendship, Manhood, Scholarship, Perseverance, and Uplift.",
     chapter: "Theta Pi Chapter",
     link: "#",
+    president: "TBD",
   },
 ];
 
@@ -249,6 +257,10 @@ type NewOrganization = Omit<Organization, 'id' | 'logo' | 'hint'>;
 
 export function getOrganizations() {
   return organizations;
+}
+
+export function getOrganizationById(id: string) {
+    return organizations.find((org) => org.id === id);
 }
 
 export function addOrganization(org: NewOrganization) {
@@ -263,6 +275,18 @@ export function addOrganization(org: NewOrganization) {
 
 export function deleteOrganization(id: string) {
   organizations = organizations.filter((org) => org.id !== id);
+}
+
+type UpdateOrganizationData = {
+    id: string;
+    link: string;
+    president: string;
+};
+
+export function updateOrganization(data: UpdateOrganizationData) {
+  organizations = organizations.map((org) =>
+    org.id === data.id ? { ...org, link: data.link, president: data.president } : org
+  );
 }
 
 interface DivineNineOrganization {
