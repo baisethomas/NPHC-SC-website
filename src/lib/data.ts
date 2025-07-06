@@ -15,6 +15,19 @@ export interface Event {
 
 export const slugify = (text: string) => text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
 
+const handleFirestoreError = (error: unknown, context: string): string => {
+  const err = error instanceof Error ? error : new Error(String(error));
+  console.error(`FIREBASE READ ERROR: Failed to ${context}.`, { cause: err });
+  if (err.message.includes('Could not refresh access token')) {
+    return `Database authentication failed. The server could not connect to Firebase. This is common in local development when Application Default Credentials are not configured. See server logs for details.`;
+  }
+  if (err.message.includes('permission-denied')) {
+    return `Database permission denied. Please check your Firestore security rules for this operation.`;
+  }
+  return `An unexpected error occurred while trying to ${context}.`;
+};
+
+
 export async function getEvents(): Promise<Event[]> {
   if (!adminDb) {
     console.error("FIREBASE ADMIN SDK ERROR: SDK not initialized. Cannot fetch events.");
@@ -25,7 +38,7 @@ export async function getEvents(): Promise<Event[]> {
     const eventList = eventSnapshot.docs.map(doc => doc.data() as Event);
     return eventList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   } catch (error) {
-    console.error("FIREBASE READ ERROR: Failed to fetch events. This could be due to Firestore permissions or other issues.", error);
+    console.error(handleFirestoreError(error, 'fetch events'));
     return [];
   }
 }
@@ -45,7 +58,7 @@ export async function getEventBySlug(slug: string): Promise<Event | undefined> {
       return undefined;
     }
   } catch (error) {
-    console.error(`FIREBASE READ ERROR: Failed to fetch event with slug '${slug}'.`, error);
+    console.error(handleFirestoreError(error, `fetch event with slug '${slug}'`));
     return undefined;
   }
 }
@@ -69,8 +82,7 @@ export async function getAnnouncements(): Promise<{announcements: Announcement[]
     const sortedList = announcementList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     return { announcements: sortedList, error: null };
   } catch (error) {
-    const errorMessage = "FIREBASE READ ERROR: Failed to fetch announcements. This could be due to Firestore permissions or other issues.";
-    console.error(errorMessage, error);
+    const errorMessage = handleFirestoreError(error, 'fetch announcements');
     return { announcements: [], error: errorMessage };
   }
 }
@@ -95,8 +107,7 @@ export async function getBoardMembers(): Promise<{ boardMembers: BoardMember[], 
     const memberList = memberSnapshot.docs.map(doc => doc.data() as BoardMember);
     return { boardMembers: memberList, error: null };
   } catch (error) {
-    const errorMessage = "FIREBASE READ ERROR: Failed to fetch board members. This could be due to Firestore permissions or other issues.";
-    console.error(errorMessage, error);
+    const errorMessage = handleFirestoreError(error, 'fetch board members');
     return { boardMembers: [], error: errorMessage };
   }
 }
@@ -116,7 +127,7 @@ export async function getBoardMemberById(id: string): Promise<BoardMember | unde
       return undefined;
     }
   } catch (error) {
-    console.error(`FIREBASE READ ERROR: Failed to fetch board member with ID '${id}'.`, error);
+    console.error(handleFirestoreError(error, `fetch board member with ID '${id}'`));
     return undefined;
   }
 }

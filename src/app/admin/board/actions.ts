@@ -48,6 +48,10 @@ export async function createBoardMember(values: z.infer<typeof formSchema>) {
   } catch (e: unknown) {
     const error = e instanceof Error ? e : new Error(String(e));
     console.error(`Board Member Creation Failed: ${error.message}`, {cause: error});
+    
+    if (error.message.includes('Could not refresh access token')) {
+        return { error: 'Database authentication failed. The server could not connect to Firebase. See server logs.' };
+    }
     return { error: 'An unexpected server error occurred. Please try again later.' };
   }
 }
@@ -77,6 +81,9 @@ export async function deleteBoardMember(formData: FormData) {
     console.error(`Board Member Deletion Failed: ${error.message}`, {cause: error});
     if (error.message.includes('permission-denied')) {
         return { error: 'Database delete failed: Firestore permission denied.' };
+    }
+    if (error.message.includes('Could not refresh access token')) {
+        return { error: 'Database authentication failed. The server could not connect to Firebase. See server logs.' };
     }
     return { error: 'An unexpected server error occurred while deleting the board member.' };
   }
@@ -118,6 +125,9 @@ export async function updateBoardMember(values: z.infer<typeof updateFormSchema>
         console.error(`Board Member Update Failed: ${error.message}`, { cause: error });
         if (error.message.includes('permission-denied')) {
             return { error: 'Database update failed: Firestore permission denied.' };
+        }
+        if (error.message.includes('Could not refresh access token')) {
+            return { error: 'Database authentication failed. The server could not connect to Firebase. See server logs.' };
         }
         return { error: 'An unexpected server error occurred while updating the board member.' };
     }

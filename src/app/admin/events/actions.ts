@@ -30,6 +30,9 @@ export async function deleteEvent(formData: FormData) {
     if (error.message.includes('permission-denied') || error.message.includes('insufficient permissions')) {
       return { error: 'Database delete failed: Firestore permission denied. Check security rules.' };
     }
+    if (error.message.includes('Could not refresh access token')) {
+      return { error: 'Database authentication failed. The server could not connect to Firebase. See server logs.' };
+    }
     return { error: `Server error while deleting: ${error.message}` };
   }
 }

@@ -100,7 +100,7 @@ export default async function AboutPage() {
                 <Terminal className="h-4 w-4" />
                 <AlertTitle>Error Loading Board Members</AlertTitle>
                 <AlertDescription>
-                    There was an issue fetching board members from the database. This may be due to a configuration or permissions issue.
+                    {error}
                 </AlertDescription>
             </Alert>
           ) : (
