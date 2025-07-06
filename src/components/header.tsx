@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -34,6 +35,7 @@ export function Header() {
 
   return (
     <header className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b">
+      <div className="h-[5px] w-full bg-primary" />
       <div className="container flex h-32 items-center justify-between">
         <Link href="/" className="flex items-center">
           <Image src={logoUrl} alt="NPHC Solano Logo" width={128} height={128} className="h-28 w-auto" />
