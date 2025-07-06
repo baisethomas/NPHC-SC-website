@@ -4,7 +4,7 @@
 import { revalidatePath } from 'next/cache';
 import { adminDb } from '@/lib/firebase-admin';
 import { z } from 'zod';
-import { slugify, type Announcement } from '@/lib/data';
+import { slugify, type Announcement } from '@/lib/definitions';
 
 const formSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters."),

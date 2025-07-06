@@ -4,7 +4,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight, Calendar, Clock, MapPin, Terminal } from "lucide-react";
-import { getEvents, getAnnouncements, getDivineNineOrganizations } from "@/lib/data";
+import { getEvents, getAnnouncements } from "@/lib/data";
+import { getDivineNineOrganizations } from "@/lib/definitions";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default async function Home() {

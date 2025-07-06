@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,7 +18,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { updateBoardMember } from "../../actions";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import { BoardMember } from "@/lib/data";
+import type { BoardMember } from "@/lib/definitions";
 import { LoaderCircle } from "lucide-react";
 
 const formSchema = z.object({

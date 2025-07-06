@@ -1,9 +1,10 @@
+
 'use server';
 
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { adminDb } from '@/lib/firebase-admin';
-import { slugify, type BoardMember } from '@/lib/data';
+import { slugify, type BoardMember } from '@/lib/definitions';
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),

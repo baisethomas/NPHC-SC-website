@@ -18,7 +18,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { updateOrganization } from "../../actions";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import { Organization } from "@/lib/data";
+import type { Organization } from "@/lib/definitions";
 import { LoaderCircle } from "lucide-react";
 
 const formSchema = z.object({

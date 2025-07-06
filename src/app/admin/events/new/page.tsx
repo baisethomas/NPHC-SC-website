@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -26,8 +27,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { uploadFile } from "@/lib/storage";
 import { db } from "@/lib/firebase";
 import { doc, setDoc } from "firebase/firestore";
-import type { Event } from "@/lib/data";
-import { slugify } from "@/lib/data";
+import type { Event } from "@/lib/definitions";
+import { slugify } from "@/lib/definitions";
 import { LocationAutocomplete } from "@/components/location-autocomplete";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB

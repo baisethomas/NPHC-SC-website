@@ -1,20 +1,6 @@
 
 import { adminDb } from './firebase-admin';
-
-export interface Event {
-  id: string;
-  slug: string;
-  title: string;
-  date: string;
-  time: string;
-  location: string;
-  description: string;
-  image: string;
-  image_hint: string;
-  rsvpLink: string;
-}
-
-export const slugify = (text: string) => text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
+import type { Event, Announcement, BoardMember, Organization } from './definitions';
 
 const handleFirestoreError = (error: unknown, context: string): string => {
   const err = error instanceof Error ? error : new Error(String(error));
@@ -65,13 +51,6 @@ export async function getEventBySlug(slug: string): Promise<Event | undefined> {
   }
 }
 
-export interface Announcement {
-  id: string;
-  title: string;
-  date: string;
-  description: string;
-}
-
 export async function getAnnouncements(): Promise<{announcements: Announcement[], error: string | null}> {
   if (!adminDb) {
     return { announcements: [], error: 'Firebase Admin SDK is not initialized. Cannot fetch announcements.' };
@@ -105,15 +84,6 @@ export async function getAnnouncementBySlug(slug: string): Promise<Announcement 
     handleFirestoreError(error, `fetch announcement with slug '${slug}'`);
     return undefined;
   }
-}
-
-export interface BoardMember {
-  id: string;
-  name: string;
-  title: string;
-  initials: string;
-  image: string;
-  hint: string;
 }
 
 export async function getBoardMembers(): Promise<{ boardMembers: BoardMember[], error: string | null }> {
@@ -184,17 +154,6 @@ export async function getBoardMemberById(id: string): Promise<BoardMember | unde
     handleFirestoreError(error, `fetch board member with ID '${id}'`);
     return undefined;
   }
-}
-
-export interface Organization {
-  id: string;
-  name: string;
-  logo: string;
-  hint: string;
-  description: string;
-  chapter: string;
-  link: string;
-  president: string;
 }
 
 const initialOrganizations: Organization[] = [
@@ -326,63 +285,4 @@ export async function getOrganizationById(id: string): Promise<Organization | un
     handleFirestoreError(error, `get organization with ID '${id}'`);
     return undefined;
   }
-}
-
-
-interface DivineNineOrganization {
-  name: string;
-  logo: string;
-  hint: string;
-}
-
-const divineNineOrganizations: DivineNineOrganization[] = [
-  {
-    name: "Alpha Kappa Alpha Sorority, Inc.",
-    logo: "https://aka1908.com/wp-content/uploads/2022/06/bg_logo_aka.svg",
-    hint: "organization crest",
-  },
-  {
-    name: "Alpha Phi Alpha Fraternity, Inc.",
-    logo: "https://apa1906.net/wp-content/uploads/2018/08/apa_crest_132_c.png",
-    hint: "organization crest",
-  },
-  {
-    name: "Delta Sigma Theta Sorority, Inc.",
-    logo: "https://www.deltasigmatheta.org/wp-content/uploads/2023/01/Crest_Logo_rszd.png",
-    hint: "organization crest",
-  },
-  {
-    name: "Zeta Phi Beta Sorority, Inc.",
-    logo: "https://upload.wikimedia.org/wikipedia/en/c/cd/ZetaPBetaShield.png",
-    hint: "organization crest",
-  },
-  {
-    name: "Iota Phi Theta Fraternity, Inc.",
-    logo: "https://iotaphitheta.org/wp-content/uploads/2022/09/ip-1.png",
-    hint: "organization crest",
-  },
-  {
-    name: "Kappa Alpha Psi Fraternity, Inc.",
-    logo: "https://upload.wikimedia.org/wikipedia/en/1/1d/KAPsiCrest.png",
-    hint: "organization crest",
-  },
-  {
-    name: "Sigma Gamma Rho Sorority, Inc.",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/f/fe/Sigma_Gamma_Rho_Shield.png",
-    hint: "organization crest",
-  },
-  {
-    name: "Phi Beta Sigma Fraternity, Inc.",
-    logo: "https://upload.wikimedia.org/wikipedia/en/a/a9/PhiBetaSigmaShield.png",
-    hint: "organization crest",
-  },
-  {
-    name: "Omega Psi Phi Fraternity, Inc.",
-    logo: "https://studentlife.oregonstate.edu/sites/studentlife.oregonstate.edu/files/styles/large/public/omega-psi-phi-fraternity-crest_0.png?itok=RhlfKa3V",
-    hint: "organization crest",
-  },
-];
-
-export function getDivineNineOrganizations() {
-  return divineNineOrganizations;
 }
