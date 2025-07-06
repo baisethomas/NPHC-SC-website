@@ -82,7 +82,9 @@ export default async function Home() {
           <div className="grid gap-8 md:grid-cols-2">
             {events.map((event, index) => (
               <Card key={index} className="overflow-hidden transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-2">
-                <Image src={event.image} alt={event.title} width={600} height={400} className="w-full h-60 object-cover" data-ai-hint={event.image_hint} />
+                <div className="w-full h-60 bg-muted relative">
+                  <Image src={event.image} alt={event.title} layout="fill" objectFit="contain" className="p-4" data-ai-hint={event.image_hint} />
+                </div>
                 <CardHeader>
                   <CardTitle className="text-xl font-headline">{event.title}</CardTitle>
                 </CardHeader>

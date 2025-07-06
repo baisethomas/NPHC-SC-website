@@ -193,7 +193,9 @@ export function EditEventForm({ event }: { event: Event }) {
             
             <div className="space-y-2">
                 <Label>Current Image</Label>
-                <Image src={event.image} alt={event.title} width={200} height={150} className="rounded-md border object-cover bg-muted" />
+                <div className="w-full max-w-[200px] h-[150px] bg-muted rounded-md border relative">
+                  <Image src={event.image} alt={event.title} layout="fill" objectFit="contain" className="p-2" />
+                </div>
             </div>
 
             <FormField control={form.control} name="image" render={({ field }) => (

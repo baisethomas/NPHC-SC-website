@@ -20,7 +20,7 @@ export default async function EventDetailPage({ params }: { params: { slug: stri
             alt={event.title}
             width={800}
             height={600}
-            className="rounded-lg shadow-lg object-cover w-full aspect-[4/3]"
+            className="rounded-lg shadow-lg object-contain w-full aspect-[4/3] bg-muted"
             data-ai-hint={event.image_hint}
           />
         </div>

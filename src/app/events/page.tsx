@@ -24,8 +24,8 @@ export default async function EventsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {events.map((event) => (
               <Card key={event.slug} className="flex flex-col overflow-hidden">
-                <div className="relative h-64 w-full">
-                  <Image src={event.image} alt={event.title} layout="fill" objectFit="cover" data-ai-hint={event.image_hint} />
+                <div className="relative h-64 w-full bg-muted">
+                  <Image src={event.image} alt={event.title} layout="fill" objectFit="contain" data-ai-hint={event.image_hint} />
                 </div>
                 <CardHeader>
                   <CardTitle className="font-headline text-2xl">{event.title}</CardTitle>
