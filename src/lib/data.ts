@@ -17,7 +17,7 @@ export const slugify = (text: string) => text.toLowerCase().replace(/\s+/g, '-')
 
 const handleFirestoreError = (error: unknown, context: string): string => {
   const err = error instanceof Error ? error : new Error(String(error));
-  console.error(`FIREBASE READ ERROR: Failed to ${context}.`, err);
+  console.error(`FIREBASE READ ERROR: Failed to ${context}. Message: ${err.message}`);
   if (err.message.includes('Could not refresh access token')) {
     return `Database authentication failed. The server could not connect to Firebase. This is common in local development when Application Default Credentials are not configured. See server logs for details.`;
   }

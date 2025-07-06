@@ -26,7 +26,7 @@ export async function deleteAnnouncement(formData: FormData) {
 
   } catch (e: unknown) {
     const error = e instanceof Error ? e : new Error(String(e));
-    console.error(`Announcement Deletion Failed: ${error.message}`, {cause: error});
+    console.error(`Announcement Deletion Failed: ${error.message}`);
 
     if (error.message.includes('permission-denied') || error.message.includes('insufficient permissions')) {
         return { error: 'Database delete failed: Firestore permission denied. Check security rules.' };
