@@ -116,6 +116,23 @@ export async function getBoardMembers(): Promise<{ boardMembers: BoardMember[], 
         hint: data.hint || 'person headshot',
       } as BoardMember;
     });
+
+    const titleOrder: { [key: string]: number } = {
+        'President': 1,
+        'Vice President': 2,
+    };
+
+    memberList.sort((a, b) => {
+        const aOrder = titleOrder[a.title] || 99;
+        const bOrder = titleOrder[b.title] || 99;
+
+        if (aOrder !== bOrder) {
+            return aOrder - bOrder;
+        }
+        
+        return a.name.localeCompare(b.name);
+    });
+
     return { boardMembers: memberList, error: null };
   } catch (error) {
     const errorMessage = handleFetchError(error, 'board members');
