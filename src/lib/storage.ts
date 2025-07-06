@@ -11,3 +11,12 @@ export async function uploadFile(file: File): Promise<string> {
   const downloadURL = await getDownloadURL(storageRef);
   return downloadURL;
 }
+
+export async function uploadAnnouncementImage(file: File): Promise<string> {
+  const storageRef = ref(storage, `announcements/${Date.now()}-${file.name}`);
+  await uploadBytes(storageRef, file, {
+    contentType: file.type,
+  });
+  const downloadURL = await getDownloadURL(storageRef);
+  return downloadURL;
+}

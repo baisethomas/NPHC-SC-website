@@ -1,4 +1,3 @@
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -10,6 +9,7 @@ const formSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters."),
   date: z.string().min(2, "Date is required."),
   description: z.string().min(10, "Description must be at least 10 characters."),
+  imageUrl: z.string().url().optional().or(z.literal("").optional()),
 });
 
 export async function createAnnouncement(values: z.infer<typeof formSchema>) {
@@ -23,7 +23,7 @@ export async function createAnnouncement(values: z.infer<typeof formSchema>) {
     return { error: 'Invalid fields!' };
   }
 
-  const { title, date, description } = validatedFields.data;
+  const { title, date, description, imageUrl } = validatedFields.data;
   const slug = slugify(title);
 
   const newAnnouncement: Announcement = {
@@ -31,6 +31,7 @@ export async function createAnnouncement(values: z.infer<typeof formSchema>) {
     title,
     date,
     description,
+    ...(imageUrl ? { imageUrl } : {}),
   };
 
   try {
@@ -89,5 +90,48 @@ export async function deleteAnnouncement(formData: FormData) {
       return { error: 'Database authentication failed. The server could not connect to Firebase. See server logs.' };
     }
     return { error: 'An unexpected server error occurred while deleting the announcement.' };
+  }
+}
+
+export async function getAnnouncementById(id: string) {
+  if (!adminDb) {
+    return null;
+  }
+  try {
+    const doc = await adminDb.collection("announcements").doc(id).get();
+    if (!doc.exists) return null;
+    return doc.data() as Announcement;
+  } catch (e) {
+    console.error(`Failed to fetch announcement by id: ${id}`, e);
+    return null;
+  }
+}
+
+export async function updateAnnouncement(id: string, values: z.infer<typeof formSchema>) {
+  if (!adminDb) {
+    return { error: 'Firebase Admin SDK is not initialized.' };
+  }
+  const validatedFields = formSchema.safeParse(values);
+  if (!validatedFields.success) {
+    return { error: 'Invalid fields!' };
+  }
+  const { title, date, description, imageUrl } = validatedFields.data;
+  try {
+    await adminDb.collection("announcements").doc(id).update({ title, date, description, ...(imageUrl ? { imageUrl } : {}) });
+    revalidatePath('/');
+    revalidatePath('/admin/announcements');
+    revalidatePath('/news');
+    revalidatePath(`/news/${id}`);
+    return { success: true };
+  } catch (e: unknown) {
+    const error = e instanceof Error ? e : new Error(String(e));
+    console.error(`Announcement Update Failed: ${error.message}`);
+    if (error.message.includes('permission-denied') || error.message.includes('insufficient permissions')) {
+      return { error: 'Database update failed: Firestore permission denied. Check security rules.' };
+    }
+    if (error.message.includes('Could not refresh access token')) {
+      return { error: 'Database authentication failed. The server could not connect to Firebase. See server logs.' };
+    }
+    return { error: 'An unexpected server error occurred while updating the announcement.' };
   }
 }

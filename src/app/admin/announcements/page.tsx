@@ -48,7 +48,12 @@ export default async function AdminAnnouncementsPage() {
                 <TableCell className="font-medium">{announcement.title}</TableCell>
                 <TableCell>{announcement.date}</TableCell>
                 <TableCell className="text-right">
-                  <form action={deleteAnnouncement} className="inline-block">
+                  <Link href={`/admin/announcements/${announcement.id}/edit`}>
+                    <Button variant="ghost" size="icon" type="button">
+                      Edit
+                    </Button>
+                  </Link>
+                  <form action="/api/delete-announcement" method="POST" className="inline-block">
                     <input type="hidden" name="id" value={announcement.id} />
                     <Button variant="ghost" size="icon" type="submit">
                       <Trash2 className="h-4 w-4" />

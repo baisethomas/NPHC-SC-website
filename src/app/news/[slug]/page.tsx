@@ -1,4 +1,3 @@
-
 import { getAnnouncementBySlug } from '@/lib/data';
 import { notFound } from 'next/navigation';
 import { Calendar } from 'lucide-react';
@@ -19,10 +18,19 @@ export default async function AnnouncementDetailPage({ params }: { params: { slu
             <div className="container">
                 <div className="max-w-3xl mx-auto text-center">
                     <h1 className="text-4xl md:text-5xl font-headline font-bold mb-3">{announcement.title}</h1>
-                    <div className="flex items-center justify-center text-muted-foreground">
+                    <div className="flex items-center justify-center text-muted-foreground mb-4">
                         <Calendar className="mr-2 h-5 w-5" />
                         <p>{announcement.date}</p>
                     </div>
+                    {announcement.imageUrl && (
+                      <div className="flex justify-center mb-6">
+                        <img
+                          src={announcement.imageUrl}
+                          alt={announcement.title}
+                          className="rounded-lg max-h-96 w-auto object-contain shadow"
+                        />
+                      </div>
+                    )}
                 </div>
             </div>
         </section>

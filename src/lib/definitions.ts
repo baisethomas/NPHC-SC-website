@@ -1,4 +1,3 @@
-
 export interface Event {
   id: string;
   slug: string;
@@ -17,6 +16,7 @@ export interface Announcement {
   title: string;
   date: string;
   description: string;
+  imageUrl?: string;
 }
 
 export interface BoardMember {

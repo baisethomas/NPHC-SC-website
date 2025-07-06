@@ -16,8 +16,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { useRouter } from "next/navigation";
-import { createAnnouncement } from "../actions";
+import { useRouter, useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { getAnnouncementById, updateAnnouncement } from "../../actions";
 import { uploadAnnouncementImage } from "@/lib/storage";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -34,50 +35,70 @@ const formSchema = z.object({
     .refine((files) => !files || files.length === 0 || ACCEPTED_IMAGE_TYPES.includes(files[0].type), ".jpg, .jpeg, .png and .webp files are accepted."),
 });
 
-export default function NewAnnouncementPage() {
+export default function EditAnnouncementPage() {
   const { toast } = useToast();
   const router = useRouter();
+  const params = useParams();
+  const [loading, setLoading] = useState(true);
+  const [initialData, setInitialData] = useState({ title: "", date: "", description: "", imageUrl: "" });
+
+  useEffect(() => {
+    async function fetchData() {
+      const id = typeof params.id === 'string' ? params.id : Array.isArray(params.id) ? params.id[0] : '';
+      if (!id) return setLoading(false);
+      const data = await getAnnouncementById(id);
+      if (data) {
+        setInitialData({
+          title: data.title || "",
+          date: data.date || "",
+          description: data.description || "",
+          imageUrl: data.imageUrl || "",
+        });
+      }
+      setLoading(false);
+    }
+    fetchData();
+  }, [params.id]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      title: "",
-      date: "",
-      description: "",
-      image: undefined,
-    },
+    defaultValues: { ...initialData, image: undefined },
+    values: { ...initialData, image: undefined },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    let imageUrl = "";
+    const id = typeof params.id === 'string' ? params.id : Array.isArray(params.id) ? params.id[0] : '';
+    if (!id) return;
+    let imageUrl = initialData.imageUrl || "";
     if (values.image && values.image.length > 0) {
       imageUrl = await uploadAnnouncementImage(values.image[0]);
     }
-    const result = await createAnnouncement({
+    const result = await updateAnnouncement(id, {
       ...values,
       imageUrl,
     });
-
     if (result?.error) {
-       toast({
+      toast({
         variant: "destructive",
-        title: "Submission Error",
+        title: "Update Error",
         description: result.error,
-       });
+      });
     } else {
-       toast({
-        title: "Announcement Created!",
-        description: "The new announcement has been added successfully.",
+      toast({
+        title: "Announcement Updated!",
+        description: "The announcement has been updated successfully.",
       });
       router.push("/admin/announcements");
     }
   }
 
+  if (loading) return <div>Loading...</div>;
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Create New Announcement</CardTitle>
-        <CardDescription>Fill out the form below to add a new announcement to the website.</CardDescription>
+        <CardTitle>Edit Announcement</CardTitle>
+        <CardDescription>Update the details for this announcement.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -99,23 +120,28 @@ export default function NewAnnouncementPage() {
             <FormField control={form.control} name="description" render={({ field }) => (
               <FormItem>
                 <FormLabel>Description</FormLabel>
-                <FormControl><Textarea placeholder="Join us for our biggest fundraising event... You can create paragraphs by pressing Enter." className="min-h-[150px]" {...field} /></FormControl>
+                <FormControl><Textarea placeholder="Join us for our biggest fundraising event..." className="min-h-[150px]" {...field} /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
             <FormField control={form.control} name="image" render={({ field }) => (
               <FormItem>
                 <FormLabel>Image (optional)</FormLabel>
+                {initialData.imageUrl && (
+                  <div className="mb-2">
+                    <img src={initialData.imageUrl} alt="Current" className="max-h-32 rounded" />
+                  </div>
+                )}
                 <FormControl><Input type="file" accept="image/*" {...form.register("image")} /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
             <Button type="submit" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? "Creating..." : "Create Announcement"}
+              {form.formState.isSubmitting ? "Updating..." : "Update Announcement"}
             </Button>
           </form>
         </Form>
       </CardContent>
     </Card>
   );
-}
+} 

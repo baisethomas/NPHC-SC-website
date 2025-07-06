@@ -1,4 +1,3 @@
-
 import admin from 'firebase-admin';
 
 let adminDb: admin.firestore.Firestore | null = null;
@@ -10,7 +9,10 @@ try {
     if (!projectId) {
       throw new Error("FATAL: NEXT_PUBLIC_FIREBASE_PROJECT_ID environment variable is not set. Please check your .env.local file.");
     }
-    admin.initializeApp({ projectId });
+    admin.initializeApp({
+      credential: admin.credential.applicationDefault(),
+      projectId,
+    });
     console.log("Firebase Admin SDK initialized successfully.");
   }
   // If initialization is successful, get the services.
