@@ -1,3 +1,4 @@
+
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -53,7 +54,7 @@ export default async function Home() {
           ) : announcements.length > 0 ? (
             <div className="grid gap-8 md:grid-cols-3">
               {announcements.map((item) => (
-                <Card key={item.id} className="flex flex-col">
+                <Card key={item.id} className="flex flex-col transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-2">
                   <CardHeader>
                     <CardTitle className="text-xl font-headline">{item.title}</CardTitle>
                     <CardDescription>{item.date}</CardDescription>
@@ -80,7 +81,7 @@ export default async function Home() {
           </div>
           <div className="grid gap-8 md:grid-cols-2">
             {events.map((event, index) => (
-              <Card key={index} className="overflow-hidden">
+              <Card key={index} className="overflow-hidden transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-2">
                 <Image src={event.image} alt={event.title} width={600} height={400} className="w-full h-60 object-cover" data-ai-hint={event.image_hint} />
                 <CardHeader>
                   <CardTitle className="text-xl font-headline">{event.title}</CardTitle>
@@ -108,7 +109,7 @@ export default async function Home() {
             ))}
           </div>
           <div className="text-center mt-12">
-            <Button asChild>
+            <Button asChild className="transition-transform duration-300 ease-in-out hover:scale-105">
               <Link href="/events">View All Events <ArrowRight className="ml-2 h-4 w-4" /></Link>
             </Button>
           </div>
@@ -118,19 +119,18 @@ export default async function Home() {
       <section className="py-16 md:py-24 bg-muted">
         <div className="container">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-headline font-bold">Our Organizations</h2>
-            <p className="text-muted-foreground mt-2">The Divine Nine chapters of Solano County.</p>
+            <h2 className="text-3xl font-headline font-bold">The Divine Nine</h2>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-8 items-center justify-center">
             {organizations.map((org, index) => (
-              <div key={index} className="flex flex-col items-center text-center">
+              <div key={index} className="flex flex-col items-center text-center transition-transform duration-300 ease-in-out hover:scale-110">
                 <Image src={org.logo} alt={`${org.name} logo`} width={200} height={200} className="h-28 w-28 object-contain mb-4" data-ai-hint={org.hint} />
                 <p className="font-semibold text-sm">{org.name}</p>
               </div>
             ))}
           </div>
           <div className="text-center mt-12">
-            <Button asChild>
+            <Button asChild className="transition-transform duration-300 ease-in-out hover:scale-105">
               <Link href="/organizations">Meet The Chapters <ArrowRight className="ml-2 h-4 w-4" /></Link>
             </Button>
           </div>
