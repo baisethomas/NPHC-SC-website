@@ -5,8 +5,8 @@ import { getBoardMembers } from "@/lib/data";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { CheckCircle } from "lucide-react";
 
-export default function AboutPage() {
-  const boardMembers = getBoardMembers();
+export default async function AboutPage() {
+  const boardMembers = await getBoardMembers();
 
   const objectives = [
     "Assist in establishing and facilitating local councils on campuses and within communities.",

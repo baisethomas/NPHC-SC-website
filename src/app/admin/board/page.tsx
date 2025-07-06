@@ -6,8 +6,8 @@ import { PlusCircle, Trash2, Pencil } from "lucide-react";
 import Link from "next/link";
 import { deleteBoardMember } from "./actions";
 
-export default function AdminBoardPage() {
-  const boardMembers = getBoardMembers();
+export default async function AdminBoardPage() {
+  const boardMembers = await getBoardMembers();
 
   return (
     <Card>

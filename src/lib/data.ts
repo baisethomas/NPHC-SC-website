@@ -74,56 +74,32 @@ export interface BoardMember {
   hint: string;
 }
 
-let boardMembers: BoardMember[] = [
-  { id: "eleanor-vance", name: "Eleanor Vance", title: "President", initials: "EV", image: "https://placehold.co/100x100.png", hint: "headshot person" },
-  { id: "marcus-thorne", name: "Marcus Thorne", title: "Vice President", initials: "MT", image: "https://placehold.co/100x100.png", hint: "professional headshot" },
-  { id: "seraphina-cruz", name: "Seraphina Cruz", title: "Secretary", initials: "SC", image: "https://placehold.co/100x100.png", hint: "person smiling" },
-  { id: "julian-hayes", name: "Julian Hayes", title: "Treasurer", initials: "JH", image: "https://placehold.co/100x100.png", hint: "corporate headshot" },
-  { id: "isabella-chen", name: "Isabella Chen", title: "Parliamentarian", initials: "IC", image: "https://placehold.co/100x100.png", hint: "professional person" },
-  { id: "david-rodriguez", name: "David Rodriguez", title: "Director of Community Service", initials: "DR", image: "https://placehold.co/100x100.png", hint: "person outdoors" },
-];
-
-type NewBoardMember = Omit<BoardMember, 'id' | 'image' | 'hint' | 'initials'>;
-
-export function getBoardMembers() {
-  return boardMembers;
+export async function getBoardMembers(): Promise<BoardMember[]> {
+  try {
+    const membersCol = collection(db, 'boardMembers');
+    const memberSnapshot = await getDocs(membersCol);
+    const memberList = memberSnapshot.docs.map(doc => doc.data() as BoardMember);
+    return memberList;
+  } catch (error) {
+    console.error("FIREBASE READ ERROR: Failed to fetch board members. This is often due to Firestore security rules. Please check your Firebase console and ensure the 'boardMembers' collection has public read access.");
+    return [];
+  }
 }
 
-export function getBoardMemberById(id: string): BoardMember | undefined {
-  return boardMembers.find((member) => member.id === id);
-}
-
-export function addBoardMember(member: NewBoardMember) {
-  const initials = member.name
-    .split(' ')
-    .map((n) => n[0])
-    .join('');
+export async function getBoardMemberById(id: string): Promise<BoardMember | undefined> {
+  try {
+    const memberDocRef = doc(db, 'boardMembers', id);
+    const memberSnap = await getDoc(memberDocRef);
     
-  const newMember: BoardMember = {
-    ...member,
-    id: slugify(member.name),
-    initials,
-    image: "https://placehold.co/100x100.png",
-    hint: "person headshot",
-  };
-  boardMembers = [newMember, ...boardMembers];
-}
-
-export function updateBoardMember(id: string, data: { name: string; title: string }) {
-  boardMembers = boardMembers.map((member) => {
-    if (member.id === id) {
-      const initials = data.name
-        .split(' ')
-        .map((n) => n[0])
-        .join('');
-      return { ...member, ...data, initials };
+    if (memberSnap.exists()) {
+      return memberSnap.data() as BoardMember;
+    } else {
+      return undefined;
     }
-    return member;
-  });
-}
-
-export function deleteBoardMember(id: string) {
-  boardMembers = boardMembers.filter((member) => member.id !== id);
+  } catch (error) {
+    console.error(`FIREBASE READ ERROR: Failed to fetch board member with ID '${id}'.`, error);
+    return undefined;
+  }
 }
 
 export interface Organization {
