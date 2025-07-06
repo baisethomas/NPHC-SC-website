@@ -1,14 +1,28 @@
 import type { Metadata } from "next";
+import { Inter, Playfair_Display } from 'next/font/google';
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { cn } from "@/lib/utils";
+
+const fontBody = Inter({ 
+  subsets: ['latin'],
+  variable: '--font-body',
+  display: 'swap',
+});
+
+const fontHeadline = Playfair_Display({
+  subsets: ['latin'],
+  weight: '700',
+  variable: '--font-headline',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: "NPHC Solano Hub",
   description: "The official website for the National Pan-Hellenic Council of Solano County.",
-  icons: null,
 };
 
 export default function RootLayout({
@@ -18,12 +32,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="scroll-smooth">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet" />
-      </head>
-      <body className="font-body antialiased">
+      <body className={cn(
+        "font-body antialiased",
+        fontBody.variable,
+        fontHeadline.variable
+      )}>
         <AuthProvider>
           <div className="flex min-h-screen flex-col">
             <Header />
