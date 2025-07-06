@@ -20,7 +20,7 @@ const handleFirestoreError = (error: unknown, context: string): string => {
   const err = error instanceof Error ? error : new Error(String(error));
   const message = `Failed to ${context}. Message: ${err.message}`;
 
-  if (err.message.includes('Could not refresh access token')) {
+  if (err.message.includes('Could not refresh access token') || err.message.includes('The "payload" argument must be of type object. Received null')) {
     console.warn(`FIREBASE AUTH WARNING: ${message}`);
     return `Database authentication failed. The server could not connect to Firebase. This is common in local development. Run 'gcloud auth application-default login' in your terminal and restart the server.`;
   }
