@@ -2,12 +2,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getBoardMembers } from "@/lib/data";
-import { PlusCircle, Trash2, Pencil } from "lucide-react";
+import { PlusCircle, Trash2, Pencil, Terminal } from "lucide-react";
 import Link from "next/link";
 import { deleteBoardMember } from "./actions";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default async function AdminBoardPage() {
-  const boardMembers = await getBoardMembers();
+  const { boardMembers, error } = await getBoardMembers();
 
   return (
     <Card>
@@ -24,6 +25,15 @@ export default async function AdminBoardPage() {
         </Button>
       </CardHeader>
       <CardContent>
+        {error && (
+            <Alert variant="destructive" className="mb-4">
+                <Terminal className="h-4 w-4" />
+                <AlertTitle>Error Loading Data</AlertTitle>
+                <AlertDescription>
+                   {error}
+                </AlertDescription>
+            </Alert>
+        )}
         <Table>
           <TableHeader>
             <TableRow>

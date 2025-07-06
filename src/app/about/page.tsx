@@ -3,10 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getBoardMembers } from "@/lib/data";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Terminal } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default async function AboutPage() {
-  const boardMembers = await getBoardMembers();
+  const { boardMembers, error } = await getBoardMembers();
 
   const objectives = [
     "Assist in establishing and facilitating local councils on campuses and within communities.",
@@ -94,22 +95,32 @@ export default async function AboutPage() {
             <h2 className="text-3xl font-headline font-bold">Executive Board</h2>
             <p className="text-muted-foreground mt-2">Meet the leaders guiding our council.</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {boardMembers.map((member) => (
-              <Card key={member.name} className="text-center">
-                <CardHeader className="items-center">
-                  <Avatar className="w-24 h-24 mb-4">
-                    <AvatarImage src={member.image} alt={member.name} data-ai-hint={member.hint} />
-                    <AvatarFallback>{member.initials}</AvatarFallback>
-                  </Avatar>
-                  <CardTitle className="font-headline text-xl">{member.name}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-primary/70 font-medium">{member.title}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          {error ? (
+             <Alert variant="destructive" className="max-w-2xl mx-auto">
+                <Terminal className="h-4 w-4" />
+                <AlertTitle>Error Loading Board Members</AlertTitle>
+                <AlertDescription>
+                    There was an issue fetching board members from the database. This may be due to a configuration or permissions issue.
+                </AlertDescription>
+            </Alert>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              {boardMembers.map((member) => (
+                <Card key={member.id} className="text-center">
+                  <CardHeader className="items-center">
+                    <Avatar className="w-24 h-24 mb-4">
+                      <AvatarImage src={member.image} alt={member.name} data-ai-hint={member.hint} />
+                      <AvatarFallback>{member.initials}</AvatarFallback>
+                    </Avatar>
+                    <CardTitle className="font-headline text-xl">{member.name}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-primary/70 font-medium">{member.title}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </div>

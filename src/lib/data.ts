@@ -74,15 +74,16 @@ export interface BoardMember {
   hint: string;
 }
 
-export async function getBoardMembers(): Promise<BoardMember[]> {
+export async function getBoardMembers(): Promise<{ boardMembers: BoardMember[], error: string | null }> {
   try {
     const membersCol = collection(db, 'boardMembers');
     const memberSnapshot = await getDocs(membersCol);
     const memberList = memberSnapshot.docs.map(doc => doc.data() as BoardMember);
-    return memberList;
+    return { boardMembers: memberList, error: null };
   } catch (error) {
-    console.error("FIREBASE READ ERROR: Failed to fetch board members. This is often due to Firestore security rules. Please check your Firebase console and ensure the 'boardMembers' collection has public read access.");
-    return [];
+    const errorMessage = "FIREBASE READ ERROR: Failed to fetch board members. This is often due to Firestore security rules. Please check your Firebase console and ensure the 'boardMembers' collection has public read access.";
+    console.error(errorMessage, error);
+    return { boardMembers: [], error: errorMessage };
   }
 }
 
