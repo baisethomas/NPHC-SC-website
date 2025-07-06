@@ -5,14 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight, Calendar, Clock, MapPin, Terminal } from "lucide-react";
 import { getEvents, getAnnouncements } from "@/lib/data";
-import { getDivineNineOrganizations } from "@/lib/definitions";
+import { getDivineNineOrganizations, type DivineNineOrganization } from "@/lib/definitions";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default async function Home() {
   const events = (await getEvents()).slice(0, 2);
   const { announcements, error: announcementsError } = await getAnnouncements();
   const latestAnnouncements = announcements.slice(0, 3);
-  const organizations = getDivineNineOrganizations();
+  const organizations: DivineNineOrganization[] = getDivineNineOrganizations();
 
   return (
     <div className="flex flex-col">
@@ -142,7 +142,7 @@ export default async function Home() {
            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-x-6 gap-y-12 items-start justify-center">
               {organizations.map((org, index) => (
                 <div key={index} className="flex flex-col items-center text-center group">
-                  <div className="p-2 bg-background rounded-lg shadow-md transition-all duration-300 ease-in-out group-hover:shadow-xl group-hover:-translate-y-2">
+                  <div className="flex items-center justify-center h-32 transition-transform duration-300 ease-in-out group-hover:-translate-y-2">
                     <Image src={org.logo} alt={`${org.name} logo`} width={200} height={200} className="h-28 w-28 object-contain" data-ai-hint={org.hint} />
                   </div>
                   <p className="mt-4 font-semibold text-sm h-10">{org.name}</p>
