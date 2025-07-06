@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,9 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import { db } from "@/lib/firebase";
-import { doc, setDoc } from "firebase/firestore";
-import { slugify, type Announcement } from "@/lib/data";
+import { createAnnouncement } from "../actions";
 
 const formSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters."),
@@ -41,34 +40,20 @@ export default function NewAnnouncementPage() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    try {
-      const slug = slugify(values.title);
+    const result = await createAnnouncement(values);
 
-      const newAnnouncement: Announcement = {
-        id: slug,
-        title: values.title,
-        date: values.date,
-        description: values.description,
-      };
-
-      await setDoc(doc(db, "announcements", slug), newAnnouncement);
-      
-      toast({
-        title: "Announcement Created!",
-        description: "The new announcement has been added successfully.",
-      });
-
-      router.push("/admin/announcements");
-      router.refresh();
-
-    } catch (error) {
-       console.error("Submission failed:", error);
-       const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+    if (result?.error) {
        toast({
         variant: "destructive",
         title: "Submission Error",
-        description: `An unexpected error occurred: ${errorMessage}`,
+        description: result.error,
        });
+    } else {
+       toast({
+        title: "Announcement Created!",
+        description: "The new announcement has been added successfully.",
+      });
+      router.push("/admin/announcements");
     }
   }
 
@@ -98,7 +83,7 @@ export default function NewAnnouncementPage() {
             <FormField control={form.control} name="description" render={({ field }) => (
               <FormItem>
                 <FormLabel>Description</FormLabel>
-                <FormControl><Textarea placeholder="Join us for our biggest fundraising event..." className="min-h-[150px]" {...field} /></FormControl>
+                <FormControl><Textarea placeholder="Join us for our biggest fundraising event... You can create paragraphs by pressing Enter." className="min-h-[150px]" {...field} /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />

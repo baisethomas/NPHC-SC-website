@@ -18,6 +18,7 @@ const baseNavLinks = [
   { href: "/about", label: "About Us" },
   { href: "/organizations", label: "Organizations" },
   { href: "/events", label: "Events" },
+  { href: "/news", label: "News" },
   { href: "/contact", label: "Contact Us" },
 ];
 
@@ -56,7 +57,7 @@ export function Header() {
               </Link>
             ))}
              {!loading && user && (
-                <Link href="/admin" className={cn("transition-colors hover:text-foreground/80", pathname === "/admin" ? "text-foreground" : "text-foreground/60")}>
+                <Link href="/admin" className={cn("transition-colors hover:text-foreground/80", pathname.startsWith("/admin") ? "text-foreground" : "text-foreground/60")}>
                   Admin
                 </Link>
             )}
@@ -113,7 +114,7 @@ export function Header() {
                       onClick={() => setIsOpen(false)}
                       className={cn(
                         "text-lg font-medium transition-colors hover:text-primary rounded-md px-3 py-2 w-full",
-                        pathname === "/admin" && "bg-muted"
+                        pathname.startsWith("/admin") && "bg-muted"
                       )}
                     >
                       Admin

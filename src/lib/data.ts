@@ -1,3 +1,4 @@
+
 import { adminDb } from './firebase-admin';
 
 export interface Event {
@@ -83,6 +84,26 @@ export async function getAnnouncements(): Promise<{announcements: Announcement[]
   } catch (error) {
     const errorMessage = handleFirestoreError(error, 'fetch announcements');
     return { announcements: [], error: errorMessage };
+  }
+}
+
+export async function getAnnouncementBySlug(slug: string): Promise<Announcement | undefined> {
+   if (!adminDb) {
+    handleFirestoreError(new Error("Firebase Admin SDK not initialized."), `fetch announcement with slug '${slug}'`);
+    return undefined;
+  }
+  try {
+    const docRef = adminDb.collection('announcements').doc(slug);
+    const docSnap = await docRef.get();
+    
+    if (docSnap.exists) {
+      return docSnap.data() as Announcement;
+    } else {
+      return undefined;
+    }
+  } catch (error) {
+    handleFirestoreError(error, `fetch announcement with slug '${slug}'`);
+    return undefined;
   }
 }
 

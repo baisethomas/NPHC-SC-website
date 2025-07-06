@@ -10,6 +10,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 export default async function Home() {
   const events = (await getEvents()).slice(0, 2);
   const { announcements, error: announcementsError } = await getAnnouncements();
+  const latestAnnouncements = announcements.slice(0, 3);
   const organizations = getDivineNineOrganizations();
 
   return (
@@ -39,7 +40,7 @@ export default async function Home() {
       <section className="py-16 md:py-24 bg-muted">
         <div className="container">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-headline font-bold">News & Announcements</h2>
+            <h2 className="text-3xl font-headline font-bold">Latest News</h2>
             <p className="text-muted-foreground mt-2">The latest updates from our council and member chapters.</p>
           </div>
           
@@ -51,20 +52,34 @@ export default async function Home() {
                 Could not fetch announcements from the database. This may be due to a configuration issue.
               </AlertDescription>
             </Alert>
-          ) : announcements.length > 0 ? (
-            <div className="grid gap-8 md:grid-cols-3">
-              {announcements.map((item) => (
-                <Card key={item.id} className="flex flex-col transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-2">
-                  <CardHeader>
-                    <CardTitle className="text-xl font-headline">{item.title}</CardTitle>
-                    <CardDescription>{item.date}</CardDescription>
-                  </CardHeader>
-                  <CardContent className="flex-grow">
-                    <p>{item.description}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+          ) : latestAnnouncements.length > 0 ? (
+            <>
+              <div className="grid gap-8 md:grid-cols-3">
+                {latestAnnouncements.map((item) => (
+                  <Card key={item.id} className="flex flex-col transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-2">
+                    <CardHeader>
+                      <CardTitle className="text-xl font-headline">
+                         <Link href={`/news/${item.id}`} className="hover:underline">{item.title}</Link>
+                      </CardTitle>
+                      <CardDescription>{item.date}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex-grow">
+                      <p className="line-clamp-4 text-muted-foreground">{item.description}</p>
+                    </CardContent>
+                    <CardFooter>
+                       <Button asChild variant="link" className="p-0 h-auto font-semibold">
+                         <Link href={`/news/${item.id}`}>Read More <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                       </Button>
+                    </CardFooter>
+                  </Card>
+                ))}
+              </div>
+              <div className="text-center mt-12">
+                <Button asChild className="transition-transform duration-300 ease-in-out hover:scale-105">
+                  <Link href="/news">View All News <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                </Button>
+              </div>
+            </>
           ) : (
             <div className="text-center py-8">
               <p className="text-muted-foreground">There are no announcements at this time.</p>
