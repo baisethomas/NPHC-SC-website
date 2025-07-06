@@ -8,6 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 export const metadata: Metadata = {
   title: "NPHC Solano Hub",
   description: "The official website for the National Pan-Hellenic Council of Solano County.",
+  icons: null,
 };
 
 export default function RootLayout({

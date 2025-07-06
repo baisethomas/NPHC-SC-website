@@ -17,7 +17,7 @@ export const slugify = (text: string) => text.toLowerCase().replace(/\s+/g, '-')
 
 const handleFirestoreError = (error: unknown, context: string): string => {
   const err = error instanceof Error ? error : new Error(String(error));
-  console.error(`FIREBASE READ ERROR: Failed to ${context}.`, { cause: err });
+  console.error(`FIREBASE READ ERROR: Failed to ${context}.`, err);
   if (err.message.includes('Could not refresh access token')) {
     return `Database authentication failed. The server could not connect to Firebase. This is common in local development when Application Default Credentials are not configured. See server logs for details.`;
   }
@@ -38,7 +38,7 @@ export async function getEvents(): Promise<Event[]> {
     const eventList = eventSnapshot.docs.map(doc => doc.data() as Event);
     return eventList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   } catch (error) {
-    console.error(handleFirestoreError(error, 'fetch events'));
+    handleFirestoreError(error, 'fetch events');
     return [];
   }
 }
@@ -58,7 +58,7 @@ export async function getEventBySlug(slug: string): Promise<Event | undefined> {
       return undefined;
     }
   } catch (error) {
-    console.error(handleFirestoreError(error, `fetch event with slug '${slug}'`));
+    handleFirestoreError(error, `fetch event with slug '${slug}'`);
     return undefined;
   }
 }
@@ -127,7 +127,7 @@ export async function getBoardMemberById(id: string): Promise<BoardMember | unde
       return undefined;
     }
   } catch (error) {
-    console.error(handleFirestoreError(error, `fetch board member with ID '${id}'`));
+    handleFirestoreError(error, `fetch board member with ID '${id}'`);
     return undefined;
   }
 }
