@@ -6,13 +6,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { ArrowRight, Calendar, Clock, MapPin, Terminal } from "lucide-react";
 import { getEvents, getAnnouncements, getDivineNineOrganizations } from "@/lib/data";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel"
 
 export default async function Home() {
   const events = (await getEvents()).slice(0, 2);
@@ -25,8 +18,8 @@ export default async function Home() {
         <Image src="https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/photos%2F486065740_4131253287097506_5154761858775003667_n.jpg?alt=media&token=98ce7896-a868-4359-80d6-5177068e11df" alt="NPHC Solano County members" layout="fill" objectFit="cover" className="z-0" data-ai-hint="community gathering" />
         <div className="absolute inset-0 bg-black/60 z-10" />
         <div className="z-20 p-4">
-          <h1 className="text-4xl md:text-6xl font-headline font-bold mb-4 tracking-tight">NPHC of Solano County</h1>
-          <p className="max-w-2xl mx-auto text-lg md:text-xl text-primary-foreground/90">
+          <h1 className="text-4xl md:text-6xl font-headline font-bold mb-4 tracking-tight animate-fade-in-up">NPHC of Solano County</h1>
+          <p className="max-w-2xl mx-auto text-lg md:text-xl text-primary-foreground/90 animate-fade-in-up animation-delay-200">
             Fostering brotherhood and sisterhood, scholarship, and service within the Solano County community.
           </p>
         </div>
@@ -130,25 +123,16 @@ export default async function Home() {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-headline font-bold">The Divine Nine</h2>
           </div>
-           <Carousel 
-            opts={{ align: "start", loop: true }}
-            className="w-full max-w-sm sm:max-w-xl md:max-w-2xl lg:max-w-4xl mx-auto"
-          >
-            <CarouselContent>
+           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-x-6 gap-y-12 items-start justify-center">
               {organizations.map((org, index) => (
-                <CarouselItem key={index} className="sm:basis-1/2 md:basis-1/3">
-                  <div className="p-2">
-                      <div className="flex flex-col items-center justify-center text-center p-6 bg-background rounded-lg h-52">
-                        <Image src={org.logo} alt={`${org.name} logo`} width={200} height={200} className="h-28 w-28 object-contain mb-4" data-ai-hint={org.hint} />
-                        <p className="font-semibold text-sm">{org.name}</p>
-                      </div>
+                <div key={index} className="flex flex-col items-center text-center group">
+                  <div className="p-2 bg-background rounded-lg shadow-md transition-all duration-300 ease-in-out group-hover:shadow-xl group-hover:-translate-y-2">
+                    <Image src={org.logo} alt={`${org.name} logo`} width={200} height={200} className="h-28 w-28 object-contain" data-ai-hint={org.hint} />
                   </div>
-                </CarouselItem>
+                  <p className="mt-4 font-semibold text-sm h-10">{org.name}</p>
+                </div>
               ))}
-            </CarouselContent>
-            <CarouselPrevious className="hidden sm:inline-flex" />
-            <CarouselNext className="hidden sm:inline-flex" />
-          </Carousel>
+            </div>
           <div className="text-center mt-12">
             <Button asChild className="transition-transform duration-300 ease-in-out hover:scale-105">
               <Link href="/organizations">Meet The Chapters <ArrowRight className="ml-2 h-4 w-4" /></Link>
