@@ -9,6 +9,26 @@ export interface Event {
   image: string;
   image_hint: string;
   rsvpLink: string;
+  status?: 'draft' | 'published' | 'scheduled';
+  publishDate?: string;
+  scheduledDate?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  eventType: 'internal' | 'external' | 'info_only';
+  rsvpEnabled: boolean;
+  externalLink?: string;
+  maxAttendees?: number;
+  currentAttendees?: number;
+}
+
+export interface EventRSVP {
+  id: string;
+  eventId: string;
+  name: string;
+  email: string;
+  guestCount: number;
+  timestamp: string;
+  phone?: string;
 }
 
 export interface Announcement {
@@ -17,6 +37,11 @@ export interface Announcement {
   date: string;
   description: string;
   imageUrl?: string;
+  status?: 'draft' | 'published' | 'scheduled';
+  publishDate?: string;
+  scheduledDate?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface BoardMember {

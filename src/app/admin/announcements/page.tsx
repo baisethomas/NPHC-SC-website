@@ -1,14 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getAnnouncements } from "@/lib/data";
-import { PlusCircle, Trash2, Terminal } from "lucide-react";
+import { PlusCircle, Terminal } from "lucide-react";
 import Link from "next/link";
-import { deleteAnnouncement } from "./actions";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AnnouncementsTable } from "./announcements-table";
 
 export default async function AdminAnnouncementsPage() {
-  const { announcements, error } = await getAnnouncements();
+  const { announcements, error } = await getAnnouncements(true); // Include all content in admin
 
   return (
     <Card>
@@ -34,37 +33,8 @@ export default async function AdminAnnouncementsPage() {
                 </AlertDescription>
             </Alert>
         )}
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {announcements.map((announcement) => (
-              <TableRow key={announcement.id}>
-                <TableCell className="font-medium">{announcement.title}</TableCell>
-                <TableCell>{announcement.date}</TableCell>
-                <TableCell className="text-right">
-                  <Link href={`/admin/announcements/${announcement.id}/edit`}>
-                    <Button variant="ghost" size="icon" type="button">
-                      Edit
-                    </Button>
-                  </Link>
-                  <form action="/api/delete-announcement" method="POST" className="inline-block">
-                    <input type="hidden" name="id" value={announcement.id} />
-                    <Button variant="ghost" size="icon" type="submit">
-                      <Trash2 className="h-4 w-4" />
-                      <span className="sr-only">Delete</span>
-                    </Button>
-                  </form>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        
+        <AnnouncementsTable announcements={announcements} />
       </CardContent>
     </Card>
   );

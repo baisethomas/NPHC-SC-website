@@ -2,7 +2,8 @@ import { getEventBySlug } from '@/lib/data';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Calendar, Clock, MapPin } from 'lucide-react';
+import { Calendar, Clock, MapPin, ExternalLink, Info } from 'lucide-react';
+import { RSVPButton } from '@/components/rsvp-button';
 
 export default async function EventDetailPage({ params }: { params: { slug: string } }) {
   const event = await getEventBySlug(params.slug);
@@ -42,13 +43,41 @@ export default async function EventDetailPage({ params }: { params: { slug: stri
             </div>
           </div>
           
-          <p className="text-foreground/80 leading-relaxed">{event.description}</p>
+          <div className="text-foreground/80 leading-relaxed">
+            {event.description.includes('<') && event.description.includes('>') ? (
+              <div 
+                className="prose prose-lg max-w-none"
+                dangerouslySetInnerHTML={{ __html: event.description }}
+              />
+            ) : (
+              <p>{event.description}</p>
+            )}
+          </div>
           
-          <Button asChild size="lg" className="mt-4">
-            <a href={event.rsvpLink} target="_blank" rel="noopener noreferrer">
-              RSVP / Learn More
-            </a>
-          </Button>
+          <div className="mt-6">
+            {event.eventType === 'internal' && event.rsvpEnabled ? (
+              <RSVPButton event={event} />
+            ) : event.eventType === 'external' && event.externalLink ? (
+              <Button asChild size="lg" className="w-full">
+                <a href={event.externalLink} target="_blank" rel="noopener noreferrer">
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Register on External Site
+                </a>
+              </Button>
+            ) : event.eventType === 'external' && event.rsvpLink ? (
+              <Button asChild size="lg" className="w-full">
+                <a href={event.rsvpLink} target="_blank" rel="noopener noreferrer">
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Learn More
+                </a>
+              </Button>
+            ) : (
+              <Button size="lg" variant="outline" className="w-full">
+                <Info className="h-4 w-4 mr-2" />
+                More Information Coming Soon
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </div>

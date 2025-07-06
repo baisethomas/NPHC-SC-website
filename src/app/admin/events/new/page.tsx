@@ -14,7 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
@@ -23,6 +23,8 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 
 import { uploadFile } from "@/lib/storage";
 import { db } from "@/lib/firebase";
@@ -30,6 +32,7 @@ import { doc, setDoc } from "firebase/firestore";
 import type { Event } from "@/lib/definitions";
 import { slugify } from "@/lib/definitions";
 import { LocationAutocomplete } from "@/components/location-autocomplete";
+import { EventPreview } from "@/components/ui/content-preview";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
@@ -42,6 +45,10 @@ const formSchema = z.object({
   time: z.string().min(2, "Time is required."),
   location: z.string().min(2, "Location is required."),
   description: z.string().min(10, "Description must be at least 10 characters."),
+  eventType: z.enum(['internal', 'external', 'info_only']),
+  rsvpEnabled: z.boolean(),
+  externalLink: z.string().url().optional().or(z.literal("")),
+  maxAttendees: z.number().optional(),
   image: z
     .any()
     .refine((files) => files?.length == 1, "Image is required.")
@@ -50,6 +57,14 @@ const formSchema = z.object({
       (files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
       ".jpg, .jpeg, .png and .webp files are accepted."
     ),
+}).refine((data) => {
+  if (data.eventType === 'external' && !data.externalLink) {
+    return false;
+  }
+  return true;
+}, {
+  message: "External link is required for external events",
+  path: ["externalLink"],
 });
 
 export default function NewEventPage() {
@@ -63,6 +78,10 @@ export default function NewEventPage() {
       time: "",
       location: "",
       description: "",
+      eventType: "internal" as const,
+      rsvpEnabled: true,
+      externalLink: "",
+      maxAttendees: undefined,
       image: undefined,
     },
   });
@@ -93,7 +112,12 @@ export default function NewEventPage() {
         description: values.description,
         image: imageUrl,
         image_hint: "community event",
-        rsvpLink: "#",
+        rsvpLink: values.externalLink || "#",
+        eventType: values.eventType,
+        rsvpEnabled: values.rsvpEnabled,
+        externalLink: values.externalLink || undefined,
+        maxAttendees: values.maxAttendees,
+        currentAttendees: 0,
       };
 
       await setDoc(doc(db, "events", slug), newEvent);
@@ -208,13 +232,112 @@ export default function NewEventPage() {
             <FormField control={form.control} name="description" render={({ field }) => (
               <FormItem>
                 <FormLabel>Description</FormLabel>
-                <FormControl><Textarea placeholder="Join us for an elegant evening..." className="min-h-[150px]" {...field} /></FormControl>
+                <FormControl>
+                  <RichTextEditor 
+                    content={field.value} 
+                    onChange={field.onChange}
+                    placeholder="Join us for an elegant evening... You can use formatting, headings, lists, and more."
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )} />
-            <Button type="submit" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? "Creating..." : "Create Event"}
-            </Button>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-6">
+              <FormField control={form.control} name="eventType" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Event Type</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select event type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="internal">NPHC Internal Event</SelectItem>
+                      <SelectItem value="external">Chapter/External Event</SelectItem>
+                      <SelectItem value="info_only">Information Only</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )} />
+
+              <FormField control={form.control} name="rsvpEnabled" render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Enable RSVP</FormLabel>
+                    <p className="text-sm text-muted-foreground">
+                      Allow people to RSVP for this event
+                    </p>
+                  </div>
+                </FormItem>
+              )} />
+            </div>
+
+            {form.watch("eventType") === "external" && (
+              <FormField control={form.control} name="externalLink" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>External Registration Link</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="https://eventbrite.com/event/..." 
+                      {...field} 
+                    />
+                  </FormControl>
+                  <p className="text-sm text-muted-foreground">
+                    Link to Eventbrite, Facebook event, or other registration page
+                  </p>
+                  <FormMessage />
+                </FormItem>
+              )} />
+            )}
+
+            {form.watch("eventType") === "internal" && form.watch("rsvpEnabled") && (
+              <FormField control={form.control} name="maxAttendees" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Maximum Attendees (Optional)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="number" 
+                      placeholder="50" 
+                      value={field.value || ''}
+                      onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                    />
+                  </FormControl>
+                  <p className="text-sm text-muted-foreground">
+                    Leave empty for unlimited capacity
+                  </p>
+                  <FormMessage />
+                </FormItem>
+              )} />
+            )}
+            
+            <div className="flex gap-4">
+              <EventPreview 
+                event={{
+                  title: form.watch("title"),
+                  date: form.watch("date") ? new Date(form.watch("date")).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  }) : undefined,
+                  time: form.watch("time"),
+                  location: form.watch("location"),
+                  description: form.watch("description"),
+                  image: form.watch("image")?.[0] ? URL.createObjectURL(form.watch("image")[0]) : undefined
+                }}
+              />
+              <Button type="submit" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? "Creating..." : "Create Event"}
+              </Button>
+            </div>
           </form>
         </Form>
       </CardContent>

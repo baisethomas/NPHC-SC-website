@@ -10,6 +10,8 @@ const formSchema = z.object({
   date: z.string().min(2, "Date is required."),
   description: z.string().min(10, "Description must be at least 10 characters."),
   imageUrl: z.string().url().optional().or(z.literal("").optional()),
+  status: z.enum(['draft', 'published', 'scheduled']).optional().default('published'),
+  scheduledDate: z.string().optional(),
 });
 
 export async function createAnnouncement(values: z.infer<typeof formSchema>) {
@@ -23,15 +25,21 @@ export async function createAnnouncement(values: z.infer<typeof formSchema>) {
     return { error: 'Invalid fields!' };
   }
 
-  const { title, date, description, imageUrl } = validatedFields.data;
+  const { title, date, description, imageUrl, status, scheduledDate } = validatedFields.data;
   const slug = slugify(title);
+  const now = new Date().toISOString();
 
   const newAnnouncement: Announcement = {
     id: slug,
     title,
     date,
     description,
+    status: status || 'published',
+    createdAt: now,
+    updatedAt: now,
     ...(imageUrl ? { imageUrl } : {}),
+    ...(status === 'published' ? { publishDate: now } : {}),
+    ...(status === 'scheduled' && scheduledDate ? { scheduledDate } : {}),
   };
 
   try {
@@ -115,9 +123,22 @@ export async function updateAnnouncement(id: string, values: z.infer<typeof form
   if (!validatedFields.success) {
     return { error: 'Invalid fields!' };
   }
-  const { title, date, description, imageUrl } = validatedFields.data;
+  const { title, date, description, imageUrl, status, scheduledDate } = validatedFields.data;
+  const now = new Date().toISOString();
+  
+  const updateData: Partial<Announcement> = {
+    title,
+    date,
+    description,
+    status: status || 'published',
+    updatedAt: now,
+    ...(imageUrl ? { imageUrl } : {}),
+    ...(status === 'published' ? { publishDate: now } : {}),
+    ...(status === 'scheduled' && scheduledDate ? { scheduledDate } : {}),
+  };
+
   try {
-    await adminDb.collection("announcements").doc(id).update({ title, date, description, ...(imageUrl ? { imageUrl } : {}) });
+    await adminDb.collection("announcements").doc(id).update(updateData);
     revalidatePath('/');
     revalidatePath('/admin/announcements');
     revalidatePath('/news');

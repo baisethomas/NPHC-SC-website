@@ -51,13 +51,25 @@ export async function getEventBySlug(slug: string): Promise<Event | undefined> {
   }
 }
 
-export async function getAnnouncements(): Promise<{announcements: Announcement[], error: string | null}> {
+export async function getAnnouncements(includeAll = false): Promise<{announcements: Announcement[], error: string | null}> {
   if (!adminDb) {
     return { announcements: [], error: 'Firebase Admin SDK is not initialized. Cannot fetch announcements.' };
   }
   try {
     const announcementSnapshot = await adminDb.collection('announcements').get();
-    const announcementList = announcementSnapshot.docs.map(doc => doc.data() as Announcement);
+    let announcementList = announcementSnapshot.docs.map(doc => doc.data() as Announcement);
+    
+    if (!includeAll) {
+      const now = new Date();
+      announcementList = announcementList.filter(announcement => {
+        if (!announcement.status || announcement.status === 'published') return true;
+        if (announcement.status === 'scheduled' && announcement.scheduledDate) {
+          return new Date(announcement.scheduledDate) <= now;
+        }
+        return false;
+      });
+    }
+    
     const sortedList = announcementList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     return { announcements: sortedList, error: null };
   } catch (error) {

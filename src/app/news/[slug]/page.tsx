@@ -9,8 +9,9 @@ export default async function AnnouncementDetailPage({ params }: { params: { slu
     notFound();
   }
 
-  // A simple way to treat newlines as paragraphs
-  const paragraphs = announcement.description.split('\n').filter(p => p.trim() !== '');
+  // Check if content is HTML (from rich text editor) or plain text
+  const isHtml = announcement.description.includes('<') && announcement.description.includes('>');
+  const paragraphs = isHtml ? [] : announcement.description.split('\n').filter(p => p.trim() !== '');
 
   return (
     <div className="bg-background">
@@ -37,9 +38,16 @@ export default async function AnnouncementDetailPage({ params }: { params: { slu
         <section className="py-16 md:py-24">
             <div className="container">
                  <div className="max-w-3xl mx-auto space-y-6 text-lg leading-relaxed text-foreground/90">
-                    {paragraphs.map((paragraph, index) => (
+                    {isHtml ? (
+                      <div 
+                        className="prose prose-lg max-w-none"
+                        dangerouslySetInnerHTML={{ __html: announcement.description }}
+                      />
+                    ) : (
+                      paragraphs.map((paragraph, index) => (
                         <p key={index}>{paragraph}</p>
-                    ))}
+                      ))
+                    )}
                 </div>
             </div>
         </section>
