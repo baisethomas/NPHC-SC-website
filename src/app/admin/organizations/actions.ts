@@ -1,9 +1,9 @@
-
 'use server';
 
 import { z } from 'zod';
-import { addOrganization, deleteOrganization as deleteOrganizationFromDb, updateOrganization as updateOrganizationInDb } from '@/lib/data';
 import { revalidatePath } from 'next/cache';
+import { adminDb } from '@/lib/firebase-admin';
+import { slugify } from '@/lib/data';
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
@@ -14,16 +14,31 @@ const formSchema = z.object({
 });
 
 export async function createOrganization(values: z.infer<typeof formSchema>) {
+  if (!adminDb) {
+    return { error: 'Firebase Admin SDK not initialized.' };
+  }
   try {
     const validatedFields = formSchema.safeParse(values);
-
     if (!validatedFields.success) {
-      return {
-        error: 'Invalid fields!',
-      };
+      return { error: 'Invalid fields!' };
     }
     
-    addOrganization(validatedFields.data);
+    const { name, chapter, description, link, president } = validatedFields.data;
+    const id = slugify(`${name}-${chapter}`);
+    
+    const newOrg = {
+      id,
+      name,
+      chapter,
+      description,
+      link,
+      president,
+      logo: "https://placehold.co/200x200.png",
+      hint: "organization crest",
+    };
+
+    await adminDb.collection('organizations').doc(id).set(newOrg);
+
     revalidatePath('/organizations');
     revalidatePath('/admin/organizations');
     revalidatePath('/');
@@ -31,12 +46,15 @@ export async function createOrganization(values: z.infer<typeof formSchema>) {
 
   } catch (e: unknown) {
     const error = e instanceof Error ? e : new Error(String(e));
-    console.error(`Organization Creation Failed: ${error.message}`, {cause: error});
+    console.error(`Organization Creation Failed: ${error.message}`);
     return { error: 'An unexpected server error occurred. Please try again later.' };
   }
 }
 
 export async function deleteOrganization(formData: FormData) {
+  if (!adminDb) {
+    return { error: 'Firebase Admin SDK not initialized.' };
+  }
   try {
     const id = formData.get('id') as string;
     if (!id) {
@@ -45,14 +63,14 @@ export async function deleteOrganization(formData: FormData) {
       };
     }
 
-    deleteOrganizationFromDb(id);
+    await adminDb.collection('organizations').doc(id).delete();
     revalidatePath('/organizations');
     revalidatePath('/admin/organizations');
     revalidatePath('/');
     return { success: true };
   } catch (e: unknown) {
     const error = e instanceof Error ? e : new Error(String(e));
-    console.error(`Organization Deletion Failed: ${error.message}`, {cause: error});
+    console.error(`Organization Deletion Failed: ${error.message}`);
     return { error: 'An unexpected server error occurred while deleting the organization.' };
   }
 }
@@ -64,6 +82,9 @@ const updateFormSchema = z.object({
 });
 
 export async function updateOrganization(values: z.infer<typeof updateFormSchema>) {
+    if (!adminDb) {
+        return { error: 'Firebase Admin SDK not initialized.' };
+    }
     try {
         const validatedFields = updateFormSchema.safeParse(values);
 
@@ -71,7 +92,8 @@ export async function updateOrganization(values: z.infer<typeof updateFormSchema
             return { error: 'Invalid fields!' };
         }
 
-        updateOrganizationInDb(validatedFields.data);
+        const { id, link, president } = validatedFields.data;
+        await adminDb.collection('organizations').doc(id).update({ link, president });
 
         revalidatePath('/organizations');
         revalidatePath('/admin/organizations');

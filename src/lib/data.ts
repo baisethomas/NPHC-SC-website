@@ -1,6 +1,4 @@
-
 import { adminDb } from './firebase-admin';
-import { db } from './firebase';
 
 export interface Event {
   id: string;
@@ -17,18 +15,16 @@ export interface Event {
 
 export const slugify = (text: string) => text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
 
-const handleFetchWarning = (error: unknown, context: string): string => {
+const handleFirestoreError = (error: unknown, context: string): string => {
   const err = error instanceof Error ? error : new Error(String(error));
-  console.warn(`FIREBASE FETCH WARNING (${context}):`, err.message);
-  
-  if (err.message.includes('permission-denied') || err.message.includes('insufficient permissions')) {
-    return `Failed to fetch ${context}. This is due to Firestore security rules. Please check your Firebase project configuration and ensure public read access is enabled for this collection.`;
-  }
+  const message = `Failed to ${context}. Message: ${err.message}`;
 
   if (err.message.includes('Could not refresh access token')) {
-    return `Database authentication failed. The server could not connect to Firebase. To fix this for local development, run 'gcloud auth application-default login' in your terminal and restart the server.`;
+    console.warn(`FIREBASE AUTH WARNING: ${message}`);
+    return `Database authentication failed. The server could not connect to Firebase. This is common in local development. Run 'gcloud auth application-default login' in your terminal and restart the server.`;
   }
   
+  console.error(`FIREBASE READ ERROR: ${message}`);
   return `An unexpected error occurred while fetching ${context}. Please check the server logs for more details.`;
 };
 
@@ -85,7 +81,7 @@ export async function getAnnouncements(): Promise<{announcements: Announcement[]
     const sortedList = announcementList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     return { announcements: sortedList, error: null };
   } catch (error) {
-    const errorMessage = handleFetchWarning(error, 'announcements');
+    const errorMessage = handleFirestoreError(error, 'fetch announcements');
     return { announcements: [], error: errorMessage };
   }
 }
@@ -101,7 +97,7 @@ export interface BoardMember {
 
 export async function getBoardMembers(): Promise<{ boardMembers: BoardMember[], error: string | null }> {
   if (!adminDb) {
-    return { boardMembers: [], error: 'Firebase Admin SDK is not initialized. Cannot fetch board members.' };
+    return { boardMembers: [], error: handleFirestoreError(new Error("Firebase Admin SDK not initialized."), "fetch board members") };
   }
   try {
     const memberSnapshot = await adminDb.collection('boardMembers').get();
@@ -135,14 +131,14 @@ export async function getBoardMembers(): Promise<{ boardMembers: BoardMember[], 
 
     return { boardMembers: memberList, error: null };
   } catch (error) {
-    const errorMessage = handleFetchWarning(error, 'board members');
+    const errorMessage = handleFirestoreError(error, 'fetch board members');
     return { boardMembers: [], error: errorMessage };
   }
 }
 
 export async function getBoardMemberById(id: string): Promise<BoardMember | undefined> {
   if (!adminDb) {
-    console.warn(`Firebase Admin SDK not initialized. Cannot fetch board member with ID '${id}'.`);
+    handleFirestoreError(new Error("Firebase Admin SDK not initialized."), `fetch board member with ID '${id}'`);
     return undefined;
   }
   try {
@@ -164,7 +160,7 @@ export async function getBoardMemberById(id: string): Promise<BoardMember | unde
       return undefined;
     }
   } catch (error) {
-    handleFetchWarning(error, `board member with ID '${id}'`);
+    handleFirestoreError(error, `fetch board member with ID '${id}'`);
     return undefined;
   }
 }
@@ -180,7 +176,7 @@ export interface Organization {
   president: string;
 }
 
-let organizations: Organization[] = [
+const initialOrganizations: Organization[] = [
     {
     id: "alpha-kappa-alpha-sorority-inc--kappa-beta-omega-chapter",
     name: "Alpha Kappa Alpha Sorority, Inc.",
@@ -253,41 +249,64 @@ let organizations: Organization[] = [
   },
 ];
 
-type NewOrganization = Omit<Organization, 'id' | 'logo' | 'hint'>;
 
-export function getOrganizations() {
-  return organizations;
+async function seedOrganizations() {
+    if (!adminDb) return;
+    const batch = adminDb.batch();
+    const orgsRef = adminDb.collection('organizations');
+    
+    initialOrganizations.forEach(org => {
+        const docRef = orgsRef.doc(org.id);
+        batch.set(docRef, org);
+    });
+    
+    await batch.commit();
+    console.log("Firestore 'organizations' collection seeded successfully.");
 }
 
-export function getOrganizationById(id: string) {
-    return organizations.find((org) => org.id === id);
+export async function getOrganizations(): Promise<{ organizations: Organization[], error: string | null }> {
+  if (!adminDb) {
+    return { organizations: [], error: handleFirestoreError(new Error("Firebase Admin SDK not initialized."), "get organizations") };
+  }
+  try {
+    const orgSnapshot = await adminDb.collection('organizations').orderBy('name').get();
+    
+    if (orgSnapshot.empty) {
+        console.log("Organizations collection is empty, seeding with initial data...");
+        await seedOrganizations();
+        const seededSnapshot = await adminDb.collection('organizations').orderBy('name').get();
+        const orgList = seededSnapshot.docs.map(doc => doc.data() as Organization);
+        return { organizations: orgList, error: null };
+    }
+
+    const orgList = orgSnapshot.docs.map(doc => doc.data() as Organization);
+    return { organizations: orgList, error: null };
+  } catch (error) {
+    const errorMessage = handleFirestoreError(error, 'get organizations');
+    return { organizations: [], error: errorMessage };
+  }
 }
 
-export function addOrganization(org: NewOrganization) {
-  const newOrg: Organization = {
-    ...org,
-    id: slugify(`${org.name}-${org.chapter}`),
-    logo: "https://placehold.co/200x200.png",
-    hint: "organization crest",
-  };
-  organizations = [newOrg, ...organizations];
+export async function getOrganizationById(id: string): Promise<Organization | undefined> {
+  if (!adminDb) {
+    handleFirestoreError(new Error("Firebase Admin SDK not initialized."), `get organization with ID ${id}`);
+    return undefined;
+  }
+  try {
+    const orgDocRef = adminDb.collection('organizations').doc(id);
+    const orgSnap = await orgDocRef.get();
+    
+    if (orgSnap.exists) {
+      return orgSnap.data() as Organization;
+    } else {
+      return undefined;
+    }
+  } catch (error) {
+    handleFirestoreError(error, `get organization with ID '${id}'`);
+    return undefined;
+  }
 }
 
-export function deleteOrganization(id: string) {
-  organizations = organizations.filter((org) => org.id !== id);
-}
-
-type UpdateOrganizationData = {
-    id: string;
-    link: string;
-    president: string;
-};
-
-export function updateOrganization(data: UpdateOrganizationData) {
-  organizations = organizations.map((org) =>
-    org.id === data.id ? { ...org, link: data.link, president: data.president } : org
-  );
-}
 
 interface DivineNineOrganization {
   name: string;
