@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getBoardMembers } from "@/lib/data";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { CheckCircle, Terminal } from "lucide-react";
+import { CheckCircle, Terminal, Target, Users, BookOpen } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default async function AboutPage() {
@@ -47,44 +47,84 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      <section className="py-16 md:py-24 bg-muted">
-        <div className="container">
+      {/* Vibrant Mission & Objectives Section */}
+      <section className="py-16 md:py-24 bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-600 relative overflow-hidden">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 via-transparent to-blue-600/20" />
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-pink-400/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 left-1/4 w-80 h-80 bg-yellow-400/10 rounded-full blur-3xl animate-pulse animation-delay-1000" />
+        
+        <div className="container relative z-10">
           <div className="max-w-4xl mx-auto text-center mb-12">
-            <h2 className="text-3xl font-headline font-bold mb-4">Our Mission & Objectives</h2>
-            <p className="text-muted-foreground text-lg leading-relaxed">
+            <div className="flex items-center justify-center w-20 h-20 mx-auto mb-6 bg-white/20 rounded-full text-white shadow-lg backdrop-blur-sm">
+              <Target className="h-10 w-10" />
+            </div>
+            <h2 className="text-3xl md:text-4xl font-headline font-bold mb-4 text-white">Our Mission & Objectives</h2>
+            <div className="mx-auto mb-6 h-1 w-24 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600" />
+            <p className="text-white/90 text-lg leading-relaxed max-w-3xl mx-auto">
               The purpose of the NPHC of Solano County is to foster cooperative actions of its members in dealing with matters of mutual concern. We promote the well-being of our affiliate fraternities and sororities, facilitate their development, and provide leadership training for our constituents.
             </p>
           </div>
-          <div className="max-w-3xl mx-auto">
-              <Accordion type="single" collapsible className="w-full">
-                <AccordionItem value="item-1">
-                  <AccordionTrigger className="font-semibold text-lg">Why Our Tradition Must Continue</AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground space-y-4 pt-4">
-                    <p>Each of the nine NPHC organizations evolved during a period when African Americans were being denied essential rights and privileges. Racial isolation and social barriers created a need for African Americans to align themselves with others sharing common goals and ideals.</p>
-                    <p>These Greek-lettered organizations became a haven and an outlet to foster brotherhood and sisterhood in the pursuit of social change. Today, in Solano County and across the nation, that need remains. The primary purpose of our member organizations is community awareness and action through educational, economic, and cultural service activities.</p>
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="item-2">
-                  <AccordionTrigger className="font-semibold text-lg">A Lifetime Commitment</AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground space-y-4 pt-4">
-                     <p>Greek membership extends far beyond the collegiate experience—it is a lifetime commitment. Members are expected to align with a graduate/alumni chapter after college, taking an active part in matters concerning and affecting the community in which they live.</p>
-                     <p>Here in Solano County, NPHC promotes this lifelong interaction through forums, meetings, and cooperative programming, ensuring a lasting impact on our community.</p>
-                  </AccordionContent>
-                </AccordionItem>
-                 <AccordionItem value="item-3">
-                  <AccordionTrigger className="font-semibold text-lg">Core Objectives</AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground space-y-4 pt-4">
-                    <ul className="space-y-3">
-                      {objectives.map((objective, index) => (
-                        <li key={index} className="flex items-start">
-                          <CheckCircle className="h-5 w-5 mr-3 mt-1 text-primary shrink-0" />
-                          <span>{objective}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
+          
+          <div className="max-w-4xl mx-auto">
+            <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-2xl">
+              <CardContent className="p-8">
+                <Accordion type="single" collapsible className="w-full space-y-4">
+                  <AccordionItem value="item-1" className="border border-violet-100/50 rounded-xl px-6 py-2 bg-gradient-to-r from-violet-50/50 to-indigo-50/50 hover:from-violet-50 hover:to-indigo-50 transition-all duration-300">
+                    <AccordionTrigger className="font-semibold text-lg text-violet-800 hover:text-violet-900 hover:no-underline">
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-violet-500 to-indigo-600 rounded-full text-white">
+                          <BookOpen className="h-4 w-4" />
+                        </div>
+                        Why Our Tradition Must Continue
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="text-gray-700 space-y-4 pt-4 ml-11">
+                      <p className="leading-relaxed">Each of the nine NPHC organizations evolved during a period when African Americans were being denied essential rights and privileges. Racial isolation and social barriers created a need for African Americans to align themselves with others sharing common goals and ideals.</p>
+                      <p className="leading-relaxed">These Greek-lettered organizations became a haven and an outlet to foster brotherhood and sisterhood in the pursuit of social change. Today, in Solano County and across the nation, that need remains. The primary purpose of our member organizations is community awareness and action through educational, economic, and cultural service activities.</p>
+                    </AccordionContent>
+                  </AccordionItem>
+                  
+                  <AccordionItem value="item-2" className="border border-blue-100/50 rounded-xl px-6 py-2 bg-gradient-to-r from-blue-50/50 to-cyan-50/50 hover:from-blue-50 hover:to-cyan-50 transition-all duration-300">
+                    <AccordionTrigger className="font-semibold text-lg text-blue-800 hover:text-blue-900 hover:no-underline">
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-blue-500 to-cyan-600 rounded-full text-white">
+                          <Users className="h-4 w-4" />
+                        </div>
+                        A Lifetime Commitment
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="text-gray-700 space-y-4 pt-4 ml-11">
+                       <p className="leading-relaxed">Greek membership extends far beyond the collegiate experience—it is a lifetime commitment. Members are expected to align with a graduate/alumni chapter after college, taking an active part in matters concerning and affecting the community in which they live.</p>
+                       <p className="leading-relaxed">Here in Solano County, NPHC promotes this lifelong interaction through forums, meetings, and cooperative programming, ensuring a lasting impact on our community.</p>
+                    </AccordionContent>
+                  </AccordionItem>
+                  
+                   <AccordionItem value="item-3" className="border border-emerald-100/50 rounded-xl px-6 py-2 bg-gradient-to-r from-emerald-50/50 to-teal-50/50 hover:from-emerald-50 hover:to-teal-50 transition-all duration-300">
+                    <AccordionTrigger className="font-semibold text-lg text-emerald-800 hover:text-emerald-900 hover:no-underline">
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full text-white">
+                          <Target className="h-4 w-4" />
+                        </div>
+                        Core Objectives
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="text-gray-700 space-y-4 pt-4 ml-11">
+                      <ul className="space-y-3">
+                        {objectives.map((objective, index) => (
+                          <li key={index} className="flex items-start group">
+                            <div className="flex items-center justify-center w-5 h-5 mr-3 mt-1 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full shrink-0 group-hover:scale-110 transition-transform duration-200">
+                              <CheckCircle className="h-3 w-3 text-white" />
+                            </div>
+                            <span className="leading-relaxed group-hover:text-emerald-800 transition-colors duration-200">{objective}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
@@ -108,9 +148,9 @@ export default async function AboutPage() {
               {boardMembers.map((member) => (
                 <Card key={member.id} className="text-center">
                   <CardHeader className="items-center">
-                    <Avatar className="w-24 h-24 mb-4">
+                    <Avatar className="w-50 h-50 mb-4">
                       <AvatarImage src={member.image} alt={member.name} data-ai-hint={member.hint} />
-                      <AvatarFallback>{member.initials}</AvatarFallback>
+                      <AvatarFallback className="text-2xl">{member.initials}</AvatarFallback>
                     </Avatar>
                     <CardTitle className="font-headline text-xl">{member.name}</CardTitle>
                   </CardHeader>

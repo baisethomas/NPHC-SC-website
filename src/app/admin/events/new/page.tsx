@@ -115,8 +115,8 @@ export default function NewEventPage() {
         rsvpLink: values.externalLink || "#",
         eventType: values.eventType,
         rsvpEnabled: values.rsvpEnabled,
-        externalLink: values.externalLink || undefined,
-        maxAttendees: values.maxAttendees,
+        ...(values.externalLink && { externalLink: values.externalLink }),
+        ...(values.maxAttendees && { maxAttendees: values.maxAttendees }),
         currentAttendees: 0,
       };
 

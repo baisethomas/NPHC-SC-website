@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { Menu, LogOut } from "lucide-react";
+import { Menu, LogOut, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
@@ -16,9 +17,15 @@ const baseNavLinks = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About Us" },
   { href: "/organizations", label: "Organizations" },
+  { href: "/programs", label: "Programs" },
   { href: "/events", label: "Events" },
   { href: "/news", label: "News" },
+];
+
+const contactLinks = [
   { href: "/contact", label: "Contact Us" },
+  { href: "/mailing-list", label: "Mailing List" },
+  { href: "/donations", label: "Donations" },
 ];
 
 const logoUrl = "https://www.nphchq.com/wp-content/uploads/2020/04/NPHC-Official-Logo-sq.png";
@@ -34,8 +41,8 @@ export function Header() {
   };
 
   return (
-    <header className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b">
-      <div className="h-[20px] w-full bg-primary" />
+    <header className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 w-full border-b sticky top-0 z-50 md:static md:top-auto md:z-auto">
+      <div className="h-[15px] w-full bg-black" />
       <div className="container flex h-32 items-center justify-between">
         <Link href="/" className="flex items-center">
           <Image src={logoUrl} alt="NPHC Solano Logo" width={128} height={128} className="h-28 w-auto" />
@@ -48,16 +55,77 @@ export function Header() {
                 key={link.href} 
                 href={link.href} 
                 className={cn(
-                  "transition-colors hover:text-foreground/80",
+                  "relative px-3 py-2 transition-all duration-300 ease-in-out hover:scale-105 hover:text-foreground group overflow-hidden",
                   pathname === link.href ? "text-foreground" : "text-foreground/60"
                 )}
               >
-                {link.label}
+                <span className="relative z-10">{link.label}</span>
+                {/* Animated underline */}
+                <div className={cn(
+                  "absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-yellow-400 to-yellow-600 transition-all duration-300 ease-out",
+                  pathname === link.href ? "w-full" : "w-0 group-hover:w-full"
+                )} />
+                {/* Subtle background glow on hover */}
+                <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/10 to-yellow-600/10 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                {/* Ripple effect */}
+                <div className="absolute inset-0 rounded-md bg-gradient-to-r from-yellow-400/30 to-yellow-600/30 scale-0 group-hover:scale-110 opacity-0 group-hover:opacity-100 transition-all duration-500 ease-out" />
+                {/* Shimmer effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
               </Link>
             ))}
+            
+            {/* Contact Us Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className={cn(
+                  "relative px-3 py-2 transition-all duration-300 ease-in-out hover:scale-105 hover:text-foreground group overflow-hidden flex items-center gap-1",
+                  (pathname === "/contact" || pathname === "/mailing-list" || pathname === "/donations") ? "text-foreground" : "text-foreground/60"
+                )}>
+                  <span className="relative z-10">Contact Us</span>
+                  <ChevronDown className="h-3 w-3 relative z-10" />
+                  {/* Animated underline */}
+                  <div className={cn(
+                    "absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-yellow-400 to-yellow-600 transition-all duration-300 ease-out",
+                    (pathname === "/contact" || pathname === "/mailing-list" || pathname === "/donations") ? "w-full" : "w-0 group-hover:w-full"
+                  )} />
+                  {/* Subtle background glow on hover */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/10 to-yellow-600/10 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  {/* Ripple effect */}
+                  <div className="absolute inset-0 rounded-md bg-gradient-to-r from-yellow-400/30 to-yellow-600/30 scale-0 group-hover:scale-110 opacity-0 group-hover:opacity-100 transition-all duration-500 ease-out" />
+                  {/* Shimmer effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                {contactLinks.map((link) => (
+                  <DropdownMenuItem key={link.href} asChild>
+                    <Link href={link.href} className="w-full cursor-pointer">
+                      {link.label}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
              {!loading && user && (
-                <Link href="/admin" className={cn("transition-colors hover:text-foreground/80", pathname.startsWith("/admin") ? "text-foreground" : "text-foreground/60")}>
-                  Admin
+                <Link 
+                  href="/admin" 
+                  className={cn(
+                    "relative px-3 py-2 transition-all duration-300 ease-in-out hover:scale-105 hover:text-foreground group overflow-hidden",
+                    pathname.startsWith("/admin") ? "text-foreground" : "text-foreground/60"
+                  )}
+                >
+                  <span className="relative z-10">Admin</span>
+                  {/* Animated underline */}
+                  <div className={cn(
+                    "absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-yellow-400 to-yellow-600 transition-all duration-300 ease-out",
+                    pathname.startsWith("/admin") ? "w-full" : "w-0 group-hover:w-full"
+                  )} />
+                  {/* Subtle background glow on hover */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/10 to-yellow-600/10 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  {/* Ripple effect */}
+                  <div className="absolute inset-0 rounded-md bg-gradient-to-r from-yellow-400/30 to-yellow-600/30 scale-0 group-hover:scale-110 opacity-0 group-hover:opacity-100 transition-all duration-500 ease-out" />
+                  {/* Shimmer effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
                 </Link>
             )}
           </nav>
@@ -100,23 +168,68 @@ export function Header() {
                       href={link.href}
                       onClick={() => setIsOpen(false)}
                       className={cn(
-                        "text-lg font-medium transition-colors hover:text-primary rounded-md px-3 py-2 w-full",
+                        "relative text-lg font-medium transition-all duration-300 ease-in-out hover:translate-x-2 hover:text-primary rounded-md px-3 py-2 w-full group overflow-hidden",
                         pathname === link.href && "bg-muted"
                       )}
                     >
-                      {link.label}
+                      <span className="relative z-10">{link.label}</span>
+                      {/* Sliding background effect */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 to-yellow-600/20 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300 ease-out" />
+                      {/* Left border accent */}
+                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-yellow-400 to-yellow-600 transform scale-y-0 group-hover:scale-y-100 transition-transform duration-300 ease-out origin-center" />
+                      {/* Pulse effect */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/40 to-yellow-600/40 rounded-md transform scale-95 opacity-0 group-hover:scale-105 group-hover:opacity-100 transition-all duration-400 ease-out" />
+                      {/* Diagonal sweep */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/10 to-transparent transform -translate-x-full -translate-y-full group-hover:translate-x-full group-hover:translate-y-0 transition-transform duration-600 ease-in-out" />
                     </Link>
                   ))}
+                  
+                  {/* Contact Us section in mobile */}
+                  <div className="w-full">
+                    <div className="px-3 py-2 text-sm font-semibold text-muted-foreground border-b border-muted mt-4 mb-2">
+                      Contact Us
+                    </div>
+                    {contactLinks.map((link) => (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={() => setIsOpen(false)}
+                        className={cn(
+                          "relative text-lg font-medium transition-all duration-300 ease-in-out hover:translate-x-2 hover:text-primary rounded-md px-3 py-2 w-full group overflow-hidden ml-4",
+                          pathname === link.href && "bg-muted"
+                        )}
+                      >
+                        <span className="relative z-10">{link.label}</span>
+                        {/* Sliding background effect */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 to-yellow-600/20 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300 ease-out" />
+                        {/* Left border accent */}
+                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-yellow-400 to-yellow-600 transform scale-y-0 group-hover:scale-y-100 transition-transform duration-300 ease-out origin-center" />
+                        {/* Pulse effect */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/40 to-yellow-600/40 rounded-md transform scale-95 opacity-0 group-hover:scale-105 group-hover:opacity-100 transition-all duration-400 ease-out" />
+                        {/* Diagonal sweep */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/10 to-transparent transform -translate-x-full -translate-y-full group-hover:translate-x-full group-hover:translate-y-0 transition-transform duration-600 ease-in-out" />
+                      </Link>
+                    ))}
+                  </div>
+                  
                   {!loading && user && (
                      <Link
                       href="/admin"
                       onClick={() => setIsOpen(false)}
                       className={cn(
-                        "text-lg font-medium transition-colors hover:text-primary rounded-md px-3 py-2 w-full",
+                        "relative text-lg font-medium transition-all duration-300 ease-in-out hover:translate-x-2 hover:text-primary rounded-md px-3 py-2 w-full group overflow-hidden",
                         pathname.startsWith("/admin") && "bg-muted"
                       )}
                     >
-                      Admin
+                      <span className="relative z-10">Admin</span>
+                      {/* Sliding background effect */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 to-yellow-600/20 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300 ease-out" />
+                      {/* Left border accent */}
+                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-yellow-400 to-yellow-600 transform scale-y-0 group-hover:scale-y-100 transition-transform duration-300 ease-out origin-center" />
+                      {/* Pulse effect */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/40 to-yellow-600/40 rounded-md transform scale-95 opacity-0 group-hover:scale-105 group-hover:opacity-100 transition-all duration-400 ease-out" />
+                      {/* Diagonal sweep */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/10 to-transparent transform -translate-x-full -translate-y-full group-hover:translate-x-full group-hover:translate-y-0 transition-transform duration-600 ease-in-out" />
                     </Link>
                   )}
                 </nav>

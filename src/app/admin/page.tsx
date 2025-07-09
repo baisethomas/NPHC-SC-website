@@ -53,6 +53,17 @@ export default function AdminDashboardPage() {
             </Button>
           </CardContent>
         </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Manage Programs</CardTitle>
+            <CardDescription>Add, edit, or remove programs and initiatives.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild>
+              <Link href="/admin/programs">Go to Programs <ArrowRight className="ml-2 h-4 w-4" /></Link>
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

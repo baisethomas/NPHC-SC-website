@@ -86,3 +86,12 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .animation-delay-1000 {
+    animation-delay: 1000ms;
+  }
+  .animation-delay-2000 {
+    animation-delay: 2000ms;
+  }
+}

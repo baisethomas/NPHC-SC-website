@@ -6,6 +6,7 @@ import { PlusCircle, Trash2, Pencil, Terminal } from "lucide-react";
 import Link from "next/link";
 import { deleteBoardMember } from "./actions";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default async function AdminBoardPage() {
   const { boardMembers, error } = await getBoardMembers();
@@ -37,6 +38,7 @@ export default async function AdminBoardPage() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>Photo</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Title</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -45,6 +47,12 @@ export default async function AdminBoardPage() {
           <TableBody>
             {boardMembers.map((member) => (
               <TableRow key={member.id}>
+                <TableCell>
+                  <Avatar className="h-12 w-12">
+                    <AvatarImage src={member.image} alt={member.name} />
+                    <AvatarFallback>{member.initials}</AvatarFallback>
+                  </Avatar>
+                </TableCell>
                 <TableCell className="font-medium">{member.name}</TableCell>
                 <TableCell>{member.title}</TableCell>
                 <TableCell className="text-right">
@@ -54,7 +62,10 @@ export default async function AdminBoardPage() {
                         <span className="sr-only">Edit</span>
                       </Link>
                     </Button>
-                  <form action={deleteBoardMember} className="inline-block">
+                  <form action={async (formData: FormData) => {
+                    'use server';
+                    await deleteBoardMember(formData);
+                  }} className="inline-block">
                     <input type="hidden" name="id" value={member.id} />
                     <Button variant="ghost" size="icon" type="submit">
                       <Trash2 className="h-4 w-4" />

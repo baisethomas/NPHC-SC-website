@@ -20,3 +20,21 @@ export async function uploadAnnouncementImage(file: File): Promise<string> {
   const downloadURL = await getDownloadURL(storageRef);
   return downloadURL;
 }
+
+export async function uploadBoardMemberImage(file: File): Promise<string> {
+  const storageRef = ref(storage, `board-members/${Date.now()}-${file.name}`);
+  await uploadBytes(storageRef, file, {
+    contentType: file.type,
+  });
+  const downloadURL = await getDownloadURL(storageRef);
+  return downloadURL;
+}
+
+export async function uploadProgramImage(file: File): Promise<string> {
+  const storageRef = ref(storage, `programs/${Date.now()}-${file.name}`);
+  await uploadBytes(storageRef, file, {
+    contentType: file.type,
+  });
+  const downloadURL = await getDownloadURL(storageRef);
+  return downloadURL;
+}

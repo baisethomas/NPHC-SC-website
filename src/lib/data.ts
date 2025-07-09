@@ -1,6 +1,6 @@
 
 import { adminDb } from './firebase-admin';
-import type { Event, Announcement, BoardMember, Organization } from './definitions';
+import type { Event, Announcement, BoardMember, Organization, Program } from './definitions';
 
 const handleFirestoreError = (error: unknown, context: string): string => {
   const err = error instanceof Error ? error : new Error(String(error));
@@ -296,5 +296,31 @@ export async function getOrganizationById(id: string): Promise<Organization | un
   } catch (error) {
     handleFirestoreError(error, `get organization with ID '${id}'`);
     return undefined;
+  }
+}
+
+export async function getPrograms(): Promise<{ programs: Program[], error?: string }> {
+  if (!adminDb) {
+    return { 
+      programs: [], 
+      error: handleFirestoreError(new Error("Firebase Admin SDK not initialized."), "get programs") 
+    };
+  }
+  try {
+    const programsRef = adminDb.collection('programs');
+    const querySnapshot = await programsRef.orderBy('organizationName').orderBy('name').get();
+    
+    const programs: Program[] = [];
+    querySnapshot.forEach((doc) => {
+      programs.push({
+        id: doc.id,
+        ...doc.data()
+      } as Program);
+    });
+    
+    return { programs };
+  } catch (error) {
+    const errorMessage = handleFirestoreError(error, 'get programs');
+    return { programs: [], error: errorMessage };
   }
 }

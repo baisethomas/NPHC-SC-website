@@ -64,6 +64,19 @@ export interface Organization {
   president: string;
 }
 
+export interface Program {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  organizationName: string;
+  status?: 'active' | 'inactive' | 'seasonal';
+  image?: string;
+  imageHint?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface DivineNineOrganization {
   name: string;
   logo: string;
