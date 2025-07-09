@@ -94,4 +94,14 @@ body {
   .animation-delay-2000 {
     animation-delay: 2000ms;
   }
+  
+  /* Mobile landscape orientation optimization */
+  @media screen and (max-height: 500px) and (orientation: landscape) {
+    .mobile-landscape-compact {
+      height: 60px !important;
+    }
+    .mobile-landscape-logo {
+      height: 48px !important;
+    }
+  }
 }

@@ -20,6 +20,7 @@ const baseNavLinks = [
   { href: "/programs", label: "Programs" },
   { href: "/events", label: "Events" },
   { href: "/news", label: "News" },
+  { href: "/members", label: "Members" },
 ];
 
 const contactLinks = [
@@ -41,14 +42,14 @@ export function Header() {
   };
 
   return (
-    <header className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 w-full border-b sticky top-0 z-50 md:static md:top-auto md:z-auto">
+    <header className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 w-full border-b sticky top-0 z-50 lg:static lg:top-auto lg:z-auto">
       <div className="h-[15px] w-full bg-black" />
-      <div className="container flex h-32 items-center justify-between">
+      <div className="container flex h-20 lg:h-32 mobile-landscape-compact items-center justify-between">
         <Link href="/" className="flex items-center">
-          <Image src={logoUrl} alt="NPHC Solano Logo" width={128} height={128} className="h-28 w-auto" />
+          <Image src={logoUrl} alt="NPHC Solano Logo" width={128} height={128} className="h-16 lg:h-28 w-auto mobile-landscape-logo" />
         </Link>
         
-        <div className="hidden md:flex items-center gap-6">
+        <div className="hidden lg:flex items-center gap-6">
           <nav className="flex items-center gap-6 text-sm font-medium">
             {baseNavLinks.map((link) => (
               <Link 
@@ -143,7 +144,7 @@ export function Header() {
           )}
         </div>
 
-        <div className="md:hidden">
+        <div className="lg:hidden">
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon">

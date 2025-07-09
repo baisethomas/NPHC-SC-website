@@ -17,7 +17,18 @@ export default async function Home() {
 
   return (
     <div className="flex flex-col">
-      <section className="relative h-[60vh] min-h-[400px] w-full flex items-center justify-center text-center text-white bg-fixed bg-cover bg-center" style={{ backgroundImage: "url('https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/photos%2F486065740_4131253287097506_5154761858775003667_n.jpg?alt=media&token=98ce7896-a868-4359-80d6-5177068e11df')" }}>
+      <section className="relative h-[60vh] min-h-[400px] w-full flex items-center justify-center text-center text-white overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <Image
+            src="https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/photos%2F486065740_4131253287097506_5154761858775003667_n.jpg?alt=media&token=98ce7896-a868-4359-80d6-5177068e11df"
+            alt="NPHC Solano County Community"
+            fill
+            className="object-cover object-center"
+            priority
+            sizes="100vw"
+          />
+        </div>
         <div className="absolute inset-0 bg-black/60 z-10" />
         <div className="z-20 p-4 relative w-full">
           <h1 className="text-4xl md:text-6xl font-headline font-bold mb-4 tracking-tight animate-fade-in-up">NPHC of Solano County</h1>
