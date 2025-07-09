@@ -184,32 +184,34 @@ export function Header() {
                     </Link>
                   ))}
                   
-                  {/* Contact Us section in mobile */}
-                  <div className="w-full">
-                    <div className="px-3 py-2 text-sm font-semibold text-muted-foreground border-b border-muted mt-4 mb-2">
-                      Contact Us
+                  {/* Contact & Support section in mobile */}
+                  <div className="w-full mt-4">
+                    <div className="px-3 py-2 text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+                      Contact & Support
                     </div>
-                    {contactLinks.map((link) => (
-                      <Link
-                        key={link.href}
-                        href={link.href}
-                        onClick={() => setIsOpen(false)}
-                        className={cn(
-                          "relative text-lg font-medium transition-all duration-300 ease-in-out hover:translate-x-2 hover:text-primary rounded-md px-3 py-2 w-full group overflow-hidden ml-4",
-                          pathname === link.href && "bg-muted"
-                        )}
-                      >
-                        <span className="relative z-10">{link.label}</span>
-                        {/* Sliding background effect */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 to-yellow-600/20 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300 ease-out" />
-                        {/* Left border accent */}
-                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-yellow-400 to-yellow-600 transform scale-y-0 group-hover:scale-y-100 transition-transform duration-300 ease-out origin-center" />
-                        {/* Pulse effect */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/40 to-yellow-600/40 rounded-md transform scale-95 opacity-0 group-hover:scale-105 group-hover:opacity-100 transition-all duration-400 ease-out" />
-                        {/* Diagonal sweep */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/10 to-transparent transform -translate-x-full -translate-y-full group-hover:translate-x-full group-hover:translate-y-0 transition-transform duration-600 ease-in-out" />
-                      </Link>
-                    ))}
+                    <div className="space-y-1">
+                      {contactLinks.map((link) => (
+                        <Link
+                          key={link.href}
+                          href={link.href}
+                          onClick={() => setIsOpen(false)}
+                          className={cn(
+                            "relative text-base font-medium transition-all duration-300 ease-in-out hover:translate-x-2 hover:text-primary rounded-md px-6 py-3 w-full group overflow-hidden block",
+                            pathname === link.href && "bg-muted text-primary"
+                          )}
+                        >
+                          <span className="relative z-10">{link.label}</span>
+                          {/* Sliding background effect */}
+                          <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 to-yellow-600/20 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300 ease-out" />
+                          {/* Left border accent */}
+                          <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-yellow-400 to-yellow-600 transform scale-y-0 group-hover:scale-y-100 transition-transform duration-300 ease-out origin-center" />
+                          {/* Pulse effect */}
+                          <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/40 to-yellow-600/40 rounded-md transform scale-95 opacity-0 group-hover:scale-105 group-hover:opacity-100 transition-all duration-400 ease-out" />
+                          {/* Diagonal sweep */}
+                          <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/10 to-transparent transform -translate-x-full -translate-y-full group-hover:translate-x-full group-hover:translate-y-0 transition-transform duration-600 ease-in-out" />
+                        </Link>
+                      ))}
+                    </div>
                   </div>
                   
                   {!loading && user && (
