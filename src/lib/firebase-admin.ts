@@ -26,4 +26,20 @@ try {
   console.warn("---------------------------------------------------------");
 }
 
+// Helper function to verify Firebase ID tokens
+export async function verifyIdToken(token: string) {
+  if (!adminAuth) {
+    console.warn('Firebase Admin Auth not initialized. Cannot verify token.');
+    return null;
+  }
+  
+  try {
+    const decodedToken = await adminAuth.verifyIdToken(token);
+    return decodedToken;
+  } catch (error) {
+    console.warn('Token verification failed:', error);
+    return null;
+  }
+}
+
 export { adminDb, adminAuth };
