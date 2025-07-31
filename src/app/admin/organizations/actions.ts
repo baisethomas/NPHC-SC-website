@@ -52,27 +52,25 @@ export async function createOrganization(values: z.infer<typeof formSchema>) {
   }
 }
 
-export async function deleteOrganization(formData: FormData) {
+export async function deleteOrganization(formData: FormData): Promise<void> {
   if (!adminDb) {
-    return { error: 'Firebase Admin SDK not initialized.' };
+    console.error('Firebase Admin SDK not initialized.');
+    return;
   }
   try {
     const id = formData.get('id') as string;
     if (!id) {
-      return {
-        error: 'Invalid organization ID.',
-      };
+      console.error('Invalid organization ID.');
+      return;
     }
 
     await adminDb.collection('organizations').doc(id).delete();
     revalidatePath('/organizations');
     revalidatePath('/admin/organizations');
     revalidatePath('/');
-    return { success: true };
   } catch (e: unknown) {
     const error = e instanceof Error ? e : new Error(String(e));
     console.error(`Organization Deletion Failed: ${error.message}`);
-    return { error: 'An unexpected server error occurred while deleting the organization.' };
   }
 }
 
