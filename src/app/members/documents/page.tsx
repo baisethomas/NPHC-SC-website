@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from "react";
@@ -18,12 +19,12 @@ export default function DocumentsPage() {
   const { user, loading, isAdmin } = useAuth();
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [showRestricted, setShowRestricted] = useState(false);
 
   const { data: documentsData, loading: documentsLoading, error: documentsError } = useDocuments({
     search: searchTerm,
-    category: selectedCategory || undefined,
+    category: selectedCategory === 'all' ? undefined : selectedCategory,
     restricted: showRestricted ? true : undefined
   });
 
@@ -142,7 +143,7 @@ export default function DocumentsPage() {
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Categories</SelectItem>
+                <SelectItem value="all">All Categories</SelectItem>
                 <SelectItem value="constitution">Constitution</SelectItem>
                 <SelectItem value="bylaws">Bylaws</SelectItem>
                 <SelectItem value="policies">Policies</SelectItem>
@@ -237,7 +238,7 @@ export default function DocumentsPage() {
               <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-600 mb-2">No documents found</h3>
               <p className="text-gray-500">
-                {searchTerm || selectedCategory ? 'Try adjusting your search or filters' : 'No documents available'}
+                {searchTerm || selectedCategory !== 'all' ? 'Try adjusting your search or filters' : 'No documents available'}
               </p>
             </div>
           )}
