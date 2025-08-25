@@ -16,7 +16,7 @@ export interface User {
 export interface Document {
   id: string;
   title: string;
-  category: 'bylaws' | 'constitution' | 'policies' | 'procedures' | 'forms' | 'guidelines';
+  category: string;
   description: string;
   version: string;
   lastUpdated: string;
