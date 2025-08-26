@@ -9,7 +9,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "admin:setup": "node scripts/setup-admin.js"
   },
   "dependencies": {
     "@genkit-ai/googleai": "^1.13.0",
@@ -45,6 +46,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
     "dompurify": "^3.2.6",
+    "dotenv": "^17.2.1",
     "embla-carousel-react": "^8.6.0",
     "firebase": "^11.9.1",
     "firebase-admin": "^13.4.0",
