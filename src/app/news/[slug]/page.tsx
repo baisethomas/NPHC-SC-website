@@ -1,6 +1,7 @@
 import { getAnnouncementBySlug } from '@/lib/data';
 import { notFound } from 'next/navigation';
 import { Calendar } from 'lucide-react';
+import { sanitizeHtml } from '@/lib/sanitizer';
 
 export default async function AnnouncementDetailPage({ params }: { params: { slug: string } }) {
   const announcement = await getAnnouncementBySlug(params.slug);
@@ -41,7 +42,7 @@ export default async function AnnouncementDetailPage({ params }: { params: { slu
                     {isHtml ? (
                       <div 
                         className="prose prose-lg max-w-none"
-                        dangerouslySetInnerHTML={{ __html: announcement.description }}
+                        dangerouslySetInnerHTML={{ __html: sanitizeHtml(announcement.description) }}
                       />
                     ) : (
                       paragraphs.map((paragraph, index) => (

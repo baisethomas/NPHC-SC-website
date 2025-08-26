@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from '@/components/ui/button';
 import { Eye, Calendar, Clock, MapPin } from 'lucide-react';
 import { type Announcement, type Event } from '@/lib/definitions';
+import { sanitizeHtml } from '@/lib/sanitizer';
 
 interface AnnouncementPreviewProps {
   announcement: Partial<Announcement>;
@@ -62,7 +63,7 @@ export function AnnouncementPreview({ announcement, trigger }: AnnouncementPrevi
                 {isHtml ? (
                   <div 
                     className="prose prose-lg max-w-none"
-                    dangerouslySetInnerHTML={{ __html: announcement.description || '' }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(announcement.description || '') }}
                   />
                 ) : (
                   paragraphs.map((paragraph, index) => (
@@ -138,7 +139,7 @@ export function EventPreview({ event, trigger }: EventPreviewProps) {
                   isHtml ? (
                     <div 
                       className="prose prose-lg max-w-none"
-                      dangerouslySetInnerHTML={{ __html: event.description }}
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(event.description) }}
                     />
                   ) : (
                     <p>{event.description}</p>

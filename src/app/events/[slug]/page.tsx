@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Calendar, Clock, MapPin, ExternalLink, Info } from 'lucide-react';
 import { RSVPButton } from '@/components/rsvp-button';
+import { sanitizeHtml } from '@/lib/sanitizer';
 
 export default async function EventDetailPage({ params }: { params: { slug: string } }) {
   const event = await getEventBySlug(params.slug);
@@ -47,7 +48,7 @@ export default async function EventDetailPage({ params }: { params: { slug: stri
             {event.description.includes('<') && event.description.includes('>') ? (
               <div 
                 className="prose prose-lg max-w-none"
-                dangerouslySetInnerHTML={{ __html: event.description }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(event.description) }}
               />
             ) : (
               <p>{event.description}</p>

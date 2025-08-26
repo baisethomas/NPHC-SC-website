@@ -2,9 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requestService, activityService } from '@/lib/firestore';
 import { verifyIdToken } from '@/lib/firebase-admin';
 import { Request, RequestQuery } from '@/types/members';
+import { requestQuerySchema, createRequestSchema, validateQueryParams, validateRequest } from '@/lib/validation-schemas';
+import { handleApiError } from '@/lib/error-handler';
+import { applyRateLimit, RATE_LIMITS } from '@/lib/rate-limiter';
 
 export async function GET(request: NextRequest) {
   try {
+    // Apply rate limiting for read operations
+    const rateLimitResponse = applyRateLimit(request, RATE_LIMITS.READ, undefined, 'requests');
+    if (rateLimitResponse) return rateLimitResponse;
+
     const authHeader = request.headers.get('Authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -17,16 +24,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
-    const searchParams = request.nextUrl.searchParams;
-    const query: RequestQuery = {
-      type: searchParams.get('type') || undefined,
-      status: searchParams.get('status') || undefined,
-      submittedBy: searchParams.get('submittedBy') || undefined,
-      dateFrom: searchParams.get('dateFrom') || undefined,
-      dateTo: searchParams.get('dateTo') || undefined,
-      page: parseInt(searchParams.get('page') || '1'),
-      limit: parseInt(searchParams.get('limit') || '10'),
-    };
+    // Validate query parameters
+    const validationResult = validateQueryParams(requestQuerySchema, request.nextUrl.searchParams);
+    if (!validationResult.success) {
+      return NextResponse.json(
+        { error: 'Invalid query parameters', details: validationResult.errors },
+        { status: 400 }
+      );
+    }
+    
+    const query = validationResult.data as RequestQuery;
 
     // If not admin, filter to only show user's own requests
     if (!decodedToken.admin) {
@@ -40,16 +47,16 @@ export async function GET(request: NextRequest) {
       data: requests
     });
   } catch (error) {
-    console.error('Error fetching requests:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return handleApiError(error, 'GET /api/members/requests');
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
+    // Apply rate limiting for create operations (more restrictive)
+    const rateLimitResponse = applyRateLimit(request, RATE_LIMITS.CREATE, undefined, 'requests');
+    if (rateLimitResponse) return rateLimitResponse;
+
     const authHeader = request.headers.get('Authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -64,8 +71,18 @@ export async function POST(request: NextRequest) {
 
     const requestData = await request.json();
     
+    // Validate request data
+    const validationResult = validateRequest(createRequestSchema, requestData);
+    if (!validationResult.success) {
+      return NextResponse.json(
+        { error: 'Invalid request data', details: validationResult.errors },
+        { status: 400 }
+      );
+    }
+
+    const validatedData = validationResult.data;
     const newRequest: Omit<Request, 'id'> = {
-      ...requestData,
+      ...validatedData,
       submittedBy: decodedToken.uid,
       submittedByName: decodedToken.name || decodedToken.email,
       submittedByEmail: decodedToken.email,
@@ -96,10 +113,6 @@ export async function POST(request: NextRequest) {
       message: 'Request submitted successfully'
     });
   } catch (error) {
-    console.error('Error creating request:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return handleApiError(error, 'POST /api/members/requests');
   }
 }

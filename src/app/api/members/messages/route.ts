@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { messageService, activityService } from '@/lib/firestore';
 import { verifyIdToken } from '@/lib/firebase-admin';
 import { Message, MessageQuery } from '@/types/members';
+import { messageQuerySchema, createMessageSchema, validateQueryParams, validateRequest } from '@/lib/validation-schemas';
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,15 +18,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
-    const searchParams = request.nextUrl.searchParams;
-    const query: MessageQuery = {
-      category: searchParams.get('category') || undefined,
-      priority: searchParams.get('priority') || undefined,
-      unreadOnly: searchParams.get('unreadOnly') === 'true',
-      pinnedOnly: searchParams.get('pinnedOnly') === 'true',
-      page: parseInt(searchParams.get('page') || '1'),
-      limit: parseInt(searchParams.get('limit') || '10'),
-    };
+    // Validate query parameters
+    const validationResult = validateQueryParams(messageQuerySchema, request.nextUrl.searchParams);
+    if (!validationResult.success) {
+      return NextResponse.json(
+        { error: 'Invalid query parameters', details: validationResult.errors },
+        { status: 400 }
+      );
+    }
+    
+    const query = validationResult.data as MessageQuery;
 
     const messages = await messageService.getAll(query);
     
@@ -65,8 +67,18 @@ export async function POST(request: NextRequest) {
 
     const messageData = await request.json();
     
+    // Validate message data
+    const validationResult = validateRequest(createMessageSchema, messageData);
+    if (!validationResult.success) {
+      return NextResponse.json(
+        { error: 'Invalid message data', details: validationResult.errors },
+        { status: 400 }
+      );
+    }
+
+    const validatedData = validationResult.data;
     const newMessage: Omit<Message, 'id'> = {
-      ...messageData,
+      ...validatedData,
       senderId: decodedToken.uid,
       senderName: decodedToken.name || decodedToken.email,
       senderRole: decodedToken.admin ? 'Admin' : 'Member',

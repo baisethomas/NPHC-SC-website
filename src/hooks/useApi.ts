@@ -11,7 +11,7 @@ interface ApiOptions {
 }
 
 export function useApi() {
-  const { user } = useAuth();
+  const { user, getIdToken, signOut } = useAuth();
 
   const makeRequest = async <T>(
     endpoint: string,
@@ -21,7 +21,10 @@ export function useApi() {
       throw new Error('User not authenticated');
     }
 
-    const token = await user.getIdToken();
+    let token = await getIdToken();
+    if (!token) {
+      throw new Error('Failed to get authentication token');
+    }
     
     const response = await fetch(`/api${endpoint}`, {
       method: options.method || 'GET',
@@ -33,8 +36,45 @@ export function useApi() {
       body: options.body ? JSON.stringify(options.body) : undefined,
     });
 
+    // Handle token expiration with retry
+    if (response.status === 401) {
+      try {
+        // Try to refresh the token once
+        token = await getIdToken(true);
+        if (!token) {
+          await signOut();
+          throw new Error('Authentication expired');
+        }
+
+        // Retry the request with fresh token
+        const retryResponse = await fetch(`/api${endpoint}`, {
+          method: options.method || 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            ...options.headers,
+          },
+          body: options.body ? JSON.stringify(options.body) : undefined,
+        });
+
+        if (!retryResponse.ok) {
+          if (retryResponse.status === 401) {
+            await signOut();
+            throw new Error('Authentication expired');
+          }
+          const error = await retryResponse.json().catch(() => ({ error: 'API request failed' }));
+          throw new Error(error.error || 'API request failed');
+        }
+
+        return retryResponse.json();
+      } catch (refreshError) {
+        await signOut();
+        throw new Error('Authentication expired');
+      }
+    }
+
     if (!response.ok) {
-      const error = await response.json();
+      const error = await response.json().catch(() => ({ error: 'API request failed' }));
       throw new Error(error.error || 'API request failed');
     }
 
