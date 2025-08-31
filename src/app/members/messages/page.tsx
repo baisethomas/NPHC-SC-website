@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { LoaderCircle, ArrowLeft, MessageSquare, Pin, Bell, Calendar, AlertCircle } from "lucide-react";
@@ -27,7 +27,6 @@ interface Message {
 export default function MessagesPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const [selectedCategory, setSelectedCategory] = useState('all');
 
   useEffect(() => {
     if (!loading && !user) {
@@ -150,10 +149,6 @@ export default function MessagesPage() {
     }
   };
 
-  const filteredMessages = selectedCategory === 'all' 
-    ? messages 
-    : messages.filter(msg => msg.category === selectedCategory);
-
   const pinnedMessages = messages.filter(msg => msg.pinned);
   const unreadCount = messages.filter(msg => !msg.read).length;
 
@@ -242,7 +237,7 @@ export default function MessagesPage() {
 
           {/* All Messages */}
           <TabsContent value="all" className="space-y-4">
-            {filteredMessages.map((message) => (
+            {messages.map((message) => (
               <Card key={message.id} className={`transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${!message.read ? 'border-l-4 border-l-blue-500 bg-blue-50/30' : ''}`}>
                 <CardHeader>
                   <div className="flex items-start justify-between">

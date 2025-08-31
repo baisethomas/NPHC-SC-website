@@ -3,6 +3,8 @@
  * In production, consider using Redis or a dedicated rate limiting service
  */
 
+import { NextRequest } from "next/server";
+
 interface RateLimitConfig {
   windowMs: number; // Time window in milliseconds
   maxRequests: number; // Maximum requests per window
@@ -59,7 +61,7 @@ function createRateLimitKey(ip: string, userId?: string, endpoint?: string): str
 /**
  * Get client IP address from request
  */
-export function getClientIP(request: Request): string {
+export function getClientIP(request: Request | NextRequest): string {
   // Try various headers that might contain the real IP
   const headers = request.headers;
   
@@ -77,7 +79,7 @@ export function getClientIP(request: Request): string {
  * Check if request is within rate limit
  */
 export function checkRateLimit(
-  request: Request,
+  request: Request | NextRequest,
   config: RateLimitConfig,
   userId?: string,
   endpoint?: string
@@ -120,10 +122,10 @@ export function checkRateLimit(
  * Middleware wrapper for rate limiting API routes
  */
 export function withRateLimit(config: RateLimitConfig, endpoint?: string) {
-  return function rateLimitMiddleware(
-    handler: (request: Request, context: any) => Promise<Response> | Response
+  return function rateLimitMiddleware<T extends any[]>(
+    handler: (request: Request, context: any, ...args: T) => Promise<Response> | Response
   ) {
-    return async function (request: Request, context: any): Promise<Response> {
+    return async function (request: Request, context: any, ...args: T): Promise<Response> {
       // Extract user ID from Authorization header if available
       let userId: string | undefined;
       try {
@@ -161,7 +163,7 @@ export function withRateLimit(config: RateLimitConfig, endpoint?: string) {
       }
       
       // Add rate limit headers to successful responses
-      const response = await handler(request, context);
+      const response = await handler(request, context, ...args);
       
       // Clone response to add headers
       const newResponse = new Response(response.body, {

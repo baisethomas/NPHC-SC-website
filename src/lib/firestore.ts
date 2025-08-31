@@ -116,7 +116,7 @@ export const documentService = {
     }
   },
 
-  async create(document: Omit<Document, 'id'>): Promise<string> {
+  async create(document: Omit<Document, 'id' | 'lastUpdated'>): Promise<string> {
     try {
       const docData = {
         ...document,
@@ -259,10 +259,10 @@ export const meetingService = {
       };
       
       if (updates.date) {
-        updateData.date = stringToTimestamp(updates.date) as any;
+        (updateData as any).date = stringToTimestamp(updates.date);
       }
       
-      await updateDoc(docRef, updateData);
+      await updateDoc(docRef, updateData as any);
     } catch (error) {
       console.error('Error updating meeting:', error);
       throw error;
@@ -467,7 +467,7 @@ export const requestService = {
           id: docSnap.id,
           ...docSnap.data(),
           submittedDate: timestampToString(docSnap.data().submittedDate),
-          reviewedDate: docSnap.data().reviewedDate ? timestampToString(doc.data().reviewedDate) : undefined
+          reviewedDate: docSnap.data().reviewedDate ? timestampToString(docSnap.data().reviewedDate) : undefined
         } as Request;
       }
       return null;
@@ -593,7 +593,7 @@ export const userService = {
     }
   },
 
-  async createOrUpdate(user: Omit<User, 'id'>): Promise<void> {
+  async createOrUpdate(user: Omit<User, 'id'> & {id: string}): Promise<void> {
     try {
       const userRef = doc(db, COLLECTIONS.USERS, user.id);
       const userData = {
@@ -602,7 +602,7 @@ export const userService = {
         lastLogin: Timestamp.now()
       };
       
-      await updateDoc(userRef, userData);
+      await updateDoc(userRef, userData as any);
     } catch (error) {
       console.error('Error creating/updating user:', error);
       throw error;

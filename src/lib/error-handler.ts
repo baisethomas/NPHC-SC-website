@@ -3,9 +3,6 @@
  * while providing useful feedback for development and logging.
  */
 
-// Types of errors that are safe to expose to users
-type SafeErrorType = 'ValidationError' | 'AuthenticationError' | 'AuthorizationError' | 'NotFoundError' | 'BadRequestError';
-
 interface ErrorDetails {
   type: string;
   message: string;

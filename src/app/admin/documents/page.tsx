@@ -13,7 +13,6 @@ import { Switch } from "@/components/ui/switch";
 import { PlusCircle, Upload, FileText, Download, Trash2, Search, AlertCircle, Shield, Book, Users, Gavel, LoaderCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useDocuments, useDocumentMutations } from "@/hooks/useMembers";
-import { useAuth } from "@/contexts/AuthContext";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -31,7 +30,6 @@ const documentSchema = z.object({
 type DocumentFormValues = z.infer<typeof documentSchema>;
 
 export default function AdminDocumentsPage() {
-  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);

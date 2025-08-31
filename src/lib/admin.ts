@@ -31,7 +31,7 @@ export interface SetAdminClaimsRequest {
 export interface BatchUpdateRequest {
   updates: {
     uid: string;
-    customClaims: Record<string, any>;
+    customClaims: Record<string, unknown>;
   }[];
 }
 

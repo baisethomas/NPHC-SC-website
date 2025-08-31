@@ -123,7 +123,7 @@ export default function NewAnnouncementPage() {
                 <FormMessage />
               </FormItem>
             )} />
-            <FormField control={form.control} name="image" render={({ field }) => (
+            <FormField control={form.control} name="image" render={() => (
               <FormItem>
                 <FormLabel>Image (optional)</FormLabel>
                 <FormControl><Input type="file" accept="image/*" {...form.register("image")} /></FormControl>

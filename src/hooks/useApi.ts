@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { ApiResponse } from '@/types/members';
+import { ApiResponse, PaginatedResponse } from '@/types/members';
 
 interface ApiOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
@@ -67,7 +67,7 @@ export function useApi() {
         }
 
         return retryResponse.json();
-      } catch {
+      } catch (refreshError) {
         await signOut();
         throw new Error('Authentication expired');
       }
@@ -86,8 +86,8 @@ export function useApi() {
 
 export function useApiQuery<T>(
   endpoint: string,
-  options: ApiOptions = {},
-  dependencies: any[] = []
+  options: Omit<ApiOptions, 'body'> = {},
+  dependencies: readonly any[] = []
 ) {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
