@@ -1,6 +1,6 @@
 // Custom hook for API calls with authentication
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ApiResponse, PaginatedResponse } from '@/types/members';
 
@@ -13,7 +13,7 @@ interface ApiOptions {
 export function useApi() {
   const { user, getIdToken, signOut } = useAuth();
 
-  const makeRequest = async <T>(
+  const makeRequest = useCallback(async <T>(
     endpoint: string,
     options: ApiOptions = {}
   ): Promise<T> => {
@@ -79,7 +79,7 @@ export function useApi() {
     }
 
     return response.json();
-  };
+  }, [user, getIdToken, signOut]);
 
   return { makeRequest };
 }
@@ -94,24 +94,24 @@ export function useApiQuery<T>(
   const [error, setError] = useState<string | null>(null);
   const { makeRequest } = useApi();
 
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const result = await makeRequest<ApiResponse<T>>(endpoint, options);
+      setData(result.data || null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
+  }, [endpoint, makeRequest, ...dependencies]);
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const result = await makeRequest<ApiResponse<T>>(endpoint, options);
-        setData(result.data || null);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchData();
-  }, dependencies);
+  }, [fetchData]);
 
-  return { data, loading, error, refetch: () => fetchData() };
+  return { data, loading, error, refetch: fetchData };
 }
 
 export function useApiMutation<T, R = any>() {
