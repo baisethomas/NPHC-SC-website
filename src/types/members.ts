@@ -107,14 +107,14 @@ export interface MessageAttachment {
 export interface Request {
   id: string;
   title: string;
-  type: 'event' | 'funding' | 'policy' | 'resource' | 'other';
+  type: string; // Allow any string for flexibility
   description: string;
   submittedBy: string;
   submittedByName: string;
   submittedByEmail: string;
   submittedDate: string;
   status: 'pending' | 'under_review' | 'approved' | 'denied' | 'cancelled';
-  priority: 'low' | 'medium' | 'high';
+  priority: string; // Allow any string for flexibility
   requestedDate?: string;
   budget?: number;
   reviewedBy?: string;
