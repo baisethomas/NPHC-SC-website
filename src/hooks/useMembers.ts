@@ -1,6 +1,6 @@
 // Custom hooks for member portal data fetching
 
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
 import { useApiQuery, useApiMutation } from './useApi';
 import { 
   Document, 

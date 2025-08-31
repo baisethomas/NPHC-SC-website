@@ -58,7 +58,7 @@ export default function ContactPage() {
         <div className="container text-center">
           <h1 className="text-4xl md:text-5xl font-headline font-bold">Contact Us</h1>
           <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
-            We'd love to hear from you. Whether you have a question, a suggestion, or a partnership inquiry, please reach out.
+            We&apos;d love to hear from you. Whether you have a question, a suggestion, or a partnership inquiry, please reach out.
           </p>
         </div>
       </section>
@@ -69,7 +69,7 @@ export default function ContactPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="font-headline text-2xl">Send us a Message</CardTitle>
-                <CardDescription>Fill out the form below and we'll be in touch.</CardDescription>
+                <CardDescription>Fill out the form below and we&apos;ll be in touch.</CardDescription>
               </CardHeader>
               <CardContent>
                 <Form {...form}>

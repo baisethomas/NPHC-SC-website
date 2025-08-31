@@ -10,7 +10,7 @@ import { updateBoardMemberWithImage } from "../../actions";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import type { BoardMember } from "@/lib/definitions";
-import { LoaderCircle, Upload, X } from "lucide-react";
+import { LoaderCircle, X } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
 
@@ -86,7 +86,7 @@ export function EditBoardMemberForm({ member }: { member: BoardMember }) {
     <Card>
       <CardHeader>
         <CardTitle>Edit Board Member</CardTitle>
-        <CardDescription>Update the details for "{member.name}".</CardDescription>
+        <CardDescription>Update the details for &quot;{member.name}&quot;.</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={onSubmit} className="space-y-6">

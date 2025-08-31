@@ -10,15 +10,14 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { PlusCircle, Upload, FileText, Download, Edit, Trash2, Search, AlertCircle, Shield, Book, Users, Gavel, LoaderCircle } from "lucide-react";
+import { PlusCircle, Upload, FileText, Download, Trash2, Search, AlertCircle, Shield, Book, Users, Gavel, LoaderCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useDocuments, useDocumentMutations } from "@/hooks/useMembers";
-import { Document } from "@/types/members";
+import { useAuth } from "@/contexts/AuthContext";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { storageService } from "@/lib/storage";
-import { useAuth } from "@/contexts/AuthContext";
 
 const documentSchema = z.object({
   title: z.string().min(1, "Title is required"),

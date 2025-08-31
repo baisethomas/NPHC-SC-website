@@ -2,7 +2,7 @@
 'use client';
 
 import React from 'react';
-import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
+import GooglePlacesAutocomplete, { geocodeByPlaceId } from 'react-google-places-autocomplete';
 import { ControllerRenderProps } from 'react-hook-form';
 import { Input } from './ui/input';
 import { cn } from '@/lib/utils';

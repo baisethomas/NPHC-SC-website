@@ -14,7 +14,7 @@ export default function GalleryPage() {
         <div>
           <h2 className="text-2xl font-headline font-bold mb-4">How to Use Images</h2>
           <p className="text-muted-foreground mb-6">
-            To display an image from an external website, you need its URL. Then, you must add the website's domain (e.g., "www.nphchq.com") to the `remotePatterns` array in your `next.config.ts` file. This is a security measure required by Next.js.
+            To display an image from an external website, you need its URL. Then, you must add the website&apos;s domain (e.g., &quot;www.nphchq.com&quot;) to the `remotePatterns` array in your `next.config.ts` file. This is a security measure required by Next.js.
           </p>
           <div className="p-4 bg-muted rounded-lg">
             <pre className="text-sm overflow-x-auto text-foreground/80">
@@ -33,7 +33,7 @@ const nextConfig = {
 
 // 2. Use the Image component in your page
 <Image 
-  src="https://..." 
+  src="https://" 
   alt="Description" 
   width={600} 
   height={400} 

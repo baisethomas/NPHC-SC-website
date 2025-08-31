@@ -122,14 +122,7 @@ export interface Request {
   reviewedDate?: string;
   reviewNotes?: string;
   attachments?: RequestAttachment[];
-  additionalInfo?: {
-    eventLocation?: string;
-    eventCapacity?: number;
-    eventType?: string;
-    fundingJustification?: string;
-    resourceType?: string;
-    urgencyReason?: string;
-  };
+  additionalInfo?: any;
   isActive: boolean;
 }
 
@@ -152,7 +145,7 @@ export interface Activity {
   resourceType: 'document' | 'meeting' | 'message' | 'request';
   resourceTitle: string;
   timestamp: string;
-  metadata?: Record<string, any>;
+  metadata?: any;
 }
 
 export interface Organization {

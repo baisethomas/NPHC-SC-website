@@ -84,7 +84,7 @@ export default async function Home() {
                   {/* Message Section */}
                   <div className="p-8 md:p-12">
                     <blockquote className="text-lg text-gray-700 leading-relaxed mb-6">
-                      "Welcome to the National Pan-Hellenic Council of Solano County. Our organization stands as a beacon of unity, scholarship, and service in our community. 
+                      &quot;Welcome to the National Pan-Hellenic Council of Solano County. Our organization stands as a beacon of unity, scholarship, and service in our community. 
                       
                       <br /><br />
                       
@@ -92,7 +92,7 @@ export default async function Home() {
                       
                       <br /><br />
                       
-                      I invite you to join us in our mission to uplift our community and create lasting positive change. Together, we embody the true spirit of 'Unanimity of Thought and Action.'"
+                      I invite you to join us in our mission to uplift our community and create lasting positive change. Together, we embody the true spirit of &apos;Unanimity of Thought and Action.&apos;&quot;
                     </blockquote>
                     
                     <div className="flex items-center gap-4">
@@ -114,7 +114,7 @@ export default async function Home() {
             <h2 className="text-3xl font-headline font-bold mb-2">Our Mission</h2>
             <div className="mx-auto mb-4 h-1 w-24 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600" />
             <p className="text-muted-foreground text-lg">
-              The National Pan-Hellenic Council of Solano County is dedicated to "Unanimity of Thought and Action." We are committed to uplifting our community through service, promoting academic excellence, and creating a lasting legacy of unity and leadership among our member organizations.
+              The National Pan-Hellenic Council of Solano County is dedicated to &quot;Unanimity of Thought and Action.&quot; We are committed to uplifting our community through service, promoting academic excellence, and creating a lasting legacy of unity and leadership among our member organizations.
             </p>
           </div>
         </div>

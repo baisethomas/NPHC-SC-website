@@ -3,12 +3,11 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
-import { LoaderCircle, ArrowLeft, MessageSquare, Pin, Bell, Calendar, Users, AlertCircle } from "lucide-react";
+import { LoaderCircle, ArrowLeft, MessageSquare, Pin, Bell, Calendar, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import Link from "next/link";
 
 interface Message {

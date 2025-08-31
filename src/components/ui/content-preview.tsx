@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Eye, Calendar, Clock, MapPin } from 'lucide-react';
 import { type Announcement, type Event } from '@/lib/definitions';
 import { sanitizeHtml } from '@/lib/sanitizer';
+import Image from 'next/image';
 
 interface AnnouncementPreviewProps {
   announcement: Partial<Announcement>;
@@ -47,9 +48,11 @@ export function AnnouncementPreview({ announcement, trigger }: AnnouncementPrevi
                 </div>
                 {announcement.imageUrl && (
                   <div className="flex justify-center mb-6">
-                    <img
+                    <Image
                       src={announcement.imageUrl}
-                      alt={announcement.title}
+                      alt={announcement.title || 'Preview'}
+                      width={600}
+                      height={400}
                       className="rounded-lg max-h-96 w-auto object-contain shadow"
                     />
                   </div>
@@ -103,9 +106,11 @@ export function EventPreview({ event, trigger }: EventPreviewProps) {
           <div className="grid md:grid-cols-2 gap-12 items-start">
             <div>
               {event.image ? (
-                <img
+                <Image
                   src={event.image}
-                  alt={event.title}
+                  alt={event.title || 'Preview'}
+                  width={600}
+                  height={450}
                   className="rounded-lg shadow-lg object-contain w-full aspect-[4/3] bg-muted"
                 />
               ) : (

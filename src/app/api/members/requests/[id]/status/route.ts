@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requestService, activityService } from '@/lib/firestore';
 import { verifyIdToken } from '@/lib/firebase-admin';
-import { Request } from '@/types/members';
 
 export async function PUT(
   request: NextRequest,

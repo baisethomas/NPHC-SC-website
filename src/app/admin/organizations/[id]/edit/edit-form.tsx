@@ -71,7 +71,7 @@ export function EditOrganizationForm({ organization }: { organization: Organizat
     <Card>
       <CardHeader>
         <CardTitle>Edit Organization</CardTitle>
-        <CardDescription>Update the details for "{organization.name} - {organization.chapter}".</CardDescription>
+        <CardDescription>Update the details for &quot;{organization.name} - {organization.chapter}&quot;.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>

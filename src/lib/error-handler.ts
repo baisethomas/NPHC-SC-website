@@ -4,15 +4,7 @@
  */
 
 // Types of errors that are safe to expose to users
-const SAFE_ERROR_TYPES = [
-  'ValidationError',
-  'AuthenticationError',
-  'AuthorizationError',
-  'NotFoundError',
-  'BadRequestError',
-] as const;
-
-type SafeErrorType = typeof SAFE_ERROR_TYPES[number];
+type SafeErrorType = 'ValidationError' | 'AuthenticationError' | 'AuthorizationError' | 'NotFoundError' | 'BadRequestError';
 
 interface ErrorDetails {
   type: string;
@@ -29,7 +21,7 @@ export function sanitizeError(error: unknown, context?: string): ErrorDetails {
   const isProduction = process.env.NODE_ENV === 'production';
   
   // Default error details
-  let details: ErrorDetails = {
+  const details: ErrorDetails = {
     type: 'InternalServerError',
     message: 'An unexpected error occurred',
     statusCode: 500,

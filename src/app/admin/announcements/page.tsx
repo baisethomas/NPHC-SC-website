@@ -14,7 +14,7 @@ export default async function AdminAnnouncementsPage() {
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
             <CardTitle>Announcements</CardTitle>
-            <CardDescription>Manage your organization's announcements.</CardDescription>
+            <CardDescription>Manage your organization&apos;s announcements.</CardDescription>
         </div>
         <Button asChild>
           <Link href="/admin/announcements/new">

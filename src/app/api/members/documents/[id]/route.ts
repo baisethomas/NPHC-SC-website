@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { documentService, activityService } from '@/lib/firestore';
+import { documentService } from '@/lib/firestore';
 import { verifyIdToken } from '@/lib/firebase-admin';
 
 export async function GET(

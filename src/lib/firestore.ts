@@ -7,16 +7,12 @@ import {
   getDocs, 
   addDoc, 
   updateDoc, 
-  deleteDoc, 
   query, 
   where, 
   orderBy, 
   limit, 
-  startAfter,
   Timestamp,
-  DocumentSnapshot,
   QueryConstraint,
-  writeBatch,
   increment
 } from 'firebase/firestore';
 import { db } from './firebase';
@@ -27,8 +23,6 @@ import {
   Request, 
   User, 
   Activity,
-  Organization,
-  ApiResponse,
   PaginatedResponse,
   DocumentQuery,
   MeetingQuery,
@@ -48,11 +42,11 @@ const COLLECTIONS = {
 } as const;
 
 // Helper function to convert Firestore timestamp to ISO string
-const timestampToString = (timestamp: any): string => {
-  if (timestamp?.toDate) {
+const timestampToString = (timestamp: Timestamp | Date): string => {
+  if (timestamp instanceof Timestamp) {
     return timestamp.toDate().toISOString();
   }
-  return timestamp || new Date().toISOString();
+  return timestamp ? new Date(timestamp).toISOString() : new Date().toISOString();
 };
 
 // Helper function to convert date string to Firestore timestamp
@@ -124,9 +118,8 @@ export const documentService = {
 
   async create(document: Omit<Document, 'id'>): Promise<string> {
     try {
-      const { lastUpdated, ...restOfDoc } = document; // Exclude lastUpdated from input
       const docData = {
-        ...restOfDoc,
+        ...document,
         lastUpdated: Timestamp.now(), // Set the timestamp on the server
         downloadCount: 0,
         isActive: true
@@ -260,13 +253,13 @@ export const meetingService = {
   async update(id: string, updates: Partial<MeetingNote>): Promise<void> {
     try {
       const docRef = doc(db, COLLECTIONS.MEETINGS, id);
-      const updateData = {
+      const updateData: Partial<MeetingNote> & { lastModified: Timestamp } = {
         ...updates,
         lastModified: Timestamp.now()
       };
       
       if (updates.date) {
-        updateData.date = stringToTimestamp(updates.date);
+        updateData.date = stringToTimestamp(updates.date) as any;
       }
       
       await updateDoc(docRef, updateData);

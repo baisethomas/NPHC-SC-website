@@ -7,7 +7,8 @@ import {
   deleteObject,
   listAll,
   getMetadata,
-  updateMetadata
+  updateMetadata,
+  SettableMetadata
 } from 'firebase/storage';
 import { storage } from './firebase';
 
@@ -214,7 +215,7 @@ class StorageService {
     }
   }
 
-  async updateFileMetadata(filePath: string, metadata: any) {
+  async updateFileMetadata(filePath: string, metadata: SettableMetadata) {
     try {
       const storageRef = ref(storage, filePath);
       await updateMetadata(storageRef, metadata);

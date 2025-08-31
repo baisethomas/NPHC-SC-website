@@ -121,9 +121,9 @@ export function checkRateLimit(
  */
 export function withRateLimit(config: RateLimitConfig, endpoint?: string) {
   return function rateLimitMiddleware(
-    handler: (request: Request, context?: any) => Promise<Response> | Response
+    handler: (request: Request, context: any) => Promise<Response> | Response
   ) {
-    return async function (request: Request, context?: any): Promise<Response> {
+    return async function (request: Request, context: any): Promise<Response> {
       // Extract user ID from Authorization header if available
       let userId: string | undefined;
       try {
