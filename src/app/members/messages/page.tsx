@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { LoaderCircle, ArrowLeft, MessageSquare, Pin, Bell, Calendar, AlertCircle } from "lucide-react";
@@ -9,20 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
+import { Message } from "@/types/members";
 
-interface Message {
-  id: string;
-  title: string;
-  content: string;
-  sender: string;
-  senderRole: string;
-  timestamp: string;
-  category: 'announcement' | 'reminder' | 'urgent' | 'general';
-  priority: 'low' | 'medium' | 'high';
-  pinned: boolean;
-  read: boolean;
-  targetAudience: string;
-}
 
 export default function MessagesPage() {
   const { user, loading } = useAuth();
@@ -57,66 +46,71 @@ export default function MessagesPage() {
       id: '1',
       title: 'Unity Gala 2025 - Action Required',
       content: 'All chapter representatives are required to submit their member attendance counts by January 31st. Please use the attached form and submit via email to the events committee.',
-      sender: 'Sarah Johnson',
+      senderId: 'user1',
+      senderName: 'Sarah Johnson',
       senderRole: 'Events Committee Chair',
       timestamp: '2025-01-20T10:30:00',
       category: 'urgent',
       priority: 'high',
       pinned: true,
-      read: false,
-      targetAudience: 'All Members'
+      readBy: [],
+      targetAudience: 'all'
     },
     {
       id: '2',
       title: 'Monthly Meeting Reminder',
       content: 'This is a reminder that our monthly council meeting is scheduled for February 1st at 7:00 PM. The meeting will be held at the Solano Community Center. Please review the agenda attached to this message.',
-      sender: 'Michael Davis',
+      senderId: 'user2',
+      senderName: 'Michael Davis',
       senderRole: 'Secretary',
       timestamp: '2025-01-18T14:15:00',
       category: 'reminder',
       priority: 'medium',
       pinned: false,
-      read: true,
-      targetAudience: 'All Members'
+      readBy: [{userId: 'test', readAt: '2025-01-19T14:15:00'}],
+      targetAudience: 'all'
     },
     {
       id: '3',
       title: 'New Member Orientation Schedule',
       content: 'The orientation schedule for new members has been finalized. Sessions will be held on January 25th and 26th. Please coordinate with your chapter presidents to ensure new members are informed.',
-      sender: 'Dr. Angela Williams',
+      senderId: 'user3',
+      senderName: 'Dr. Angela Williams',
       senderRole: 'President',
       timestamp: '2025-01-15T09:00:00',
       category: 'announcement',
       priority: 'medium',
       pinned: false,
-      read: true,
-      targetAudience: 'Chapter Presidents'
+      readBy: [{userId: 'test', readAt: '2025-01-19T14:15:00'}],
+      targetAudience: 'all'
     },
     {
       id: '4',
       title: 'Budget Review Meeting Results',
       content: 'Thank you to all who attended the budget review meeting. The proposed budget for 2025 has been approved with minor modifications. Full details are available in the meeting notes section.',
-      sender: 'Robert Chen',
+      senderId: 'user4',
+      senderName: 'Robert Chen',
       senderRole: 'Treasurer',
       timestamp: '2025-01-12T16:45:00',
       category: 'general',
       priority: 'low',
       pinned: false,
-      read: true,
-      targetAudience: 'All Members'
+      readBy: [{userId: 'test', readAt: '2025-01-19T14:15:00'}],
+      targetAudience: 'all'
     },
     {
       id: '5',
       title: 'Emergency Contact Information Update',
       content: 'Please update your emergency contact information in the member portal by January 30th. This is required for all active members and is used for safety purposes during events.',
-      sender: 'Lisa Martinez',
+      senderId: 'user5',
+      senderName: 'Lisa Martinez',
       senderRole: 'Membership Chair',
       timestamp: '2025-01-10T11:20:00',
       category: 'urgent',
       priority: 'high',
       pinned: true,
-      read: false,
-      targetAudience: 'All Members'
+      readBy: [],
+      targetAudience: 'all'
     }
   ];
 
@@ -150,7 +144,7 @@ export default function MessagesPage() {
   };
 
   const pinnedMessages = messages.filter(msg => msg.pinned);
-  const unreadCount = messages.filter(msg => !msg.read).length;
+  const unreadCount = messages.filter(msg => !msg.readBy.length).length;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -201,15 +195,15 @@ export default function MessagesPage() {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           {getCategoryIcon(message.category)}
-                          <CardTitle className={`text-lg ${!message.read ? 'font-bold' : ''}`}>
+                          <CardTitle className={`text-lg ${!message.readBy.length ? 'font-bold' : ''}`}>
                             {message.title}
                           </CardTitle>
-                          {!message.read && (
+                          {!message.readBy.length && (
                             <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                           )}
                         </div>
                         <CardDescription className="flex items-center gap-4">
-                          <span>From: {message.sender} ({message.senderRole})</span>
+                          <span>From: {message.senderName} ({message.senderRole})</span>
                           <span>To: {message.targetAudience}</span>
                         </CardDescription>
                       </div>
@@ -238,21 +232,21 @@ export default function MessagesPage() {
           {/* All Messages */}
           <TabsContent value="all" className="space-y-4">
             {messages.map((message) => (
-              <Card key={message.id} className={`transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${!message.read ? 'border-l-4 border-l-blue-500 bg-blue-50/30' : ''}`}>
+              <Card key={message.id} className={`transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${!message.readBy.length ? 'border-l-4 border-l-blue-500 bg-blue-50/30' : ''}`}>
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
                         {getCategoryIcon(message.category)}
-                        <CardTitle className={`text-lg ${!message.read ? 'font-bold' : ''}`}>
+                        <CardTitle className={`text-lg ${!message.readBy.length ? 'font-bold' : ''}`}>
                           {message.title}
                         </CardTitle>
-                        {!message.read && (
+                        {!message.readBy.length && (
                           <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                         )}
                       </div>
                       <CardDescription className="flex items-center gap-4">
-                        <span>From: {message.sender} ({message.senderRole})</span>
+                        <span>From: {message.senderName} ({message.senderRole})</span>
                         <span>To: {message.targetAudience}</span>
                       </CardDescription>
                     </div>
@@ -286,21 +280,21 @@ export default function MessagesPage() {
           {['announcement', 'reminder', 'urgent', 'general'].map((category) => (
             <TabsContent key={category} value={category} className="space-y-4">
               {messages.filter(msg => msg.category === category).map((message) => (
-                <Card key={message.id} className={`transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${!message.read ? 'border-l-4 border-l-blue-500 bg-blue-50/30' : ''}`}>
+                <Card key={message.id} className={`transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${!message.readBy.length ? 'border-l-4 border-l-blue-500 bg-blue-50/30' : ''}`}>
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           {getCategoryIcon(message.category)}
-                          <CardTitle className={`text-lg ${!message.read ? 'font-bold' : ''}`}>
+                          <CardTitle className={`text-lg ${!message.readBy.length ? 'font-bold' : ''}`}>
                             {message.title}
                           </CardTitle>
-                          {!message.read && (
+                          {!message.readBy.length && (
                             <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                           )}
                         </div>
                         <CardDescription className="flex items-center gap-4">
-                          <span>From: {message.sender} ({message.senderRole})</span>
+                          <span>From: {message.senderName} ({message.senderRole})</span>
                           <span>To: {message.targetAudience}</span>
                         </CardDescription>
                       </div>

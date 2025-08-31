@@ -1,3 +1,4 @@
+
 // Firestore database operations for the members portal
 
 import { 
@@ -13,7 +14,8 @@ import {
   limit, 
   Timestamp,
   QueryConstraint,
-  increment
+  increment,
+  DocumentData
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { 
@@ -116,10 +118,11 @@ export const documentService = {
     }
   },
 
-  async create(document: Omit<Document, 'id' | 'lastUpdated'>): Promise<string> {
+  async create(documentData: Omit<Document, 'id' | 'lastUpdated'>): Promise<string> {
     try {
-      const docData = {
-        ...document,
+        const { lastUpdated, ...restOfData } = documentData as Partial<Document>;
+        const docData = {
+        ...restOfData,
         lastUpdated: Timestamp.now(), // Set the timestamp on the server
         downloadCount: 0,
         isActive: true
@@ -259,10 +262,10 @@ export const meetingService = {
       };
       
       if (updates.date) {
-        (updateData as any).date = stringToTimestamp(updates.date);
+        (updateData as DocumentData).date = stringToTimestamp(updates.date);
       }
       
-      await updateDoc(docRef, updateData as any);
+      await updateDoc(docRef, updateData as DocumentData);
     } catch (error) {
       console.error('Error updating meeting:', error);
       throw error;
@@ -549,12 +552,12 @@ export const activityService = {
     }
   },
 
-  async getRecent(limit: number = 10): Promise<Activity[]> {
+  async getRecent(limitValue: number = 10): Promise<Activity[]> {
     try {
       const q = query(
         collection(db, COLLECTIONS.ACTIVITIES),
         orderBy('timestamp', 'desc'),
-        limit(limit)
+        limit(limitValue)
       );
       
       const snapshot = await getDocs(q);
@@ -602,7 +605,7 @@ export const userService = {
         lastLogin: Timestamp.now()
       };
       
-      await updateDoc(userRef, userData as any);
+      await updateDoc(userRef, userData as DocumentData);
     } catch (error) {
       console.error('Error creating/updating user:', error);
       throw error;

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from "react";
@@ -15,6 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useRequests, useRequestMutations } from "@/hooks/useMembers";
 import Link from "next/link";
+import { Request as RequestType } from "@/types/members";
 
 export default function RequestsPage() {
   const { user, loading } = useAuth();
@@ -91,7 +93,7 @@ export default function RequestsPage() {
         } : undefined
       };
 
-      await createRequest(requestData);
+      await createRequest(requestData as Partial<RequestType>);
       
       setSubmitSuccess(true);
       setFormData({

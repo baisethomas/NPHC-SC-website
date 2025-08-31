@@ -2,14 +2,14 @@
 'use client';
 
 import React from 'react';
-import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
-import { ControllerRenderProps } from 'react-hook-form';
+import GooglePlacesAutocomplete, { geocodeByPlaceId } from 'react-google-places-autocomplete';
+import { ControllerRenderProps, FieldValues } from 'react-hook-form';
 import { Input } from './ui/input';
 import { cn } from '@/lib/utils';
 import { Option } from 'react-google-places-autocomplete/build/types';
 
 interface LocationAutocompleteProps {
-  field: ControllerRenderProps<any, 'location'>;
+  field: ControllerRenderProps<FieldValues, 'location'>;
 }
 
 export const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({ field }) => {

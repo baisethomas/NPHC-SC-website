@@ -1,3 +1,4 @@
+
 // Database types for the members portal
 
 export interface User {
@@ -107,14 +108,14 @@ export interface MessageAttachment {
 export interface Request {
   id: string;
   title: string;
-  type: string; // Allow any string for flexibility
+  type: string; 
   description: string;
   submittedBy: string;
   submittedByName: string;
   submittedByEmail: string;
   submittedDate: string;
   status: 'pending' | 'under_review' | 'approved' | 'denied' | 'cancelled';
-  priority: string; // Allow any string for flexibility
+  priority: string;
   requestedDate?: string;
   budget?: number;
   reviewedBy?: string;

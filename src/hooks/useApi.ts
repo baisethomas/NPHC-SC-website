@@ -1,12 +1,13 @@
+
 // Custom hook for API calls with authentication
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { ApiResponse, PaginatedResponse } from '@/types/members';
+import { ApiResponse } from '@/types/members';
 
 interface ApiOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
-  body?: any;
+  body?: unknown;
   headers?: Record<string, string>;
 }
 
@@ -67,7 +68,7 @@ export function useApi() {
         }
 
         return retryResponse.json();
-      } catch (refreshError) {
+      } catch (error) {
         await signOut();
         throw new Error('Authentication expired');
       }
@@ -87,7 +88,7 @@ export function useApi() {
 export function useApiQuery<T>(
   endpoint: string,
   options: Omit<ApiOptions, 'body'> = {},
-  dependencies: readonly any[] = []
+  dependencies: unknown[] = []
 ) {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
@@ -115,7 +116,7 @@ export function useApiQuery<T>(
   return { data, loading, error, refetch: fetchData };
 }
 
-export function useApiMutation<T, R = any>() {
+export function useApiMutation<T, R = unknown>() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { makeRequest } = useApi();

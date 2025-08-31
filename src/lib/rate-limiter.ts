@@ -1,3 +1,4 @@
+
 /**
  * Simple in-memory rate limiter for API routes
  * In production, consider using Redis or a dedicated rate limiting service
@@ -122,10 +123,10 @@ export function checkRateLimit(
  * Middleware wrapper for rate limiting API routes
  */
 export function withRateLimit(config: RateLimitConfig, endpoint?: string) {
-  return function rateLimitMiddleware<T extends any[]>(
-    handler: (request: Request, context: any, ...args: T) => Promise<Response> | Response
+  return function rateLimitMiddleware<T extends unknown[]>(
+    handler: (request: Request, context: unknown, ...args: T) => Promise<Response> | Response
   ) {
-    return async function (request: Request, context: any, ...args: T): Promise<Response> {
+    return async function (request: Request, context: unknown, ...args: T): Promise<Response> {
       // Extract user ID from Authorization header if available
       let userId: string | undefined;
       try {

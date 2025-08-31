@@ -1,7 +1,8 @@
+
 // Admin management functions for the members portal
 
 import { getAuth } from 'firebase/auth';
-import { getFunctions, httpsCallable } from 'firebase/functions';
+import { getFunctions, httpsCallable, HttpsCallable } from 'firebase/functions';
 import { app } from './firebase';
 
 const functions = getFunctions(app);
@@ -144,7 +145,7 @@ export const adminHelpers = {
   },
 
   // Get current user's custom claims
-  async getCurrentUserClaims(): Promise<Record<string, any>> {
+  async getCurrentUserClaims(): Promise<Record<string, unknown>> {
     const auth = getAuth();
     const user = auth.currentUser;
     
