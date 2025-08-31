@@ -124,9 +124,10 @@ export const documentService = {
 
   async create(document: Omit<Document, 'id'>): Promise<string> {
     try {
+      const { lastUpdated, ...restOfDoc } = document; // Exclude lastUpdated from input
       const docData = {
-        ...document,
-        lastUpdated: Timestamp.now(),
+        ...restOfDoc,
+        lastUpdated: Timestamp.now(), // Set the timestamp on the server
         downloadCount: 0,
         isActive: true
       };
@@ -371,7 +372,7 @@ export const messageService = {
 
   async markAsRead(messageId: string, userId: string): Promise<void> {
     try {
-      const docRef = doc(db, COLLECTIONS.MESSAGES, id);
+      const docRef = doc(db, COLLECTIONS.MESSAGES, messageId);
       const messageDoc = await getDoc(docRef);
       
       if (messageDoc.exists()) {
@@ -473,7 +474,7 @@ export const requestService = {
           id: docSnap.id,
           ...docSnap.data(),
           submittedDate: timestampToString(docSnap.data().submittedDate),
-          reviewedDate: docSnap.data().reviewedDate ? timestampToString(docSnap.data().reviewedDate) : undefined
+          reviewedDate: docSnap.data().reviewedDate ? timestampToString(doc.data().reviewedDate) : undefined
         } as Request;
       }
       return null;
