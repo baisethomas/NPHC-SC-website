@@ -47,10 +47,21 @@ export function generateCSRFToken(): string {
 /**
  * Set CSRF token in cookie (server-side)
  */
-export function setCSRFTokenCookie(token: string): void {
-  const cookieStore = cookies();
+export async function setCSRFTokenCookie(token: string): Promise<void> {
+  const cookieStore = await cookies();
   
-  cookieStore.set(CSRF_TOKEN_COOKIE_NAME, token, {
+  // Type assertion for Next.js 15 cookies API
+  const cookiesWithSet = cookieStore as unknown as {
+    set: (name: string, value: string, options?: {
+      httpOnly?: boolean;
+      secure?: boolean;
+      sameSite?: 'strict' | 'lax' | 'none';
+      maxAge?: number;
+      path?: string;
+    }) => void;
+  };
+  
+  cookiesWithSet.set(CSRF_TOKEN_COOKIE_NAME, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
@@ -62,10 +73,16 @@ export function setCSRFTokenCookie(token: string): void {
 /**
  * Get CSRF token from cookie (server-side)
  */
-export function getCSRFTokenFromCookie(): string | null {
+export async function getCSRFTokenFromCookie(): Promise<string | null> {
   try {
-    const cookieStore = cookies();
-    return cookieStore.get(CSRF_TOKEN_COOKIE_NAME)?.value || null;
+    const cookieStore = await cookies();
+    
+    // Type assertion for Next.js 15 cookies API
+    const cookiesWithGet = cookieStore as unknown as {
+      get: (name: string) => { value: string } | undefined;
+    };
+    
+    return cookiesWithGet.get(CSRF_TOKEN_COOKIE_NAME)?.value || null;
   } catch {
     return null;
   }
@@ -136,7 +153,7 @@ export async function validateCSRF(request: NextRequest): Promise<{
     return { valid: true };
   }
 
-  const cookieToken = getCSRFTokenFromCookie();
+  const cookieToken = await getCSRFTokenFromCookie();
   const requestToken = await getCSRFTokenFromRequest(request);
 
   if (!verifyCSRFToken(cookieToken, requestToken)) {
@@ -198,8 +215,8 @@ export function initializeCSRFProtection(): string {
 /**
  * CSRF-protected form component helper
  */
-export function getCSRFTokenForForm(): string | null {
-  return getCSRFTokenFromCookie();
+export async function getCSRFTokenForForm(): Promise<string | null> {
+  return await getCSRFTokenFromCookie();
 }
 
 /**

@@ -30,11 +30,11 @@ export function sanitizeHtml(html: string): string {
     const { JSDOM } = require('jsdom');
     const window = new JSDOM('').window;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const purify = DOMPurify(window as any);
+    const purify = (DOMPurify as any)(window);
     
     return purify.sanitize(html, {
       ALLOWED_TAGS,
-      ALLOWED_ATTR: ALLOWED_ATTRIBUTES,
+      ALLOWED_ATTR: ALLOWED_ATTRIBUTES as any,
       ALLOW_DATA_ATTR: false,
       FORBID_SCRIPT_TAGS: true,
       FORBID_ON_ATTRS: true, // Forbid on* attributes (onclick, onload, etc.)
@@ -43,9 +43,9 @@ export function sanitizeHtml(html: string): string {
   }
   
   // Client-side sanitization
-  return DOMPurify.sanitize(html, {
+  return (DOMPurify as any).sanitize(html, {
     ALLOWED_TAGS,
-    ALLOWED_ATTR: ALLOWED_ATTRIBUTES,
+    ALLOWED_ATTR: ALLOWED_ATTRIBUTES as any,
     ALLOW_DATA_ATTR: false,
     FORBID_SCRIPT_TAGS: true,
     FORBID_ON_ATTRS: true, // Forbid on* attributes (onclick, onload, etc.)
@@ -66,11 +66,11 @@ export function sanitizeHtmlStrict(html: string): string {
     const { JSDOM } = require('jsdom');
     const window = new JSDOM('').window;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const purify = DOMPurify(window as any);
+    const purify = (DOMPurify as any)(window);
     
     return purify.sanitize(html, {
       ALLOWED_TAGS: STRICT_TAGS,
-      ALLOWED_ATTR: STRICT_ATTRS,
+      ALLOWED_ATTR: STRICT_ATTRS as any,
       ALLOW_DATA_ATTR: false,
       FORBID_SCRIPT_TAGS: true,
       FORBID_ON_ATTRS: true,
@@ -78,9 +78,9 @@ export function sanitizeHtmlStrict(html: string): string {
     });
   }
   
-  return DOMPurify.sanitize(html, {
+  return (DOMPurify as any).sanitize(html, {
     ALLOWED_TAGS: STRICT_TAGS,
-    ALLOWED_ATTR: STRICT_ATTRS,
+    ALLOWED_ATTR: STRICT_ATTRS as any,
     ALLOW_DATA_ATTR: false,
     FORBID_SCRIPT_TAGS: true,
     FORBID_ON_ATTRS: true,

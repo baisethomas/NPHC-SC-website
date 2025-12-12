@@ -85,16 +85,19 @@ export default function RequestsPage() {
     e.preventDefault();
     
     try {
-      const requestData: Partial<Request> = {
-        ...formData,
-        type: formData.type as Request['type'],
+      const requestData: Partial<RequestType> = {
+        title: formData.title,
+        type: formData.type,
+        description: formData.description,
+        priority: formData.priority,
+        requestedDate: formData.requestedDate || undefined,
         budget: formData.budget ? parseFloat(formData.budget) : undefined,
         additionalInfo: formData.type === 'funding' ? {
           fundingJustification: formData.description
         } : undefined
       };
 
-      await createRequest(requestData as Partial<RequestType>);
+      await createRequest(requestData);
       
       setSubmitSuccess(true);
       setFormData({
