@@ -186,7 +186,7 @@ export default function MeetingNotesPage() {
         <div className="mt-8 p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
           <h3 className="font-semibold text-yellow-800 mb-2">Need Help?</h3>
           <p className="text-yellow-700 text-sm">
-            If you're having trouble accessing meeting notes or need older documents, please contact the council secretary or reach out through our contact form.
+            If you&apos;re having trouble accessing meeting notes or need older documents, please contact the council secretary or reach out through our contact form.
           </p>
         </div>
       </div>

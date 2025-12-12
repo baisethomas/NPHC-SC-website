@@ -101,7 +101,7 @@ export default async function EventRSVPsPage({ params }: { params: { id: string 
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle>RSVP List</CardTitle>
-            <CardDescription>People who have RSVP'd for this event</CardDescription>
+            <CardDescription>People who have RSVP&apos;d for this event</CardDescription>
           </div>
           {rsvps.length > 0 && (
             <Button onClick={downloadCSV} variant="outline" size="sm">

@@ -22,6 +22,7 @@ import { getAnnouncementById, updateAnnouncement } from "../../actions";
 import { uploadAnnouncementImage } from "@/lib/storage";
 import { AnnouncementPreview } from "@/components/ui/content-preview";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import Image from "next/image";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
@@ -155,12 +156,12 @@ export default function EditAnnouncementPage() {
                 <FormMessage />
               </FormItem>
             )} />
-            <FormField control={form.control} name="image" render={({ field }) => (
+            <FormField control={form.control} name="image" render={() => (
               <FormItem>
                 <FormLabel>Image (optional)</FormLabel>
                 {initialData.imageUrl && (
                   <div className="mb-2">
-                    <img src={initialData.imageUrl} alt="Current" className="max-h-32 rounded" />
+                    <Image src={initialData.imageUrl} alt="Current" className="max-h-32 rounded" width={128} height={128} />
                   </div>
                 )}
                 <FormControl><Input type="file" accept="image/*" {...form.register("image")} /></FormControl>

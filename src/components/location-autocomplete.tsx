@@ -2,13 +2,14 @@
 'use client';
 
 import React from 'react';
-import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
-import { ControllerRenderProps } from 'react-hook-form';
+import GooglePlacesAutocomplete, { geocodeByPlaceId } from 'react-google-places-autocomplete';
+import { ControllerRenderProps, FieldValues } from 'react-hook-form';
 import { Input } from './ui/input';
 import { cn } from '@/lib/utils';
+import { Option } from 'react-google-places-autocomplete/build/types';
 
 interface LocationAutocompleteProps {
-  field: ControllerRenderProps<any, 'location'>;
+  field: ControllerRenderProps<FieldValues, 'location'>;
 }
 
 export const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({ field }) => {
@@ -31,7 +32,7 @@ export const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({ fiel
     return <Input placeholder="Google Maps API Key is missing..." disabled />;
   }
   
-  const handleSelect = (place: any) => {
+  const handleSelect = (place: Option | null) => {
     field.onChange(place?.label || '');
   };
 

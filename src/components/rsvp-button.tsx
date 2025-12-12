@@ -90,7 +90,7 @@ export function RSVPButton({ event, hasRSVPd = false }: RSVPButtonProps) {
     return (
       <Button disabled className="bg-green-600 hover:bg-green-600">
         <Check className="h-4 w-4 mr-2" />
-        You're Going!
+        You&apos;re Going!
       </Button>
     );
   }

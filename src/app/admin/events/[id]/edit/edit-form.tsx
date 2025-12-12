@@ -118,7 +118,7 @@ export function EditEventForm({ event }: { event: Event }) {
     <Card>
       <CardHeader>
         <CardTitle>Edit Event</CardTitle>
-        <CardDescription>Update the details for "{event.title}".</CardDescription>
+        <CardDescription>Update the details for &quot;{event.title}&quot;.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -199,7 +199,7 @@ export function EditEventForm({ event }: { event: Event }) {
                 </div>
             </div>
 
-            <FormField control={form.control} name="image" render={({ field }) => (
+            <FormField control={form.control} name="image" render={() => (
                 <FormItem>
                     <FormLabel>Upload New Image (Optional)</FormLabel>
                     <FormControl>

@@ -16,7 +16,7 @@ export default async function AdminBoardPage() {
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
             <CardTitle>Executive Board</CardTitle>
-            <CardDescription>Manage your organization's board members.</CardDescription>
+            <CardDescription>Manage your organization&apos;s board members.</CardDescription>
         </div>
         <Button asChild>
           <Link href="/admin/board/new">

@@ -14,7 +14,7 @@ import {
   AlertDialogHeader, 
   AlertDialogTitle 
 } from "@/components/ui/alert-dialog";
-import { Trash2, Download, Upload, Search, Clock, Eye, EyeOff } from "lucide-react";
+import { Trash2, Download, Search, Clock, Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { deleteAnnouncement } from "./actions";
@@ -170,8 +170,8 @@ export function AnnouncementsTable({ announcements }: AnnouncementsTableProps) {
           <Checkbox
             id="select-all"
             checked={isAllSelected}
-            ref={(el) => {
-              if (el) (el as any).indeterminate = isIndeterminate;
+            ref={(el: HTMLButtonElement | null) => {
+              if (el) el.indeterminate = isIndeterminate;
             }}
             onCheckedChange={handleSelectAll}
           />
@@ -222,7 +222,7 @@ export function AnnouncementsTable({ announcements }: AnnouncementsTableProps) {
 
       {filteredAnnouncements.length === 0 && searchTerm && (
         <div className="text-center py-8 text-muted-foreground">
-          No announcements found matching "{searchTerm}"
+          No announcements found matching &quot;{searchTerm}&quot;
         </div>
       )}
 

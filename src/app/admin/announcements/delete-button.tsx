@@ -62,7 +62,7 @@ export function DeleteAnnouncementButton({ announcement }: DeleteAnnouncementBut
         <AlertDialogHeader>
           <AlertDialogTitle>Are you sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This will permanently delete the announcement "{announcement.title}". This action cannot be undone.
+            This will permanently delete the announcement &quot;{announcement.title}&quot;. This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

@@ -1,6 +1,8 @@
 import { getAnnouncementBySlug } from '@/lib/data';
 import { notFound } from 'next/navigation';
 import { Calendar } from 'lucide-react';
+import { sanitizeHtml } from '@/lib/sanitizer';
+import Image from 'next/image';
 
 export default async function AnnouncementDetailPage({ params }: { params: { slug: string } }) {
   const announcement = await getAnnouncementBySlug(params.slug);
@@ -25,9 +27,11 @@ export default async function AnnouncementDetailPage({ params }: { params: { slu
                     </div>
                     {announcement.imageUrl && (
                       <div className="flex justify-center mb-6">
-                        <img
+                        <Image
                           src={announcement.imageUrl}
                           alt={announcement.title}
+                          width={600}
+                          height={400}
                           className="rounded-lg max-h-96 w-auto object-contain shadow"
                         />
                       </div>
@@ -41,7 +45,7 @@ export default async function AnnouncementDetailPage({ params }: { params: { slu
                     {isHtml ? (
                       <div 
                         className="prose prose-lg max-w-none"
-                        dangerouslySetInnerHTML={{ __html: announcement.description }}
+                        dangerouslySetInnerHTML={{ __html: sanitizeHtml(announcement.description) }}
                       />
                     ) : (
                       paragraphs.map((paragraph, index) => (

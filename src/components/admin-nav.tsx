@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Calendar, Newspaper, Users, Building2 } from "lucide-react";
+import { LayoutDashboard, Calendar, Newspaper, Users, Building2, FileText } from "lucide-react";
 
 const navLinks = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
@@ -11,6 +11,7 @@ const navLinks = [
   { href: "/admin/announcements", label: "Announcements", icon: Newspaper },
   { href: "/admin/board", label: "Board Members", icon: Users },
   { href: "/admin/organizations", label: "Organizations", icon: Building2 },
+  { href: "/admin/documents", label: "Documents", icon: FileText },
 ];
 
 export function AdminNav() {

@@ -220,7 +220,7 @@ export default function NewEventPage() {
                 </FormItem>
               )}
             />
-            <FormField control={form.control} name="image" render={({ field }) => (
+            <FormField control={form.control} name="image" render={() => (
                 <FormItem>
                     <FormLabel>Event Image</FormLabel>
                     <FormControl>

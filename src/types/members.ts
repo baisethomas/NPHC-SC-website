@@ -1,3 +1,4 @@
+
 // Database types for the members portal
 
 export interface User {
@@ -16,7 +17,7 @@ export interface User {
 export interface Document {
   id: string;
   title: string;
-  category: 'bylaws' | 'constitution' | 'policies' | 'procedures' | 'forms' | 'guidelines';
+  category: string;
   description: string;
   version: string;
   lastUpdated: string;
@@ -107,14 +108,14 @@ export interface MessageAttachment {
 export interface Request {
   id: string;
   title: string;
-  type: 'event' | 'funding' | 'policy' | 'resource' | 'other';
+  type: string; 
   description: string;
   submittedBy: string;
   submittedByName: string;
   submittedByEmail: string;
   submittedDate: string;
   status: 'pending' | 'under_review' | 'approved' | 'denied' | 'cancelled';
-  priority: 'low' | 'medium' | 'high';
+  priority: string;
   requestedDate?: string;
   budget?: number;
   reviewedBy?: string;
@@ -122,14 +123,7 @@ export interface Request {
   reviewedDate?: string;
   reviewNotes?: string;
   attachments?: RequestAttachment[];
-  additionalInfo?: {
-    eventLocation?: string;
-    eventCapacity?: number;
-    eventType?: string;
-    fundingJustification?: string;
-    resourceType?: string;
-    urgencyReason?: string;
-  };
+  additionalInfo?: Record<string, unknown>;
   isActive: boolean;
 }
 
@@ -152,7 +146,7 @@ export interface Activity {
   resourceType: 'document' | 'meeting' | 'message' | 'request';
   resourceTitle: string;
   timestamp: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface Organization {
