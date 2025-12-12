@@ -3,16 +3,16 @@
 
 import React from 'react';
 import GooglePlacesAutocomplete, { geocodeByPlaceId } from 'react-google-places-autocomplete';
-import { ControllerRenderProps, FieldValues } from 'react-hook-form';
+import { ControllerRenderProps } from 'react-hook-form';
 import { Input } from './ui/input';
 import { cn } from '@/lib/utils';
 import { Option } from 'react-google-places-autocomplete/build/types';
 
 interface LocationAutocompleteProps {
-  field: ControllerRenderProps<FieldValues, 'location'>;
+  field: ControllerRenderProps<any, string>;
 }
 
-export const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({ field }) => {
+export function LocationAutocomplete({ field }: LocationAutocompleteProps) {
   const [apiKey, setApiKey] = React.useState<string | undefined>(undefined);
   const instanceId = React.useId();
 
