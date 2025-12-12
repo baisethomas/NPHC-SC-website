@@ -259,7 +259,7 @@ export const meetingService = {
   async update(id: string, updates: Partial<MeetingNote>): Promise<void> {
     try {
       const docRef = doc(db, COLLECTIONS.MEETINGS, id);
-      const updateData = {
+      const updateData: any = {
         ...updates,
         lastModified: Timestamp.now()
       };
@@ -371,7 +371,7 @@ export const messageService = {
 
   async markAsRead(messageId: string, userId: string): Promise<void> {
     try {
-      const docRef = doc(db, COLLECTIONS.MESSAGES, id);
+      const docRef = doc(db, COLLECTIONS.MESSAGES, messageId);
       const messageDoc = await getDoc(docRef);
       
       if (messageDoc.exists()) {
@@ -555,12 +555,12 @@ export const activityService = {
     }
   },
 
-  async getRecent(limit: number = 10): Promise<Activity[]> {
+  async getRecent(limitCount: number = 10): Promise<Activity[]> {
     try {
       const q = query(
         collection(db, COLLECTIONS.ACTIVITIES),
         orderBy('timestamp', 'desc'),
-        limit(limit)
+        limit(limitCount)
       );
       
       const snapshot = await getDocs(q);
@@ -599,9 +599,9 @@ export const userService = {
     }
   },
 
-  async createOrUpdate(user: Omit<User, 'id'>): Promise<void> {
+  async createOrUpdate(userId: string, user: Omit<User, 'id'>): Promise<void> {
     try {
-      const userRef = doc(db, COLLECTIONS.USERS, user.id);
+      const userRef = doc(db, COLLECTIONS.USERS, userId);
       const userData = {
         ...user,
         joinedDate: user.joinedDate ? stringToTimestamp(user.joinedDate) : Timestamp.now(),

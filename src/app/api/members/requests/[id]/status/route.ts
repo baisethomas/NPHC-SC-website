@@ -1,24 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requestService, activityService } from '@/lib/firestore';
-import { verifyIdToken } from '@/lib/firebase-admin';
+import { requireAdmin } from '@/lib/authz';
 import { Request } from '@/types/members';
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const token = authHeader.substring(7);
-    const decodedToken = await verifyIdToken(token);
-    
-    if (!decodedToken || !decodedToken.admin) {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
-    }
+    const { id } = await params;
+    const auth = await requireAdmin(request);
+    if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
     const { status, reviewNotes } = await request.json();
     
@@ -27,23 +19,23 @@ export async function PUT(
     }
 
     await requestService.updateStatus(
-      params.id,
+      id,
       status,
-      decodedToken.uid,
-      decodedToken.name || decodedToken.email,
+      auth.user.uid,
+      auth.user.name || auth.user.email,
       reviewNotes
     );
 
     // Get the request to log activity
-    const updatedRequest = await requestService.getById(params.id);
+    const updatedRequest = await requestService.getById(id);
     
     if (updatedRequest) {
       // Log activity
       await activityService.log({
-        userId: decodedToken.uid,
-        userName: decodedToken.name || decodedToken.email,
+        userId: auth.user.uid,
+        userName: auth.user.name || auth.user.email,
         action: status === 'approved' ? 'request_approved' : 'request_denied',
-        resourceId: params.id,
+        resourceId: id,
         resourceType: 'request',
         resourceTitle: updatedRequest.title,
         metadata: {

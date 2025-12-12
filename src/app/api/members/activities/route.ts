@@ -1,25 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { activityService } from '@/lib/firestore';
-import { verifyIdToken } from '@/lib/firebase-admin';
+import { requireUser } from '@/lib/authz';
 
 export async function GET(request: NextRequest) {
   try {
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const token = authHeader.substring(7);
-    const decodedToken = await verifyIdToken(token);
-    
-    if (!decodedToken) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
-    }
+    const auth = await requireUser(request);
+    if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
     const searchParams = request.nextUrl.searchParams;
-    const limit = parseInt(searchParams.get('limit') || '10');
+    const limitCount = parseInt(searchParams.get('limit') || '10');
 
-    const activities = await activityService.getRecent(limit);
+    const activities = await activityService.getRecent(limitCount);
     
     return NextResponse.json({
       success: true,

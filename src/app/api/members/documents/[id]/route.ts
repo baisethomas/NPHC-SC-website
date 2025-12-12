@@ -1,32 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { documentService, activityService } from '@/lib/firestore';
-import { verifyIdToken } from '@/lib/firebase-admin';
+import { isAdminUser, requireAdmin, requireUser } from '@/lib/authz';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const { id } = await params;
+    const auth = await requireUser(request);
+    if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
-    const token = authHeader.substring(7);
-    const decodedToken = await verifyIdToken(token);
-    
-    if (!decodedToken) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
-    }
-
-    const document = await documentService.getById(params.id);
+    const document = await documentService.getById(id);
     
     if (!document) {
       return NextResponse.json({ error: 'Document not found' }, { status: 404 });
     }
 
     // Check if user has access to restricted documents
-    if (document.restricted && !decodedToken.admin) {
+    if (document.restricted && !isAdminUser(auth.user)) {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
@@ -45,24 +37,16 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const token = authHeader.substring(7);
-    const decodedToken = await verifyIdToken(token);
-    
-    if (!decodedToken || !decodedToken.admin) {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
-    }
+    const { id } = await params;
+    const auth = await requireAdmin(request);
+    if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
     const updates = await request.json();
     
-    await documentService.update(params.id, updates);
+    await documentService.update(id, updates);
 
     return NextResponse.json({
       success: true,
@@ -79,22 +63,14 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const { id } = await params;
+    const auth = await requireAdmin(request);
+    if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
-    const token = authHeader.substring(7);
-    const decodedToken = await verifyIdToken(token);
-    
-    if (!decodedToken || !decodedToken.admin) {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
-    }
-
-    await documentService.delete(params.id);
+    await documentService.delete(id);
 
     return NextResponse.json({
       success: true,

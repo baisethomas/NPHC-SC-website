@@ -16,11 +16,14 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
 });
 
-// --- DEVELOPMENT ONLY ---
-// This email will be granted admin privileges automatically for development purposes.
-// This is a temporary workaround to bypass service account issues.
-// REMOVE THIS BEFORE PRODUCTION.
-const DEV_ADMIN_EMAIL = 'baise.thomas@gmail.com'; 
+function parseAllowlist(value: string | undefined): Set<string> {
+  const raw = value ?? '';
+  const emails = raw
+    .split(',')
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+  return new Set(emails);
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -32,18 +35,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (user) {
         setUser(user);
 
-        // --- DEVELOPMENT WORKAROUND ---
-        if (user.email === DEV_ADMIN_EMAIL) {
-          console.warn("******************************************************************");
-          console.warn("*  DEVELOPMENT MODE: User has been granted admin access via email. *");
-          console.warn("*  This is a temporary workaround and must be removed for prod.  *");
-          console.warn("******************************************************************");
-          setIsAdmin(true);
-        } else {
-          // Standard check for all other users via custom claims
-          const idTokenResult = await user.getIdTokenResult();
-          setIsAdmin(!!idTokenResult.claims.admin);
-        }
+        const allowlist = parseAllowlist(process.env.NEXT_PUBLIC_ADMIN_EMAIL_ALLOWLIST);
+        const email = user.email?.toLowerCase();
+
+        // UI admin gating: allowlist OR custom claims (backwards compatible)
+        const idTokenResult = await user.getIdTokenResult();
+        const isAllowlisted = email ? allowlist.has(email) : false;
+        const isClaimAdmin = !!idTokenResult.claims.admin;
+        setIsAdmin(isAllowlisted || isClaimAdmin);
         
       } else {
         setUser(null);

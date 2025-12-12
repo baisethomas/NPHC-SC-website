@@ -55,16 +55,16 @@ export default function DocumentsPage() {
 
   const documents = documentsData?.items || [];
 
-  const handleDownload = async (document: Document) => {
+  const handleDownload = async (doc: Document) => {
     try {
-      const result = await downloadDocument(document.id);
+      const result = await downloadDocument(doc.id);
       // Create a temporary link to trigger download
-      const link = document.createElement('a');
+      const link = window.document.createElement('a');
       link.href = result.downloadUrl;
       link.download = result.fileName;
-      document.body.appendChild(link);
+      window.document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
+      window.document.body.removeChild(link);
     } catch (error) {
       console.error('Download failed:', error);
     }
@@ -191,7 +191,7 @@ export default function DocumentsPage() {
                           <div className="flex items-center gap-2 mb-2">
                             <CardTitle className="text-lg">{doc.title}</CardTitle>
                             {doc.restricted && (
-                              <Shield className="h-4 w-4 text-yellow-600" title="Restricted Access" />
+                              <Shield className="h-4 w-4 text-yellow-600" aria-label="Restricted Access" />
                             )}
                           </div>
                           <div className="flex items-center gap-2 mb-2">

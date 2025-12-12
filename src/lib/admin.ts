@@ -2,7 +2,23 @@
 
 import { getAuth } from 'firebase/auth';
 import { getFunctions, httpsCallable } from 'firebase/functions';
-import { app } from './firebase';
+import { getApps, getApp } from 'firebase/app';
+
+// Ensure Firebase app is initialized (firebase.ts should have done this)
+// Import firebase to ensure initialization happens first
+import '@/lib/firebase';
+
+// Safely get Firebase app instance
+let app;
+try {
+  app = getApps().length > 0 ? getApp() : null;
+  if (!app) {
+    throw new Error('Firebase app not initialized');
+  }
+} catch (error) {
+  console.error('Firebase app initialization error in admin.ts:', error);
+  throw error;
+}
 
 const functions = getFunctions(app);
 

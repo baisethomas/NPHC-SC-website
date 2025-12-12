@@ -1,21 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { meetingService, activityService } from '@/lib/firestore';
-import { verifyIdToken } from '@/lib/firebase-admin';
+import { requireAdmin, requireUser } from '@/lib/authz';
 import { MeetingNote, MeetingQuery } from '@/types/members';
 
 export async function GET(request: NextRequest) {
   try {
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const token = authHeader.substring(7);
-    const decodedToken = await verifyIdToken(token);
-    
-    if (!decodedToken) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
-    }
+    const auth = await requireUser(request);
+    if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
     const searchParams = request.nextUrl.searchParams;
     const query: MeetingQuery = {
@@ -44,26 +35,17 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const token = authHeader.substring(7);
-    const decodedToken = await verifyIdToken(token);
-    
-    if (!decodedToken || !decodedToken.admin) {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
-    }
+    const auth = await requireAdmin(request);
+    if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
     const meetingData = await request.json();
     
     const newMeeting: Omit<MeetingNote, 'id'> = {
       ...meetingData,
-      createdBy: decodedToken.uid,
-      createdByName: decodedToken.name || decodedToken.email,
+      createdBy: auth.user.uid,
+      createdByName: auth.user.name || auth.user.email,
       lastModified: new Date().toISOString(),
-      lastModifiedBy: decodedToken.uid,
+      lastModifiedBy: auth.user.uid,
       attachments: meetingData.attachments || [],
       isActive: true
     };
@@ -72,8 +54,8 @@ export async function POST(request: NextRequest) {
     
     // Log activity
     await activityService.log({
-      userId: decodedToken.uid,
-      userName: decodedToken.name || decodedToken.email,
+      userId: auth.user.uid,
+      userName: auth.user.name || auth.user.email,
       action: 'meeting_created',
       resourceId: meetingId,
       resourceType: 'meeting',

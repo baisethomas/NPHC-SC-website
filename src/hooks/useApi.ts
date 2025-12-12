@@ -54,24 +54,24 @@ export function useApiQuery<T>(
   const [error, setError] = useState<string | null>(null);
   const { makeRequest } = useApi();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const result = await makeRequest<ApiResponse<T>>(endpoint, options);
-        setData(result.data || null);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const result = await makeRequest<ApiResponse<T>>(endpoint, options);
+      setData(result.data || null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchData();
   }, dependencies);
 
-  return { data, loading, error, refetch: () => fetchData() };
+  return { data, loading, error, refetch: fetchData };
 }
 
 export function useApiMutation<T, R = any>() {

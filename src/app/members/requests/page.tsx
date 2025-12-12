@@ -84,8 +84,9 @@ export default function RequestsPage() {
     e.preventDefault();
     
     try {
-      const requestData = {
+      const requestData: Partial<Request> = {
         ...formData,
+        type: formData.type as Request['type'],
         budget: formData.budget ? parseFloat(formData.budget) : undefined,
         additionalInfo: formData.type === 'funding' ? {
           fundingJustification: formData.description

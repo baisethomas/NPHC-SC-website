@@ -1,21 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requestService, activityService } from '@/lib/firestore';
-import { verifyIdToken } from '@/lib/firebase-admin';
+import { isAdminUser, requireUser } from '@/lib/authz';
 import { Request, RequestQuery } from '@/types/members';
 
 export async function GET(request: NextRequest) {
   try {
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const token = authHeader.substring(7);
-    const decodedToken = await verifyIdToken(token);
-    
-    if (!decodedToken) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
-    }
+    const auth = await requireUser(request);
+    if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
     const searchParams = request.nextUrl.searchParams;
     const query: RequestQuery = {
@@ -29,8 +20,8 @@ export async function GET(request: NextRequest) {
     };
 
     // If not admin, filter to only show user's own requests
-    if (!decodedToken.admin) {
-      query.submittedBy = decodedToken.uid;
+    if (!isAdminUser(auth.user)) {
+      query.submittedBy = auth.user.uid;
     }
 
     const requests = await requestService.getAll(query);
@@ -50,25 +41,16 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const token = authHeader.substring(7);
-    const decodedToken = await verifyIdToken(token);
-    
-    if (!decodedToken) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
-    }
+    const auth = await requireUser(request);
+    if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
     const requestData = await request.json();
     
     const newRequest: Omit<Request, 'id'> = {
       ...requestData,
-      submittedBy: decodedToken.uid,
-      submittedByName: decodedToken.name || decodedToken.email,
-      submittedByEmail: decodedToken.email,
+      submittedBy: auth.user.uid,
+      submittedByName: auth.user.name || auth.user.email,
+      submittedByEmail: auth.user.email,
       submittedDate: new Date().toISOString(),
       status: 'pending',
       isActive: true
@@ -78,8 +60,8 @@ export async function POST(request: NextRequest) {
     
     // Log activity
     await activityService.log({
-      userId: decodedToken.uid,
-      userName: decodedToken.name || decodedToken.email,
+      userId: auth.user.uid,
+      userName: auth.user.name || auth.user.email,
       action: 'request_submitted',
       resourceId: requestId,
       resourceType: 'request',

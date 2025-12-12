@@ -1,21 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { documentService, activityService } from '@/lib/firestore';
-import { verifyIdToken } from '@/lib/firebase-admin';
+import { requireAdmin, requireUser } from '@/lib/authz';
 import { Document, DocumentQuery } from '@/types/members';
 
 export async function GET(request: NextRequest) {
   try {
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const token = authHeader.substring(7);
-    const decodedToken = await verifyIdToken(token);
-    
-    if (!decodedToken) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
-    }
+    const auth = await requireUser(request);
+    if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
     const searchParams = request.nextUrl.searchParams;
     const query: DocumentQuery = {
@@ -43,24 +34,15 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const token = authHeader.substring(7);
-    const decodedToken = await verifyIdToken(token);
-    
-    if (!decodedToken || !decodedToken.admin) {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
-    }
+    const auth = await requireAdmin(request);
+    if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
     const documentData = await request.json();
     
     const newDocument: Omit<Document, 'id'> = {
       ...documentData,
-      uploadedBy: decodedToken.uid,
-      uploadedByName: decodedToken.name || decodedToken.email,
+      uploadedBy: auth.user.uid,
+      uploadedByName: auth.user.name || auth.user.email,
       lastUpdated: new Date().toISOString(),
       downloadCount: 0,
       isActive: true
@@ -70,8 +52,8 @@ export async function POST(request: NextRequest) {
     
     // Log activity
     await activityService.log({
-      userId: decodedToken.uid,
-      userName: decodedToken.name || decodedToken.email,
+      userId: auth.user.uid,
+      userName: auth.user.name || auth.user.email,
       action: 'document_uploaded',
       resourceId: documentId,
       resourceType: 'document',

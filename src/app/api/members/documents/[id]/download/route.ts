@@ -1,37 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { documentService } from '@/lib/firestore';
-import { verifyIdToken } from '@/lib/firebase-admin';
+import { isAdminUser, requireUser } from '@/lib/authz';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const { id } = await params;
+    const auth = await requireUser(request);
+    if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
-    const token = authHeader.substring(7);
-    const decodedToken = await verifyIdToken(token);
-    
-    if (!decodedToken) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
-    }
-
-    const document = await documentService.getById(params.id);
+    const document = await documentService.getById(id);
     
     if (!document) {
       return NextResponse.json({ error: 'Document not found' }, { status: 404 });
     }
 
     // Check if user has access to restricted documents
-    if (document.restricted && !decodedToken.admin) {
+    if (document.restricted && !isAdminUser(auth.user)) {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
     // Increment download count
-    await documentService.incrementDownloadCount(params.id);
+    await documentService.incrementDownloadCount(id);
 
     return NextResponse.json({
       success: true,

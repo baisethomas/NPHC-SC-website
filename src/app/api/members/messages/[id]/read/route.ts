@@ -1,25 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { messageService } from '@/lib/firestore';
-import { verifyIdToken } from '@/lib/firebase-admin';
+import { requireUser } from '@/lib/authz';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const { id } = await params;
+    const auth = await requireUser(request);
+    if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
-    const token = authHeader.substring(7);
-    const decodedToken = await verifyIdToken(token);
-    
-    if (!decodedToken) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
-    }
-
-    await messageService.markAsRead(params.id, decodedToken.uid);
+    await messageService.markAsRead(id, auth.user.uid);
 
     return NextResponse.json({
       success: true,
