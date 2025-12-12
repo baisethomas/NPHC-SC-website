@@ -129,7 +129,7 @@ const divineNineOrganizations: DivineNineOrganization[] = [
   },
   {
     name: "Omega Psi Phi Fraternity, Inc.",
-    logo: "https://studentlife.oregonstate.edu/sites/studentlife.oregonstate.edu/files/styles/large/public/omega-psi-phi-fraternity-crest_0.png?itok=RhlfKa3V",
+    logo: "https://upload.wikimedia.org/wikipedia/en/4/4a/Omega_Psi_Phi_shield.png",
     hint: "organization crest",
   },
 ];
