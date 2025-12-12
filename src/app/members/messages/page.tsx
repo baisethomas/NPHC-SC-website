@@ -41,7 +41,7 @@ export default function MessagesPage() {
     );
   }
 
-  const messages: Message[] = [
+  const messages = [
     {
       id: '1',
       title: 'Unity Gala 2025 - Action Required',
@@ -50,11 +50,12 @@ export default function MessagesPage() {
       senderName: 'Sarah Johnson',
       senderRole: 'Events Committee Chair',
       timestamp: '2025-01-20T10:30:00',
-      category: 'urgent',
-      priority: 'high',
+      category: 'urgent' as const,
+      priority: 'high' as const,
       pinned: true,
       readBy: [],
-      targetAudience: 'all'
+      targetAudience: 'all' as const,
+      isActive: true
     },
     {
       id: '2',
@@ -68,7 +69,8 @@ export default function MessagesPage() {
       priority: 'medium',
       pinned: false,
       readBy: [{userId: 'test', readAt: '2025-01-19T14:15:00'}],
-      targetAudience: 'all'
+      targetAudience: 'all',
+      isActive: true
     },
     {
       id: '3',
@@ -82,7 +84,8 @@ export default function MessagesPage() {
       priority: 'medium',
       pinned: false,
       readBy: [{userId: 'test', readAt: '2025-01-19T14:15:00'}],
-      targetAudience: 'all'
+      targetAudience: 'all',
+      isActive: true
     },
     {
       id: '4',
@@ -96,7 +99,8 @@ export default function MessagesPage() {
       priority: 'low',
       pinned: false,
       readBy: [{userId: 'test', readAt: '2025-01-19T14:15:00'}],
-      targetAudience: 'all'
+      targetAudience: 'all',
+      isActive: true
     },
     {
       id: '5',
@@ -110,9 +114,10 @@ export default function MessagesPage() {
       priority: 'high',
       pinned: true,
       readBy: [],
-      targetAudience: 'all'
+      targetAudience: 'all',
+      isActive: true
     }
-  ];
+  ] satisfies Message[];
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
