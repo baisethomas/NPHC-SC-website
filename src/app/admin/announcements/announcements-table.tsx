@@ -167,15 +167,19 @@ export function AnnouncementsTable({ announcements }: AnnouncementsTableProps) {
       {/* Bulk Select */}
       {filteredAnnouncements.length > 0 && (
         <div className="flex items-center space-x-2">
-          <Checkbox
+          <input
+            type="checkbox"
             id="select-all"
             checked={isAllSelected}
-            ref={(el: HTMLButtonElement | null) => {
-              if (el) el.indeterminate = isIndeterminate;
+            ref={(el: HTMLInputElement | null) => {
+              if (el) {
+                el.indeterminate = isIndeterminate;
+              }
             }}
-            onCheckedChange={handleSelectAll}
+            onChange={(e) => handleSelectAll(e.target.checked)}
+            className="h-4 w-4 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           />
-          <label htmlFor="select-all" className="text-sm font-medium">
+          <label htmlFor="select-all" className="text-sm font-medium cursor-pointer">
             Select All ({selectedIds.length} of {filteredAnnouncements.length} selected)
           </label>
         </div>
