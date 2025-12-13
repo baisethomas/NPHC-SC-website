@@ -16,35 +16,55 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
       notFound();
     }
 
+    // Validate required fields
+    if (!event.title || !event.image) {
+      console.error(`Event missing required fields. Title: ${event.title}, Image: ${event.image}`);
+      throw new Error('Event data is incomplete');
+    }
+
+    // Ensure event has id and slug
+    if (!event.id) {
+      event.id = event.slug || slug;
+    }
+    if (!event.slug) {
+      event.slug = event.id || slug;
+    }
+
     return (
       <div className="container py-16 md:py-24">
         <div className="grid md:grid-cols-2 gap-12 items-start">
           <div>
             <Image
-              src={event.image}
-              alt={event.title}
+              src={event.image || '/placeholder-event.jpg'}
+              alt={event.title || 'Event'}
               width={800}
               height={600}
               className="rounded-lg shadow-lg object-contain w-full aspect-[4/3] bg-muted"
-              data-ai-hint={event.image_hint}
+              data-ai-hint={event.image_hint || 'event image'}
             />
           </div>
           <div className="space-y-6">
             <h1 className="text-4xl font-headline font-bold">{event.title}</h1>
             
             <div className="space-y-4 text-lg">
-              <div className="flex items-center text-muted-foreground">
-                <Calendar className="mr-3 h-5 w-5 text-primary" />
-                <span>{event.date}</span>
-              </div>
-              <div className="flex items-center text-muted-foreground">
-                <Clock className="mr-3 h-5 w-5 text-primary" />
-                <span>{event.time}</span>
-              </div>
-              <div className="flex items-center text-muted-foreground">
-                <MapPin className="mr-3 h-5 w-5 text-primary" />
-                <span>{event.location}</span>
-              </div>
+              {event.date && (
+                <div className="flex items-center text-muted-foreground">
+                  <Calendar className="mr-3 h-5 w-5 text-primary" />
+                  <span>{event.date}</span>
+                </div>
+              )}
+              {event.time && (
+                <div className="flex items-center text-muted-foreground">
+                  <Clock className="mr-3 h-5 w-5 text-primary" />
+                  <span>{event.time}</span>
+                </div>
+              )}
+              {event.location && (
+                <div className="flex items-center text-muted-foreground">
+                  <MapPin className="mr-3 h-5 w-5 text-primary" />
+                  <span>{event.location}</span>
+                </div>
+              )}
             </div>
             
             <div className="text-foreground/80 leading-relaxed">
@@ -91,6 +111,16 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
   } catch (error) {
     const resolvedParams = await params;
     console.error(`Error loading event page for slug: ${resolvedParams.slug}`, error);
-    throw error;
+    // Return a user-friendly error page instead of throwing
+    return (
+      <div className="container py-16 md:py-24">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Error Loading Event</h1>
+          <p className="text-muted-foreground">
+            We encountered an error while loading this event. Please try again later.
+          </p>
+        </div>
+      </div>
+    );
   }
 }
