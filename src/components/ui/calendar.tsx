@@ -104,7 +104,10 @@ function Calendar({
               <ChevronRight className={cn("h-4 w-4", className)} {...props} />
             )
           }
-          return null
+          // Default to left chevron if orientation is not specified
+          return (
+            <ChevronLeft className={cn("h-4 w-4", className)} {...props} />
+          )
         },
         DayButton: ({ className, day, modifiers, ...props }: React.ComponentProps<typeof DayButton>) => {
           const ref = React.useRef<HTMLButtonElement>(null)
