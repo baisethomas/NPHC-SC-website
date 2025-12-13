@@ -50,6 +50,11 @@ export function Header() {
     return true;
   });
 
+  // Filter contact links - hide mailing list and donations for live deployment
+  const visibleContactLinks = contactLinks.filter(link => {
+    return link.href !== "/mailing-list" && link.href !== "/donations";
+  });
+
   return (
     <header className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 w-full border-b sticky top-0 z-50 lg:static lg:top-auto lg:z-auto">
       <div className="h-[15px] w-full bg-black" />
@@ -89,14 +94,14 @@ export function Header() {
               <DropdownMenuTrigger asChild>
                 <button className={cn(
                   "relative px-3 py-2 transition-all duration-300 ease-in-out hover:scale-105 hover:text-foreground group overflow-hidden flex items-center gap-1",
-                  (pathname === "/contact" || pathname === "/mailing-list" || pathname === "/donations") ? "text-foreground" : "text-foreground/60"
+                  pathname === "/contact" ? "text-foreground" : "text-foreground/60"
                 )}>
                   <span className="relative z-10">Contact Us</span>
                   <ChevronDown className="h-3 w-3 relative z-10" />
                   {/* Animated underline */}
                   <div className={cn(
                     "absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-yellow-400 to-yellow-600 transition-all duration-300 ease-out",
-                    (pathname === "/contact" || pathname === "/mailing-list" || pathname === "/donations") ? "w-full" : "w-0 group-hover:w-full"
+                    pathname === "/contact" ? "w-full" : "w-0 group-hover:w-full"
                   )} />
                   {/* Subtle background glow on hover */}
                   <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/10 to-yellow-600/10 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -107,7 +112,7 @@ export function Header() {
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                {contactLinks.map((link) => (
+                {visibleContactLinks.map((link) => (
                   <DropdownMenuItem key={link.href} asChild>
                     <Link href={link.href} className="w-full cursor-pointer">
                       {link.label}
@@ -200,7 +205,7 @@ export function Header() {
                       Contact & Support
                     </div>
                     <div className="space-y-1">
-                      {contactLinks.map((link) => (
+                      {visibleContactLinks.map((link) => (
                         <Link
                           key={link.href}
                           href={link.href}

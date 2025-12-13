@@ -270,8 +270,8 @@ export default async function Home() {
             </p>
           </div>
           
-          <div className="grid gap-8 md:grid-cols-2 max-w-4xl mx-auto">
-            {/* Mailing List CTA */}
+          {/* Hidden for live deployment - available on development branch */}
+          {/* <div className="grid gap-8 md:grid-cols-2 max-w-4xl mx-auto">
             <Card className="relative overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-3 border-0 bg-white/95 backdrop-blur-sm">
               <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/20 via-blue-500/20 to-indigo-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               <div className="absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-full opacity-10 group-hover:opacity-20 transition-opacity duration-300" />
@@ -310,7 +310,6 @@ export default async function Home() {
               </CardFooter>
             </Card>
 
-            {/* Donations CTA */}
             <Card className="relative overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-3 border-0 bg-white/95 backdrop-blur-sm">
               <div className="absolute inset-0 bg-gradient-to-br from-pink-400/20 via-red-500/20 to-orange-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               <div className="absolute -top-20 -left-20 w-40 h-40 bg-gradient-to-br from-pink-400 to-red-600 rounded-full opacity-10 group-hover:opacity-20 transition-opacity duration-300" />
@@ -348,7 +347,7 @@ export default async function Home() {
                 </Button>
               </CardFooter>
             </Card>
-          </div>
+          </div> */}
 
           {/* Bottom text */}
           <div className="text-center mt-12">
