@@ -18,6 +18,12 @@ interface EventCardProps {
 export function EventCard({ event }: EventCardProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  // Safety check - ensure event has required fields
+  if (!event || !event.title || !event.slug) {
+    console.error('Invalid event data:', event);
+    return null;
+  }
+
   return (
     <>
       <Card className="flex flex-col overflow-hidden">
@@ -41,13 +47,15 @@ export function EventCard({ event }: EventCardProps) {
             <span>{event.location}</span>
           </div>
           <div className="text-foreground/80 mt-4">
-            {event.description.includes('<') && event.description.includes('>') ? (
+            {event.description && event.description.includes('<') && event.description.includes('>') ? (
               <div 
                 className="prose prose-sm max-w-none line-clamp-3"
                 dangerouslySetInnerHTML={{ __html: sanitizeHtml(event.description) }}
               />
-            ) : (
+            ) : event.description ? (
               <p className="line-clamp-3">{event.description}</p>
+            ) : (
+              <p className="text-muted-foreground italic">No description available.</p>
             )}
           </div>
         </CardContent>
@@ -122,13 +130,15 @@ export function EventCard({ event }: EventCardProps) {
             </div>
             
             <div className="text-foreground/80 leading-relaxed">
-              {event.description.includes('<') && event.description.includes('>') ? (
+              {event.description && event.description.includes('<') && event.description.includes('>') ? (
                 <div 
                   className="prose prose-lg max-w-none"
                   dangerouslySetInnerHTML={{ __html: sanitizeHtml(event.description) }}
                 />
-              ) : (
+              ) : event.description ? (
                 <p>{event.description}</p>
+              ) : (
+                <p className="text-muted-foreground italic">No description available.</p>
               )}
             </div>
             

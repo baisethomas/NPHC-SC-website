@@ -26,11 +26,18 @@ export default async function EventsPage() {
             </TabsList>
             
             <TabsContent value="list" className="space-y-0">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {events.map((event) => (
-                  <EventCard key={event.slug} event={event} />
-                ))}
-              </div>
+              {events.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground text-lg">No events scheduled at this time.</p>
+                  <p className="text-muted-foreground mt-2">Check back soon for upcoming events!</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {events.map((event) => (
+                    <EventCard key={event.slug || event.id} event={event} />
+                  ))}
+                </div>
+              )}
             </TabsContent>
             
             <TabsContent value="calendar" className="space-y-0">

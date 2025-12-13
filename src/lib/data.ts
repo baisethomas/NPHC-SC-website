@@ -23,10 +23,23 @@ export async function getEvents(): Promise<Event[]> {
   }
   try {
     const eventSnapshot = await adminDb.collection('events').get();
-    const eventList = eventSnapshot.docs.map(doc => doc.data() as Event);
+    const eventList = eventSnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        ...data,
+        id: data.id || doc.id,
+        slug: data.slug || doc.id,
+      } as Event;
+    });
+    
+    console.log(`Fetched ${eventList.length} events from Firestore`);
     
     // Sort events by date - handle formatted date strings like "January 15, 2025"
-    return eventList.sort((a, b) => {
+    return eventList.filter(event => event && event.title).sort((a, b) => {
+      if (!a.date || !b.date) {
+        return 0; // Keep order if dates are missing
+      }
+      
       const dateA = new Date(a.date).getTime();
       const dateB = new Date(b.date).getTime();
       
@@ -38,7 +51,7 @@ export async function getEvents(): Promise<Event[]> {
       return dateB - dateA; // Sort descending (newest first)
     });
   } catch (error) {
-    console.warn("Error fetching events with Admin SDK:", error);
+    console.error("Error fetching events with Admin SDK:", error);
     return [];
   }
 }
