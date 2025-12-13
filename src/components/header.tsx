@@ -1,11 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { Menu, LogOut, ChevronDown } from "lucide-react";
+import { Menu, LogOut } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
@@ -21,12 +20,7 @@ const baseNavLinks = [
   { href: "/events", label: "Events" },
   { href: "/news", label: "News" },
   { href: "/members", label: "Members" },
-];
-
-const contactLinks = [
   { href: "/contact", label: "Contact Us" },
-  { href: "/mailing-list", label: "Mailing List" },
-  { href: "/donations", label: "Donations" },
 ];
 
 const logoUrl = "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2FNPHC-Official-Logo-sq.png?alt=media";
@@ -48,11 +42,6 @@ export function Header() {
       return !loading && user !== null;
     }
     return true;
-  });
-
-  // Filter contact links - hide mailing list and donations for live deployment
-  const visibleContactLinks = contactLinks.filter(link => {
-    return link.href !== "/mailing-list" && link.href !== "/donations";
   });
 
   return (
@@ -88,39 +77,6 @@ export function Header() {
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
               </Link>
             ))}
-            
-            {/* Contact Us Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className={cn(
-                  "relative px-3 py-2 transition-all duration-300 ease-in-out hover:scale-105 hover:text-foreground group overflow-hidden flex items-center gap-1",
-                  pathname === "/contact" ? "text-foreground" : "text-foreground/60"
-                )}>
-                  <span className="relative z-10">Contact Us</span>
-                  <ChevronDown className="h-3 w-3 relative z-10" />
-                  {/* Animated underline */}
-                  <div className={cn(
-                    "absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-yellow-400 to-yellow-600 transition-all duration-300 ease-out",
-                    pathname === "/contact" ? "w-full" : "w-0 group-hover:w-full"
-                  )} />
-                  {/* Subtle background glow on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/10 to-yellow-600/10 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  {/* Ripple effect */}
-                  <div className="absolute inset-0 rounded-md bg-gradient-to-r from-yellow-400/30 to-yellow-600/30 scale-0 group-hover:scale-110 opacity-0 group-hover:opacity-100 transition-all duration-500 ease-out" />
-                  {/* Shimmer effect */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                {visibleContactLinks.map((link) => (
-                  <DropdownMenuItem key={link.href} asChild>
-                    <Link href={link.href} className="w-full cursor-pointer">
-                      {link.label}
-                    </Link>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
              {!loading && user && (
                 <Link 
                   href="/admin" 
@@ -198,36 +154,6 @@ export function Header() {
                       <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/10 to-transparent transform -translate-x-full -translate-y-full group-hover:translate-x-full group-hover:translate-y-0 transition-transform duration-600 ease-in-out" />
                     </Link>
                   ))}
-                  
-                  {/* Contact & Support section in mobile */}
-                  <div className="w-full mt-4">
-                    <div className="px-3 py-2 text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-                      Contact & Support
-                    </div>
-                    <div className="space-y-1">
-                      {visibleContactLinks.map((link) => (
-                        <Link
-                          key={link.href}
-                          href={link.href}
-                          onClick={() => setIsOpen(false)}
-                          className={cn(
-                            "relative text-base font-medium transition-all duration-300 ease-in-out hover:translate-x-2 hover:text-primary rounded-md px-6 py-3 w-full group overflow-hidden block",
-                            pathname === link.href && "bg-muted text-primary"
-                          )}
-                        >
-                          <span className="relative z-10">{link.label}</span>
-                          {/* Sliding background effect */}
-                          <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 to-yellow-600/20 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300 ease-out" />
-                          {/* Left border accent */}
-                          <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-yellow-400 to-yellow-600 transform scale-y-0 group-hover:scale-y-100 transition-transform duration-300 ease-out origin-center" />
-                          {/* Pulse effect */}
-                          <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/40 to-yellow-600/40 rounded-md transform scale-95 opacity-0 group-hover:scale-105 group-hover:opacity-100 transition-all duration-400 ease-out" />
-                          {/* Diagonal sweep */}
-                          <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/10 to-transparent transform -translate-x-full -translate-y-full group-hover:translate-x-full group-hover:translate-y-0 transition-transform duration-600 ease-in-out" />
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
                   
                   {!loading && user && (
                      <Link
