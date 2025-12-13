@@ -65,8 +65,9 @@ export async function getEventBySlug(slug: string): Promise<Event | undefined> {
     // Normalize the slug - remove double dashes and clean it up
     const normalizedSlug = slug.replace(/-+/g, '-').replace(/^-|-$/g, '');
     
-    const eventDocRef = adminDb.collection('events').doc(normalizedSlug);
-    const eventSnap = await eventDocRef.get();
+    // Try direct doc lookup with normalized slug first
+    let eventDocRef = adminDb.collection('events').doc(normalizedSlug);
+    let eventSnap = await eventDocRef.get();
     
     if (eventSnap.exists) {
       const data = eventSnap.data();
@@ -75,26 +76,59 @@ export async function getEventBySlug(slug: string): Promise<Event | undefined> {
         id: data?.id || normalizedSlug,
         slug: data?.slug || normalizedSlug,
       } as Event;
-    } else {
-      // Try searching by slug field if direct doc lookup fails
-      const querySnapshot = await adminDb.collection('events')
-        .where('slug', '==', normalizedSlug)
+    }
+    
+    // Try with original slug (in case doc ID has double dashes)
+    if (slug !== normalizedSlug) {
+      eventDocRef = adminDb.collection('events').doc(slug);
+      eventSnap = await eventDocRef.get();
+      
+      if (eventSnap.exists) {
+        const data = eventSnap.data();
+        return {
+          ...data,
+          id: data?.id || slug,
+          slug: data?.slug || slug,
+        } as Event;
+      }
+    }
+    
+    // Try searching by slug field if direct doc lookup fails
+    const querySnapshot = await adminDb.collection('events')
+      .where('slug', '==', normalizedSlug)
+      .limit(1)
+      .get();
+    
+    if (!querySnapshot.empty) {
+      const doc = querySnapshot.docs[0];
+      const data = doc.data();
+      return {
+        ...data,
+        id: data?.id || doc.id,
+        slug: data?.slug || normalizedSlug,
+      } as Event;
+    }
+    
+    // Try searching with original slug
+    if (slug !== normalizedSlug) {
+      const originalQuerySnapshot = await adminDb.collection('events')
+        .where('slug', '==', slug)
         .limit(1)
         .get();
       
-      if (!querySnapshot.empty) {
-        const doc = querySnapshot.docs[0];
+      if (!originalQuerySnapshot.empty) {
+        const doc = originalQuerySnapshot.docs[0];
         const data = doc.data();
         return {
           ...data,
           id: data?.id || doc.id,
-          slug: data?.slug || normalizedSlug,
+          slug: data?.slug || slug,
         } as Event;
       }
-      
-      console.warn(`Event not found with slug '${normalizedSlug}'`);
-      return undefined;
     }
+    
+    console.warn(`Event not found with slug '${slug}' or normalized '${normalizedSlug}'`);
+    return undefined;
   } catch (error) {
     console.error(`Error fetching event by slug '${slug}' with Admin SDK:`, error);
     return undefined;
