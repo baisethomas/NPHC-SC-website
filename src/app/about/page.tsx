@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getBoardMembers } from "@/lib/data";
+import type { BoardMember } from "@/lib/definitions";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { CheckCircle, Terminal, Target, Users, BookOpen } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -145,7 +146,7 @@ export default async function AboutPage() {
             </Alert>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {boardMembers.map((member) => (
+              {boardMembers.map((member: BoardMember) => (
                 <Card key={member.id} className="text-center">
                   <CardHeader className="items-center">
                     <Avatar className="w-50 h-50 mb-4">
