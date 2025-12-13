@@ -1,6 +1,6 @@
 'use client';
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Eye, Calendar, Clock, MapPin } from 'lucide-react';
 import { type Announcement, type Event } from '@/lib/definitions';
@@ -34,6 +34,9 @@ export function AnnouncementPreview({ announcement, trigger }: AnnouncementPrevi
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Preview: {announcement.title}</DialogTitle>
+          <DialogDescription>
+            Preview how your announcement will appear on the website
+          </DialogDescription>
         </DialogHeader>
         <div className="bg-background">
           <section className="py-12 bg-muted">
@@ -101,6 +104,9 @@ export function EventPreview({ event, trigger }: EventPreviewProps) {
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Preview: {event.title}</DialogTitle>
+          <DialogDescription>
+            Preview how your event will appear on the website
+          </DialogDescription>
         </DialogHeader>
         <div className="container py-16 md:py-24">
           <div className="grid md:grid-cols-2 gap-12 items-start">

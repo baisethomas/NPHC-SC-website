@@ -27,10 +27,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 
 import { uploadFile } from "@/lib/storage";
-import { db } from "@/lib/firebase";
-import { doc, setDoc } from "firebase/firestore";
-import type { Event } from "@/lib/definitions";
-import { slugify } from "@/lib/definitions";
+import { createEvent } from "@/app/admin/events/actions";
 import { LocationAutocomplete } from "@/components/location-autocomplete";
 import { EventPreview } from "@/components/ui/content-preview";
 
@@ -92,35 +89,38 @@ export default function NewEventPage() {
     const imageFile = values.image[0] as File;
 
     try {
+      // Upload image first
       const imageUrl = await uploadFile(imageFile);
       
-      const slug = slugify(values.title);
-
+      // Format date for display
       const formattedDate = new Date(values.date).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
       });
 
-      const newEvent: Event = {
-        id: slug,
-        slug: slug,
+      // Create event using server action (includes revalidation)
+      const result = await createEvent({
         title: values.title,
         date: formattedDate,
         time: values.time,
         location: values.location,
         description: values.description,
         image: imageUrl,
-        image_hint: "community event",
-        rsvpLink: values.externalLink || "#",
         eventType: values.eventType,
         rsvpEnabled: values.rsvpEnabled,
-        ...(values.externalLink && { externalLink: values.externalLink }),
-        ...(values.maxAttendees && { maxAttendees: values.maxAttendees }),
-        currentAttendees: 0,
-      };
+        externalLink: values.externalLink || undefined,
+        maxAttendees: values.maxAttendees,
+      });
 
-      await setDoc(doc(db, "events", slug), newEvent);
+      if (result.error) {
+        toast({
+          variant: "destructive",
+          title: "Uh oh! Something went wrong.",
+          description: result.error,
+        });
+        return;
+      }
 
       toast({
         title: "Event Created!",

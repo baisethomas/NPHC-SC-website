@@ -24,7 +24,19 @@ export async function getEvents(): Promise<Event[]> {
   try {
     const eventSnapshot = await adminDb.collection('events').get();
     const eventList = eventSnapshot.docs.map(doc => doc.data() as Event);
-    return eventList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    
+    // Sort events by date - handle formatted date strings like "January 15, 2025"
+    return eventList.sort((a, b) => {
+      const dateA = new Date(a.date).getTime();
+      const dateB = new Date(b.date).getTime();
+      
+      // If date parsing fails, fallback to string comparison
+      if (isNaN(dateA) || isNaN(dateB)) {
+        return b.date.localeCompare(a.date);
+      }
+      
+      return dateB - dateA; // Sort descending (newest first)
+    });
   } catch (error) {
     console.warn("Error fetching events with Admin SDK:", error);
     return [];
