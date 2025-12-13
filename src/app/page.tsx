@@ -225,16 +225,16 @@ export default async function Home() {
         <div className="absolute bottom-0 left-1/4 w-80 h-80 bg-purple-200/20 rounded-full blur-3xl" />
         
         <div className="container relative z-10">
-          <div className="text-center mb-12">
+          <div className="text-center mb-12" suppressHydrationWarning>
             <h2 className="text-3xl font-headline font-bold mb-2">The Divine Nine</h2>
             <div className="mx-auto mb-4 h-1 w-24 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600" />
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Nine historically Black Greek-letter organizations united in service, scholarship, and sisterhood/brotherhood.
             </p>
           </div>
-           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-x-6 gap-y-12 items-start justify-center">
-              {organizations.map((org, index) => (
-                <div key={index} className="flex flex-col items-center text-center group">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-x-6 gap-y-12 items-start justify-center">
+            {organizations.map((org, index) => (
+              <div key={org.name} className="flex flex-col items-center text-center group">
                   <div className="relative">
                     {/* Subtle colored background that appears on hover */}
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-100/0 to-purple-100/0 group-hover:from-blue-100/60 group-hover:to-purple-100/60 rounded-2xl transition-all duration-500 ease-in-out transform group-hover:scale-110" />
