@@ -183,7 +183,7 @@ export default function NewEventPage() {
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
+                      <PopoverContent className="w-auto p-0 min-w-[280px]" align="start">
                         <Calendar
                           mode="single"
                           selected={field.value}
