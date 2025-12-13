@@ -35,20 +35,32 @@ export function EditBoardMemberForm({ member }: { member: BoardMember }) {
     async function fetchOrganizations() {
       try {
         const response = await fetch('/api/organizations');
-        if (response.ok) {
-          const data = await response.json();
-          const orgs = data.organizations || [];
-          setOrganizations(orgs);
-          // Set initial selected organization by finding matching name
-          // Access organization property safely - check if it exists and has a value
-          const memberOrg = member && typeof member === 'object' && 'organization' in member 
-            ? (member as { organization?: string }).organization 
-            : undefined;
-          if (memberOrg && typeof memberOrg === 'string' && memberOrg.trim() && orgs.length > 0) {
-            const matchingOrg = orgs.find((org: Organization) => org.name === memberOrg);
-            if (matchingOrg) {
-              setSelectedOrganization(matchingOrg.id);
-            }
+        const data = await response.json();
+        
+        if (!response.ok) {
+          console.error('Failed to fetch organizations:', response.status, response.statusText);
+          console.error('Error details:', data);
+          // Still try to set organizations if they're in the error response
+          if (data.organizations && Array.isArray(data.organizations)) {
+            setOrganizations(data.organizations);
+          }
+          return;
+        }
+        
+        console.log('Organizations API response:', data);
+        const orgs = Array.isArray(data.organizations) ? data.organizations : [];
+        console.log('Organizations array length:', orgs.length);
+        setOrganizations(orgs);
+        
+        // Set initial selected organization by finding matching name
+        // Access organization property safely - check if it exists and has a value
+        const memberOrg = member && typeof member === 'object' && 'organization' in member 
+          ? (member as { organization?: string }).organization 
+          : undefined;
+        if (memberOrg && typeof memberOrg === 'string' && memberOrg.trim() && orgs.length > 0) {
+          const matchingOrg = orgs.find((org: Organization) => org.name === memberOrg);
+          if (matchingOrg) {
+            setSelectedOrganization(matchingOrg.id);
           }
         }
       } catch (error) {
