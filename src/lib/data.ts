@@ -62,16 +62,41 @@ export async function getEventBySlug(slug: string): Promise<Event | undefined> {
     return undefined;
   }
   try {
-    const eventDocRef = adminDb.collection('events').doc(slug);
+    // Normalize the slug - remove double dashes and clean it up
+    const normalizedSlug = slug.replace(/-+/g, '-').replace(/^-|-$/g, '');
+    
+    const eventDocRef = adminDb.collection('events').doc(normalizedSlug);
     const eventSnap = await eventDocRef.get();
     
     if (eventSnap.exists) {
-      return eventSnap.data() as Event;
+      const data = eventSnap.data();
+      return {
+        ...data,
+        id: data?.id || normalizedSlug,
+        slug: data?.slug || normalizedSlug,
+      } as Event;
     } else {
+      // Try searching by slug field if direct doc lookup fails
+      const querySnapshot = await adminDb.collection('events')
+        .where('slug', '==', normalizedSlug)
+        .limit(1)
+        .get();
+      
+      if (!querySnapshot.empty) {
+        const doc = querySnapshot.docs[0];
+        const data = doc.data();
+        return {
+          ...data,
+          id: data?.id || doc.id,
+          slug: data?.slug || normalizedSlug,
+        } as Event;
+      }
+      
+      console.warn(`Event not found with slug '${normalizedSlug}'`);
       return undefined;
     }
   } catch (error) {
-    console.warn(`Error fetching event by slug '${slug}' with Admin SDK:`, error);
+    console.error(`Error fetching event by slug '${slug}' with Admin SDK:`, error);
     return undefined;
   }
 }

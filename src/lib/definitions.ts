@@ -84,7 +84,12 @@ export interface DivineNineOrganization {
   hint: string;
 }
 
-export const slugify = (text: string): string => text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
+export const slugify = (text: string): string => 
+  text.toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w-]+/g, '-')
+    .replace(/-+/g, '-')  // Collapse multiple dashes into one
+    .replace(/^-|-$/g, ''); // Remove leading/trailing dashes
 
 
 const divineNineOrganizations: DivineNineOrganization[] = [
