@@ -31,7 +31,7 @@ const formSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters."),
   date: z.string().min(2, "Date is required."),
   description: z.string().min(10, "Description must be at least 10 characters."),
-  status: z.enum(['draft', 'published', 'scheduled']).default('published'),
+  status: z.enum(['draft', 'published', 'scheduled']),
   scheduledDate: z.string().optional(),
   image: z
     .any()

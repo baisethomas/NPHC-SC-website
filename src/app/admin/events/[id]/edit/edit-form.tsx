@@ -38,7 +38,7 @@ const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/web
 const formSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters."),
   date: z.date({
-    required_error: "A date for the event is required.",
+    message: "A date for the event is required.",
   }),
   time: z.string().min(2, "Time is required."),
   location: z.string().min(2, "Location is required."),

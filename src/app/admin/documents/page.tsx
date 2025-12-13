@@ -24,7 +24,7 @@ const documentSchema = z.object({
   category: z.string().min(1, "Category is required"),
   description: z.string().min(1, "Description is required"),
   version: z.string().min(1, "Version is required"),
-  restricted: z.boolean().default(false),
+  restricted: z.boolean(),
   tags: z.string().optional()
 });
 

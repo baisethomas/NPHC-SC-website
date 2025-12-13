@@ -26,8 +26,8 @@ export const createRequestSchema = z.object({
     .min(10, 'Description must be at least 10 characters')
     .max(2000, 'Description must not exceed 2000 characters')
     .trim(),
-  type: z.enum(['document', 'access', 'general', 'technical'], { invalid_type_error: 'Invalid request type'}),
-  priority: z.enum(['low', 'medium', 'high', 'urgent'], { invalid_type_error: 'Invalid priority level'}),
+  type: z.enum(['document', 'access', 'general', 'technical'], { message: 'Invalid request type'}),
+  priority: z.enum(['low', 'medium', 'high', 'urgent'], { message: 'Invalid priority level'}),
   category: z.string().min(1, 'Category is required').max(50).trim().optional(),
   attachments: z.array(z.string()).max(5, 'Maximum 5 attachments allowed').optional(),
 });
@@ -52,8 +52,8 @@ export const createMessageSchema = z.object({
     .max(5000, 'Content must not exceed 5000 characters')
     .trim(),
   category: z.string().min(1, 'Category is required').max(50).trim(),
-  priority: z.enum(['low', 'medium', 'high', 'urgent'], { invalid_type_error: 'Invalid priority level'}),
-  targetAudience: z.enum(['all', 'members', 'board', 'officers'], { invalid_type_error: 'Invalid target audience'}),
+  priority: z.enum(['low', 'medium', 'high', 'urgent'], { message: 'Invalid priority level'}),
+  targetAudience: z.enum(['all', 'members', 'board', 'officers'], { message: 'Invalid target audience'}),
   expirationDate: z.string().datetime().optional(),
   isPinned: z.boolean().default(false),
   attachments: z.array(z.string()).max(3, 'Maximum 3 attachments allowed').optional(),
@@ -80,8 +80,8 @@ export const uploadDocumentSchema = z.object({
     .trim()
     .optional(),
   category: z.string().min(1, 'Category is required').max(50).trim(),
-  type: z.enum(['pdf', 'doc', 'image', 'spreadsheet', 'other'], { invalid_type_error: 'Invalid document type'}),
-  visibility: z.enum(['public', 'members', 'board', 'officers'], { invalid_type_error: 'Invalid visibility level'}),
+  type: z.enum(['pdf', 'doc', 'image', 'spreadsheet', 'other'], { message: 'Invalid document type'}),
+  visibility: z.enum(['public', 'members', 'board', 'officers'], { message: 'Invalid visibility level'}),
   tags: z.array(z.string().max(30)).max(10, 'Maximum 10 tags allowed').optional(),
 });
 
@@ -117,7 +117,7 @@ export function validateRequest<T>(schema: z.ZodSchema<T>, data: unknown): {
     return { success: true, data: validatedData };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const errors = error.errors.map(err => `${err.path.join('.')}: ${err.message}`);
+      const errors = error.issues.map(err => `${err.path.join('.')}: ${err.message}`);
       return { success: false, errors };
     }
     return { success: false, errors: ['Validation failed'] };

@@ -25,14 +25,13 @@ const ALLOWED_ATTRIBUTES = {
  */
 export function sanitizeHtml(html: string): string {
   // isomorphic-dompurify automatically handles both client and server-side
-  return createDOMPurify.sanitize(html, {
+  return String(createDOMPurify.sanitize(html, {
     ALLOWED_TAGS,
     ALLOWED_ATTR: ALLOWED_ATTRIBUTES as any,
     ALLOW_DATA_ATTR: false,
-    FORBID_SCRIPT_TAGS: true,
     FORBID_ON_ATTRS: true, // Forbid on* attributes (onclick, onload, etc.)
     USE_PROFILES: { html: true }
-  });
+  } as any));
 }
 
 /**
@@ -44,12 +43,11 @@ export function sanitizeHtmlStrict(html: string): string {
   const STRICT_ATTRS = {};
 
   // isomorphic-dompurify automatically handles both client and server-side
-  return createDOMPurify.sanitize(html, {
+  return String(createDOMPurify.sanitize(html, {
     ALLOWED_TAGS: STRICT_TAGS,
     ALLOWED_ATTR: STRICT_ATTRS as any,
     ALLOW_DATA_ATTR: false,
-    FORBID_SCRIPT_TAGS: true,
     FORBID_ON_ATTRS: true,
     USE_PROFILES: { html: true }
-  });
+  } as any));
 }
