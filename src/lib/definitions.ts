@@ -51,6 +51,7 @@ export interface BoardMember {
   initials: string;
   image: string;
   hint: string;
+  organization?: string;
 }
 
 export interface Organization {

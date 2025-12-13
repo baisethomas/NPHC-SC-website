@@ -41,6 +41,7 @@ export default async function AdminBoardPage() {
               <TableHead>Photo</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Title</TableHead>
+              <TableHead>Organization</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -55,6 +56,7 @@ export default async function AdminBoardPage() {
                 </TableCell>
                 <TableCell className="font-medium">{member.name}</TableCell>
                 <TableCell>{member.title}</TableCell>
+                <TableCell>{member.organization || '-'}</TableCell>
                 <TableCell className="text-right">
                    <Button asChild variant="ghost" size="icon">
                       <Link href={`/admin/board/${member.id}/edit`}>

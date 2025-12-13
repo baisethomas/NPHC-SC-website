@@ -6,11 +6,13 @@ import { revalidatePath } from 'next/cache';
 import { adminDb } from '@/lib/firebase-admin';
 import { slugify, type BoardMember } from '@/lib/definitions';
 import { uploadBoardMemberImage } from '@/lib/storage';
+import admin from 'firebase-admin';
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
   title: z.string().min(2, "Title must be at least 2 characters."),
   image: z.string().optional(),
+  organization: z.string().optional(),
 });
 
 export async function createBoardMember(values: z.infer<typeof formSchema>) {
@@ -29,7 +31,7 @@ export async function createBoardMember(values: z.infer<typeof formSchema>) {
       };
     }
     
-    const { name, title, image } = validatedFields.data;
+    const { name, title, image, organization } = validatedFields.data;
     const id = slugify(name);
     const initials = name.split(' ').map((n) => n[0]).join('');
 
@@ -40,6 +42,7 @@ export async function createBoardMember(values: z.infer<typeof formSchema>) {
       initials,
       image: image || "https://placehold.co/100x100.png",
       hint: "person headshot",
+      organization: organization || undefined,
     };
 
     await adminDb.collection('boardMembers').doc(id).set(newMember);
@@ -70,6 +73,7 @@ export async function createBoardMemberWithImage(formData: FormData) {
     const name = formData.get('name') as string;
     const title = formData.get('title') as string;
     const imageFile = formData.get('image') as File;
+    const organization = formData.get('organization') as string;
 
     if (!name || name.length < 2) {
       return { error: 'Name must be at least 2 characters.' };
@@ -99,6 +103,7 @@ export async function createBoardMemberWithImage(formData: FormData) {
       initials,
       image: imageUrl,
       hint: "person headshot",
+      organization: organization || undefined,
     };
 
     await adminDb.collection('boardMembers').doc(id).set(newMember);
@@ -156,6 +161,7 @@ const updateFormSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters."),
     title: z.string().min(2, "Title must be at least 2 characters."),
     image: z.string().optional(),
+    organization: z.string().optional(),
 });
 
 export async function updateBoardMember(values: z.infer<typeof updateFormSchema>) {
@@ -172,12 +178,17 @@ export async function updateBoardMember(values: z.infer<typeof updateFormSchema>
             return { error: 'Invalid fields!' };
         }
 
-        const { id, name, title, image } = validatedFields.data;
+        const { id, name, title, image, organization } = validatedFields.data;
         const initials = name.split(' ').map((n) => n[0]).join('');
         
-        const updateData: Partial<BoardMember> = { name, title, initials };
+        const updateData: any = { name, title, initials };
         if (image) {
             updateData.image = image;
+        }
+        if (organization) {
+            updateData.organization = organization;
+        } else {
+            updateData.organization = admin.firestore.FieldValue.delete();
         }
         
         const memberRef = adminDb.collection('boardMembers').doc(id);
@@ -212,6 +223,7 @@ export async function updateBoardMemberWithImage(formData: FormData) {
         const name = formData.get('name') as string;
         const title = formData.get('title') as string;
         const imageFile = formData.get('image') as File;
+        const organization = formData.get('organization') as string;
 
         if (!id) {
             return { error: 'Board member ID is required.' };
@@ -225,7 +237,7 @@ export async function updateBoardMemberWithImage(formData: FormData) {
 
         const initials = name.split(' ').map((n) => n[0]).join('');
         
-        const updateData: Partial<BoardMember> = { name, title, initials };
+        const updateData: any = { name, title, initials };
         
         if (imageFile && imageFile.size > 0) {
             try {
@@ -235,6 +247,12 @@ export async function updateBoardMemberWithImage(formData: FormData) {
                 console.error('Image upload failed:', uploadError);
                 return { error: 'Failed to upload image. Please try again.' };
             }
+        }
+        
+        if (organization) {
+            updateData.organization = organization;
+        } else {
+            updateData.organization = admin.firestore.FieldValue.delete();
         }
         
         const memberRef = adminDb.collection('boardMembers').doc(id);
