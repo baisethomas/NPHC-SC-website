@@ -113,6 +113,7 @@ export async function getBoardMembers(): Promise<{ boardMembers: BoardMember[], 
         initials: data.initials || '',
         image: data.image || 'https://placehold.co/100x100.png',
         hint: data.hint || 'person headshot',
+        organization: data.organization || undefined,
       } as BoardMember;
     });
 
@@ -158,6 +159,7 @@ export async function getBoardMemberById(id: string): Promise<BoardMember | unde
         initials: data.initials || '',
         image: data.image || 'https://placehold.co/100x100.png',
         hint: data.hint || 'person headshot',
+        organization: data.organization || undefined,
       } as BoardMember
     } else {
       return undefined;
@@ -267,11 +269,17 @@ export async function getOrganizations(): Promise<{ organizations: Organization[
         console.log("Organizations collection is empty, seeding with initial data...");
         await seedOrganizations();
         const seededSnapshot = await adminDb.collection('organizations').orderBy('name').get();
-        const orgList = seededSnapshot.docs.map(doc => doc.data() as Organization);
+        const orgList = seededSnapshot.docs.map(doc => ({
+          ...doc.data(),
+          id: doc.id
+        } as Organization));
         return { organizations: orgList, error: null };
     }
 
-    const orgList = orgSnapshot.docs.map(doc => doc.data() as Organization);
+    const orgList = orgSnapshot.docs.map(doc => ({
+      ...doc.data(),
+      id: doc.id
+    } as Organization));
     return { organizations: orgList, error: null };
   } catch (error) {
     const errorMessage = handleFirestoreError(error, 'get organizations');
