@@ -245,17 +245,26 @@ const initialOrganizations: Organization[] = [
 
 
 async function seedOrganizations() {
-    if (!adminDb) return;
-    const batch = adminDb.batch();
-    const orgsRef = adminDb.collection('organizations');
-    
-    initialOrganizations.forEach(org => {
-        const docRef = orgsRef.doc(org.id);
-        batch.set(docRef, org);
-    });
-    
-    await batch.commit();
-    console.log("Firestore 'organizations' collection seeded successfully.");
+    if (!adminDb) {
+        console.error('Cannot seed organizations: adminDb is not initialized');
+        return;
+    }
+    try {
+        const batch = adminDb.batch();
+        const orgsRef = adminDb.collection('organizations');
+        
+        console.log(`Seeding ${initialOrganizations.length} organizations...`);
+        initialOrganizations.forEach(org => {
+            const docRef = orgsRef.doc(org.id);
+            batch.set(docRef, org);
+        });
+        
+        await batch.commit();
+        console.log(`Firestore 'organizations' collection seeded successfully with ${initialOrganizations.length} organizations.`);
+    } catch (error) {
+        console.error('Error seeding organizations:', error);
+        throw error;
+    }
 }
 
 export async function getOrganizations(): Promise<{ organizations: Organization[], error: string | null }> {
@@ -263,26 +272,55 @@ export async function getOrganizations(): Promise<{ organizations: Organization[
     return { organizations: [], error: handleFirestoreError(new Error("Firebase Admin SDK not initialized."), "get organizations") };
   }
   try {
-    const orgSnapshot = await adminDb.collection('organizations').orderBy('name').get();
+    // Try with orderBy first, fallback to simple get if index is missing
+    let orgSnapshot;
+    try {
+      orgSnapshot = await adminDb.collection('organizations').orderBy('name').get();
+    } catch (orderByError: any) {
+      // If orderBy fails (likely missing index), try without ordering
+      console.warn('orderBy failed, fetching without ordering:', orderByError.message);
+      orgSnapshot = await adminDb.collection('organizations').get();
+    }
     
     if (orgSnapshot.empty) {
         console.log("Organizations collection is empty, seeding with initial data...");
         await seedOrganizations();
-        const seededSnapshot = await adminDb.collection('organizations').orderBy('name').get();
-        const orgList = seededSnapshot.docs.map(doc => ({
-          ...doc.data(),
-          id: doc.id
-        } as Organization));
-        return { organizations: orgList, error: null };
+        // Try to fetch again after seeding
+        try {
+          const seededSnapshot = await adminDb.collection('organizations').orderBy('name').get();
+          const orgList = seededSnapshot.docs.map(doc => ({
+            ...doc.data(),
+            id: doc.id
+          } as Organization));
+          // Sort manually if orderBy worked
+          orgList.sort((a, b) => a.name.localeCompare(b.name));
+          console.log(`Seeded and fetched ${orgList.length} organizations`);
+          return { organizations: orgList, error: null };
+        } catch (seedFetchError: any) {
+          // If orderBy fails after seeding, fetch without ordering
+          console.warn('orderBy failed after seeding, fetching without ordering:', seedFetchError.message);
+          const seededSnapshot = await adminDb.collection('organizations').get();
+          const orgList = seededSnapshot.docs.map(doc => ({
+            ...doc.data(),
+            id: doc.id
+          } as Organization));
+          orgList.sort((a, b) => a.name.localeCompare(b.name));
+          console.log(`Seeded and fetched ${orgList.length} organizations (without orderBy)`);
+          return { organizations: orgList, error: null };
+        }
     }
 
     const orgList = orgSnapshot.docs.map(doc => ({
       ...doc.data(),
       id: doc.id
     } as Organization));
+    // Sort manually if orderBy didn't work
+    orgList.sort((a, b) => a.name.localeCompare(b.name));
+    console.log(`Fetched ${orgList.length} organizations`);
     return { organizations: orgList, error: null };
   } catch (error) {
     const errorMessage = handleFirestoreError(error, 'get organizations');
+    console.error('Error in getOrganizations:', error);
     return { organizations: [], error: errorMessage };
   }
 }
