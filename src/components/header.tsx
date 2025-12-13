@@ -41,6 +41,15 @@ export function Header() {
     setIsOpen(false);
   };
 
+  // Filter navigation links based on authentication status
+  const navLinks = baseNavLinks.filter(link => {
+    // Show Members link only when user is logged in
+    if (link.href === "/members") {
+      return !loading && user !== null;
+    }
+    return true;
+  });
+
   return (
     <header className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 w-full border-b sticky top-0 z-50 lg:static lg:top-auto lg:z-auto">
       <div className="h-[15px] w-full bg-black" />
@@ -51,7 +60,7 @@ export function Header() {
         
         <div className="hidden lg:flex items-center gap-6">
           <nav className="flex items-center gap-6 text-sm font-medium">
-            {baseNavLinks.map((link) => (
+            {navLinks.map((link) => (
               <Link 
                 key={link.href} 
                 href={link.href} 
@@ -163,7 +172,7 @@ export function Header() {
                   </Link>
                 </div>
                 <nav className="flex flex-col items-start space-y-1 p-4">
-                  {baseNavLinks.map((link) => (
+                  {navLinks.map((link) => (
                     <Link
                       key={link.href}
                       href={link.href}
