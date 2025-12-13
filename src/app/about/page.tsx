@@ -156,9 +156,9 @@ export default async function AboutPage() {
                   </CardHeader>
                   <CardContent>
                     <p className="text-primary/70 font-medium">{member.title}</p>
-                    {'organization' in member && member.organization && (
+                    {member.organization ? (
                       <p className="text-muted-foreground text-sm mt-2 font-medium">{member.organization}</p>
-                    )}
+                    ) : null}
                   </CardContent>
                 </Card>
               ))}
