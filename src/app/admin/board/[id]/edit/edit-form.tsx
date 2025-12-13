@@ -28,7 +28,7 @@ export function EditBoardMemberForm({ member }: { member: BoardMember }) {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
-  const [selectedOrganization, setSelectedOrganization] = useState<string>(member.organization || "none");
+  const [selectedOrganization, setSelectedOrganization] = useState<string>("none");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -38,13 +38,20 @@ export function EditBoardMemberForm({ member }: { member: BoardMember }) {
         if (response.ok) {
           const data = await response.json();
           setOrganizations(data.organizations || []);
+          // Set initial selected organization by finding matching name
+          if (member.organization) {
+            const matchingOrg = data.organizations?.find((org: Organization) => org.name === member.organization);
+            if (matchingOrg) {
+              setSelectedOrganization(matchingOrg.id);
+            }
+          }
         }
       } catch (error) {
         console.error('Failed to fetch organizations:', error);
       }
     }
     fetchOrganizations();
-  }, []);
+  }, [member.organization]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -77,7 +84,9 @@ export function EditBoardMemberForm({ member }: { member: BoardMember }) {
         formData.set('image', selectedFile);
       }
       if (selectedOrganization && selectedOrganization !== 'none') {
-        formData.set('organization', selectedOrganization);
+        // Find organization name by ID
+        const selectedOrg = organizations.find(org => org.id === selectedOrganization);
+        formData.set('organization', selectedOrg?.name || '');
       } else {
         formData.set('organization', '');
       }
@@ -152,7 +161,7 @@ export function EditBoardMemberForm({ member }: { member: BoardMember }) {
               <SelectContent>
                 <SelectItem value="none">None</SelectItem>
                 {organizations.map((org) => (
-                  <SelectItem key={org.id} value={org.name}>
+                  <SelectItem key={org.id} value={org.id}>
                     {org.name} - {org.chapter}
                   </SelectItem>
                 ))}

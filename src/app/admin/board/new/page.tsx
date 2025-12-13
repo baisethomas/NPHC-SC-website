@@ -74,7 +74,9 @@ export default function NewBoardMemberPage() {
         formData.set('image', selectedFile);
       }
       if (selectedOrganization && selectedOrganization !== 'none') {
-        formData.set('organization', selectedOrganization);
+        // Find organization name by ID
+        const selectedOrg = organizations.find(org => org.id === selectedOrganization);
+        formData.set('organization', selectedOrg?.name || '');
       } else {
         formData.set('organization', '');
       }
@@ -145,7 +147,7 @@ export default function NewBoardMemberPage() {
               <SelectContent>
                 <SelectItem value="none">None</SelectItem>
                 {organizations.map((org) => (
-                  <SelectItem key={org.id} value={org.name}>
+                  <SelectItem key={org.id} value={org.id}>
                     {org.name} - {org.chapter}
                   </SelectItem>
                 ))}
