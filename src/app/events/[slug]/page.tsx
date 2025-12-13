@@ -9,8 +9,16 @@ import { sanitizeHtml } from '@/lib/sanitizer';
 export default async function EventDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   try {
     const { slug } = await params;
-    // Decode URL-encoded slug (handles cases where & becomes %26, etc.)
-    const decodedSlug = decodeURIComponent(slug);
+    // Safely decode URL-encoded slug (handles cases where & becomes %26, etc.)
+    let decodedSlug = slug;
+    try {
+      decodedSlug = decodeURIComponent(slug);
+    } catch (e) {
+      // If decoding fails, use original slug
+      decodedSlug = slug;
+    }
+    
+    console.log(`[EventDetailPage] Looking up event with slug: ${slug}, decoded: ${decodedSlug}`);
     const event = await getEventBySlug(decodedSlug);
 
     if (!event) {
@@ -82,7 +90,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
             </div>
             
             <div className="mt-6">
-              {eventWithIds.eventType === 'internal' && eventWithIds.rsvpEnabled ? (
+              {eventWithIds.eventType === 'internal' && eventWithIds.rsvpEnabled && eventWithIds.id ? (
                 <RSVPButton event={eventWithIds} />
               ) : eventWithIds.eventType === 'external' && eventWithIds.externalLink ? (
                 <Button asChild size="lg" className="w-full">
