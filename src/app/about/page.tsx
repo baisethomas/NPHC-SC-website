@@ -9,6 +9,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default async function AboutPage() {
   const { boardMembers, error } = await getBoardMembers();
+  const typedBoardMembers: BoardMember[] = boardMembers;
 
   const objectives = [
     "Assist in establishing and facilitating local councils on campuses and within communities.",
@@ -146,7 +147,7 @@ export default async function AboutPage() {
             </Alert>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {boardMembers.map((member: BoardMember) => (
+              {typedBoardMembers.map((member) => (
                 <Card key={member.id} className="text-center">
                   <CardHeader className="items-center">
                     <Avatar className="w-50 h-50 mb-4">
@@ -157,8 +158,8 @@ export default async function AboutPage() {
                   </CardHeader>
                   <CardContent>
                     <p className="text-primary/70 font-medium">{member.title}</p>
-                    {member.organization ? (
-                      <p className="text-muted-foreground text-sm mt-2 font-medium">{member.organization}</p>
+                    {(member as BoardMember & { organization?: string }).organization ? (
+                      <p className="text-muted-foreground text-sm mt-2 font-medium">{(member as BoardMember & { organization?: string }).organization}</p>
                     ) : null}
                   </CardContent>
                 </Card>
