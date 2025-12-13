@@ -179,7 +179,21 @@ export async function getEventBySlug(slug: string): Promise<Event | undefined> {
       }
     }
     
+    // Last resort: try to get all events and find by slug (for debugging)
     console.warn(`[getEventBySlug] Event not found with slug '${slug}', decoded '${decodedSlug}', or normalized '${normalizedSlug}'`);
+    console.log(`[getEventBySlug] Attempting to list all events to debug...`);
+    
+    try {
+      const allEventsSnapshot = await adminDb.collection('events').limit(10).get();
+      const allSlugs = allEventsSnapshot.docs.map(doc => {
+        const data = doc.data();
+        return { docId: doc.id, slug: data?.slug, title: data?.title };
+      });
+      console.log(`[getEventBySlug] Found ${allSlugs.length} events. Slugs:`, allSlugs);
+    } catch (debugError) {
+      console.error(`[getEventBySlug] Error listing events for debugging:`, debugError);
+    }
+    
     return undefined;
   } catch (error) {
     console.error(`[getEventBySlug] Error fetching event by slug '${slug}' with Admin SDK:`, error);
