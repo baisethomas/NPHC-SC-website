@@ -39,8 +39,9 @@ export function EditBoardMemberForm({ member }: { member: BoardMember }) {
           const data = await response.json();
           setOrganizations(data.organizations || []);
           // Set initial selected organization by finding matching name
-          if (member.organization) {
-            const matchingOrg = data.organizations?.find((org: Organization) => org.name === member.organization);
+          const memberOrg = 'organization' in member ? member.organization : undefined;
+          if (memberOrg) {
+            const matchingOrg = data.organizations?.find((org: Organization) => org.name === memberOrg);
             if (matchingOrg) {
               setSelectedOrganization(matchingOrg.id);
             }
@@ -51,7 +52,7 @@ export function EditBoardMemberForm({ member }: { member: BoardMember }) {
       }
     }
     fetchOrganizations();
-  }, [member.organization]);
+  }, [member]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
