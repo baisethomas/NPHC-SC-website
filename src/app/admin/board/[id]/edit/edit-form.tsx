@@ -37,11 +37,15 @@ export function EditBoardMemberForm({ member }: { member: BoardMember }) {
         const response = await fetch('/api/organizations');
         if (response.ok) {
           const data = await response.json();
-          setOrganizations(data.organizations || []);
+          const orgs = data.organizations || [];
+          setOrganizations(orgs);
           // Set initial selected organization by finding matching name
-          const memberOrg = member.organization;
-          if (memberOrg && data.organizations) {
-            const matchingOrg = data.organizations.find((org: Organization) => org.name === memberOrg);
+          // Access organization property safely - check if it exists and has a value
+          const memberOrg = member && typeof member === 'object' && 'organization' in member 
+            ? (member as { organization?: string }).organization 
+            : undefined;
+          if (memberOrg && typeof memberOrg === 'string' && memberOrg.trim() && orgs.length > 0) {
+            const matchingOrg = orgs.find((org: Organization) => org.name === memberOrg);
             if (matchingOrg) {
               setSelectedOrganization(matchingOrg.id);
             }
