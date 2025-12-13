@@ -23,6 +23,11 @@ const fontHeadline = Playfair_Display({
 export const metadata: Metadata = {
   title: "NPHC Solano Hub",
   description: "The official website for the National Pan-Hellenic Council of Solano County.",
+  icons: {
+    icon: '/icon.png',
+    shortcut: '/favicon.ico',
+    apple: '/icon.png',
+  },
 };
 
 export default function RootLayout({
