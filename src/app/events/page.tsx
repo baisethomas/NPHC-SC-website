@@ -6,6 +6,7 @@ import { Calendar, Clock, MapPin, ExternalLink, Users, Info } from "lucide-react
 import { getEvents } from "@/lib/data";
 import { EventCalendar } from "@/components/event-calendar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { sanitizeHtml } from "@/lib/sanitizer";
 
 export default async function EventsPage() {
   const events = await getEvents();
@@ -52,7 +53,16 @@ export default async function EventsPage() {
                         <MapPin className="h-4 w-4 mt-1 shrink-0" />
                         <span>{event.location}</span>
                       </div>
-                      <p className="text-foreground/80 mt-4">{event.description}</p>
+                      <div className="text-foreground/80 mt-4">
+                        {event.description.includes('<') && event.description.includes('>') ? (
+                          <div 
+                            className="prose prose-sm max-w-none"
+                            dangerouslySetInnerHTML={{ __html: sanitizeHtml(event.description) }}
+                          />
+                        ) : (
+                          <p>{event.description}</p>
+                        )}
+                      </div>
                     </CardContent>
                     <CardFooter className="flex gap-2">
                       <Button asChild variant="outline" className="flex-1">
