@@ -26,7 +26,7 @@ export async function createEvent(values: z.infer<typeof eventSchema>) {
   const validatedFields = eventSchema.safeParse(values);
 
   if (!validatedFields.success) {
-    return { error: 'Invalid fields!', details: validatedFields.error.errors };
+    return { error: 'Invalid fields!' };
   }
 
   const { title, date, time, location, description, image, eventType, rsvpEnabled, externalLink, maxAttendees } = validatedFields.data;
