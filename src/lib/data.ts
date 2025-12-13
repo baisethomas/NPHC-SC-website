@@ -62,8 +62,11 @@ export async function getEventBySlug(slug: string): Promise<Event | undefined> {
     return undefined;
   }
   try {
+    // Decode URL-encoded characters if present
+    const decodedSlug = slug.includes('%') ? decodeURIComponent(slug) : slug;
+    
     // Normalize the slug - remove double dashes and clean it up
-    const normalizedSlug = slug.replace(/-+/g, '-').replace(/^-|-$/g, '');
+    const normalizedSlug = decodedSlug.replace(/-+/g, '-').replace(/^-|-$/g, '');
     
     // Try direct doc lookup with normalized slug first
     let eventDocRef = adminDb.collection('events').doc(normalizedSlug);

@@ -86,6 +86,7 @@ export interface DivineNineOrganization {
 
 export const slugify = (text: string): string => 
   text.toLowerCase()
+    .replace(/&/g, 'and')  // Replace & with 'and' before other replacements
     .replace(/\s+/g, '-')
     .replace(/[^\w-]+/g, '-')
     .replace(/-+/g, '-')  // Collapse multiple dashes into one

@@ -9,7 +9,9 @@ import { sanitizeHtml } from '@/lib/sanitizer';
 export default async function EventDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   try {
     const { slug } = await params;
-    const event = await getEventBySlug(slug);
+    // Decode URL-encoded slug (handles cases where & becomes %26, etc.)
+    const decodedSlug = decodeURIComponent(slug);
+    const event = await getEventBySlug(decodedSlug);
 
     if (!event) {
       console.warn(`Event not found for slug: ${slug}`);
