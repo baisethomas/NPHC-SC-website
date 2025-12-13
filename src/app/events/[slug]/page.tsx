@@ -22,77 +22,76 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
       throw new Error('Event data is incomplete');
     }
 
-    // Ensure event has id and slug
-    if (!event.id) {
-      event.id = event.slug || slug;
-    }
-    if (!event.slug) {
-      event.slug = event.id || slug;
-    }
+    // Ensure event has id and slug (create a new object to avoid mutation)
+    const eventWithIds = {
+      ...event,
+      id: event.id || event.slug || slug,
+      slug: event.slug || event.id || slug,
+    };
 
     return (
       <div className="container py-16 md:py-24">
         <div className="grid md:grid-cols-2 gap-12 items-start">
           <div>
             <Image
-              src={event.image || '/placeholder-event.jpg'}
-              alt={event.title || 'Event'}
+              src={eventWithIds.image || '/placeholder-event.jpg'}
+              alt={eventWithIds.title || 'Event'}
               width={800}
               height={600}
               className="rounded-lg shadow-lg object-contain w-full aspect-[4/3] bg-muted"
-              data-ai-hint={event.image_hint || 'event image'}
+              data-ai-hint={eventWithIds.image_hint || 'event image'}
             />
           </div>
           <div className="space-y-6">
-            <h1 className="text-4xl font-headline font-bold">{event.title}</h1>
+            <h1 className="text-4xl font-headline font-bold">{eventWithIds.title}</h1>
             
             <div className="space-y-4 text-lg">
-              {event.date && (
+              {eventWithIds.date && (
                 <div className="flex items-center text-muted-foreground">
                   <Calendar className="mr-3 h-5 w-5 text-primary" />
-                  <span>{event.date}</span>
+                  <span>{eventWithIds.date}</span>
                 </div>
               )}
-              {event.time && (
+              {eventWithIds.time && (
                 <div className="flex items-center text-muted-foreground">
                   <Clock className="mr-3 h-5 w-5 text-primary" />
-                  <span>{event.time}</span>
+                  <span>{eventWithIds.time}</span>
                 </div>
               )}
-              {event.location && (
+              {eventWithIds.location && (
                 <div className="flex items-center text-muted-foreground">
                   <MapPin className="mr-3 h-5 w-5 text-primary" />
-                  <span>{event.location}</span>
+                  <span>{eventWithIds.location}</span>
                 </div>
               )}
             </div>
             
             <div className="text-foreground/80 leading-relaxed">
-              {event.description && event.description.includes('<') && event.description.includes('>') ? (
+              {eventWithIds.description && eventWithIds.description.includes('<') && eventWithIds.description.includes('>') ? (
                 <div 
                   className="prose prose-lg max-w-none"
-                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(event.description) }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(eventWithIds.description) }}
                 />
-              ) : event.description ? (
-                <p>{event.description}</p>
+              ) : eventWithIds.description ? (
+                <p>{eventWithIds.description}</p>
               ) : (
                 <p className="text-muted-foreground italic">No description available.</p>
               )}
             </div>
             
             <div className="mt-6">
-              {event.eventType === 'internal' && event.rsvpEnabled ? (
-                <RSVPButton event={event} />
-              ) : event.eventType === 'external' && event.externalLink ? (
+              {eventWithIds.eventType === 'internal' && eventWithIds.rsvpEnabled ? (
+                <RSVPButton event={eventWithIds} />
+              ) : eventWithIds.eventType === 'external' && eventWithIds.externalLink ? (
                 <Button asChild size="lg" className="w-full">
-                  <a href={event.externalLink} target="_blank" rel="noopener noreferrer">
+                  <a href={eventWithIds.externalLink} target="_blank" rel="noopener noreferrer">
                     <ExternalLink className="h-4 w-4 mr-2" />
                     Register on External Site
                   </a>
                 </Button>
-              ) : event.eventType === 'external' && event.rsvpLink ? (
+              ) : eventWithIds.eventType === 'external' && eventWithIds.rsvpLink ? (
                 <Button asChild size="lg" className="w-full">
-                  <a href={event.rsvpLink} target="_blank" rel="noopener noreferrer">
+                  <a href={eventWithIds.rsvpLink} target="_blank" rel="noopener noreferrer">
                     <ExternalLink className="h-4 w-4 mr-2" />
                     Learn More
                   </a>
