@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,10 +9,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { updateBoardMemberWithImage } from "../../actions";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import type { BoardMember } from "@/lib/definitions";
+import type { BoardMember, Organization } from "@/lib/definitions";
 import { LoaderCircle, X } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export function EditBoardMemberForm({ member }: { member: BoardMember }) {
   const { toast } = useToast();
@@ -20,7 +27,24 @@ export function EditBoardMemberForm({ member }: { member: BoardMember }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [selectedOrganization, setSelectedOrganization] = useState<string>(member.organization || "none");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    async function fetchOrganizations() {
+      try {
+        const response = await fetch('/api/organizations');
+        if (response.ok) {
+          const data = await response.json();
+          setOrganizations(data.organizations || []);
+        }
+      } catch (error) {
+        console.error('Failed to fetch organizations:', error);
+      }
+    }
+    fetchOrganizations();
+  }, []);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -51,6 +75,11 @@ export function EditBoardMemberForm({ member }: { member: BoardMember }) {
       formData.set('id', member.id);
       if (selectedFile) {
         formData.set('image', selectedFile);
+      }
+      if (selectedOrganization && selectedOrganization !== 'none') {
+        formData.set('organization', selectedOrganization);
+      } else {
+        formData.set('organization', '');
       }
 
       const result = await updateBoardMemberWithImage(formData);
@@ -112,6 +141,23 @@ export function EditBoardMemberForm({ member }: { member: BoardMember }) {
               required
               minLength={2}
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="organization">Organization (Optional)</Label>
+            <Select value={selectedOrganization} onValueChange={setSelectedOrganization}>
+              <SelectTrigger id="organization">
+                <SelectValue placeholder="Select an organization" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None</SelectItem>
+                {organizations.map((org) => (
+                  <SelectItem key={org.id} value={org.name}>
+                    {org.name} - {org.chapter}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">

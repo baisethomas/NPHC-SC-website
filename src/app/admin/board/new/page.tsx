@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,6 +10,14 @@ import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { Upload, X } from "lucide-react";
 import Image from "next/image";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import type { Organization } from "@/lib/definitions";
 
 export default function NewBoardMemberPage() {
   const { toast } = useToast();
@@ -17,7 +25,24 @@ export default function NewBoardMemberPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [selectedOrganization, setSelectedOrganization] = useState<string>("none");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    async function fetchOrganizations() {
+      try {
+        const response = await fetch('/api/organizations');
+        if (response.ok) {
+          const data = await response.json();
+          setOrganizations(data.organizations || []);
+        }
+      } catch (error) {
+        console.error('Failed to fetch organizations:', error);
+      }
+    }
+    fetchOrganizations();
+  }, []);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -47,6 +72,11 @@ export default function NewBoardMemberPage() {
       const formData = new FormData(e.currentTarget);
       if (selectedFile) {
         formData.set('image', selectedFile);
+      }
+      if (selectedOrganization && selectedOrganization !== 'none') {
+        formData.set('organization', selectedOrganization);
+      } else {
+        formData.set('organization', '');
       }
 
       const result = await createBoardMemberWithImage(formData);
@@ -104,6 +134,23 @@ export default function NewBoardMemberPage() {
               required
               minLength={2}
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="organization">Organization (Optional)</Label>
+            <Select value={selectedOrganization} onValueChange={setSelectedOrganization}>
+              <SelectTrigger id="organization">
+                <SelectValue placeholder="Select an organization" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None</SelectItem>
+                {organizations.map((org) => (
+                  <SelectItem key={org.id} value={org.name}>
+                    {org.name} - {org.chapter}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
