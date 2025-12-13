@@ -39,9 +39,9 @@ export function EditBoardMemberForm({ member }: { member: BoardMember }) {
           const data = await response.json();
           setOrganizations(data.organizations || []);
           // Set initial selected organization by finding matching name
-          const memberOrg = 'organization' in member ? member.organization : undefined;
-          if (memberOrg) {
-            const matchingOrg = data.organizations?.find((org: Organization) => org.name === memberOrg);
+          const memberOrg = member.organization;
+          if (memberOrg && data.organizations) {
+            const matchingOrg = data.organizations.find((org: Organization) => org.name === memberOrg);
             if (matchingOrg) {
               setSelectedOrganization(matchingOrg.id);
             }
