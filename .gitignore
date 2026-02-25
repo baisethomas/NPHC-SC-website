@@ -40,3 +40,4 @@ serviceAccountKey.json
 
 # genkit
 .genkit/cache
+.env*.local

@@ -24,7 +24,11 @@ try {
 
     // Prefer explicit service account credentials (Vercel-friendly).
     if (credentialsJson) {
-      const parsed = JSON.parse(credentialsJson);
+      // Next.js processes escape sequences in double-quoted .env values, converting
+      // \n to literal newlines. Re-escape them so JSON.parse doesn't reject them
+      // as invalid control characters (most common in the private_key field).
+      const sanitized = credentialsJson.replace(/\n/g, '\\n');
+      const parsed = JSON.parse(sanitized);
       admin.initializeApp({
         credential: admin.credential.cert(parsed),
         projectId,
