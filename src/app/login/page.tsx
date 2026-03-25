@@ -5,7 +5,14 @@ import { useRouter } from 'next/navigation';
 import { signInWithEmailAndPassword, AuthError } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
-import { User } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { ArrowLeft, Loader2 } from 'lucide-react';
+
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -34,67 +41,110 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="bg-gradient-to-br from-blue-200 via-violet-200 to-indigo-200 min-h-screen flex items-center justify-center relative overflow-hidden">
-      {/* Animated background blobs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-blue-400 opacity-30 blur-3xl"></div>
-        <div className="absolute top-40 right-0 w-72 h-72 rounded-full bg-violet-400 opacity-40 blur-2xl"></div>
-        <div className="absolute bottom-20 left-1/4 w-80 h-80 rounded-full bg-indigo-400 opacity-30 blur-3xl"></div>
+    <div className="flex min-h-screen bg-slate-50">
+      {/* Left side panel with image */}
+      <div className="hidden lg:flex lg:w-1/2 relative flex-col items-center justify-center p-12 text-white overflow-hidden">
+        <div className="absolute inset-0">
+          <Image
+            src="https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/photos%2F486065740_4131253287097506_5154761858775003667_n.jpg?alt=media&token=98ce7896-a868-4359-80d6-5177068e11df"
+            alt="NPHC Solano County Community"
+            fill
+            className="object-cover object-center"
+            priority
+            sizes="50vw"
+          />
+        </div>
+        <div className="absolute inset-0 bg-black/60 z-10" />
+        
+        <div className="relative z-20 max-w-lg text-center">
+          <h1 className="text-4xl lg:text-5xl font-headline font-bold mb-4 tracking-tight">NPHC of Solano County</h1>
+          <p className="text-lg text-white/90">
+            Fostering brotherhood and sisterhood, scholarship, and service within the Solano County community.
+          </p>
+        </div>
+        
+        {/* Subtle accent line at the bottom */}
+        <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gradient-to-r from-yellow-400 to-yellow-600 z-20" />
       </div>
-      
-      <div className="relative z-10 w-full max-w-md mx-auto px-4">
-        <div className="backdrop-blur-xl bg-white/60 border border-white/40 rounded-3xl shadow-2xl p-8">
-          <div className="flex flex-col items-center mb-8">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center shadow-lg mb-4">
-              <User className="w-8 h-8 text-white" />
-            </div>
-            <h2 className="text-2xl font-headline font-bold text-blue-900 mb-1">Welcome back</h2>
-            <p className="text-blue-600 text-sm">Sign in to your account</p>
-          </div>
+
+      {/* Right side panel with form */}
+      <div className="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-8 bg-slate-50 min-h-screen lg:min-h-0 relative">
+        <div className="absolute top-8 left-8 lg:left-8">
+          <Button variant="ghost" asChild className="hidden lg:flex items-center text-muted-foreground hover:text-foreground">
+            <Link href="/">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Home
+            </Link>
+          </Button>
           
-          <form onSubmit={handleLogin} className="space-y-6">
-            <div>
-              <label className="block text-blue-800 text-sm font-semibold mb-2" htmlFor="email">
-                Email
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-blue-200 bg-white/80 text-blue-900 placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-                placeholder="you@email.com"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-blue-800 text-sm font-semibold mb-2" htmlFor="password">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-blue-200 bg-white/80 text-blue-900 placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-                placeholder="••••••••"
-              />
-            </div>
-            
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-500 to-violet-500 text-white font-bold text-lg shadow-md hover:from-blue-600 hover:to-violet-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? 'Signing In...' : 'Sign in'}
-            </button>
-          </form>
+          <Button variant="ghost" asChild className="flex lg:hidden items-center text-muted-foreground hover:text-foreground absolute top-0 left-0">
+            <Link href="/">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Home
+            </Link>
+          </Button>
+        </div>
+
+        <div className="mx-auto w-full max-w-sm mt-12 lg:mt-0">
+          <Card className="border-0 shadow-none bg-transparent lg:shadow-xl lg:border lg:bg-white lg:rounded-2xl lg:p-2">
+            <CardHeader className="space-y-4 lg:mb-2 items-center text-center pb-6">
+              <div className="lg:hidden mx-auto h-1 w-16 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 mb-2 mt-4" />
+              <div className="space-y-2">
+                <CardTitle className="text-3xl lg:text-3xl font-headline font-semibold text-slate-900 tracking-tight">Welcome back</CardTitle>
+                <div className="hidden lg:block mx-auto h-1 w-16 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 mt-3 mb-3" />
+                <CardDescription className="text-base text-slate-500">
+                  Sign in to your admin account
+                </CardDescription>
+              </div>
+            </CardHeader>
+
+            <CardContent>
+              <form onSubmit={handleLogin} className="space-y-5">
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-slate-700 font-medium">Email Address</Label>
+                  <Input 
+                    id="email" 
+                    name="email"
+                    type="email" 
+                    placeholder="you@example.com"
+                    autoComplete="email" 
+                    required 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full text-base lg:text-sm py-5 lg:py-2"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-slate-700 font-medium">Password</Label>
+                  <Input 
+                    id="password" 
+                    name="password"
+                    type="password"
+                    placeholder="••••••••"
+                    autoComplete="current-password" 
+                    required 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full text-base lg:text-sm py-5 lg:py-2"
+                  />
+                </div>
+                <Button 
+                  type="submit" 
+                  className="w-full h-12 lg:h-10 text-base lg:text-sm bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-sm transition-all mt-6" 
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Signing In...
+                    </>
+                  ) : (
+                    'Sign in securely'
+                  )}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
