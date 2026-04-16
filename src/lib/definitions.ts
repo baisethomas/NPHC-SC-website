@@ -78,6 +78,17 @@ export interface Program {
   updatedAt?: string;
 }
 
+export interface MemberProfile {
+  id: string;
+  displayName: string;
+  email: string;
+  role: string;
+  organization: string;
+  chapter?: string;
+  avatarUrl?: string;
+  joinedAt?: string;
+}
+
 export interface DivineNineOrganization {
   name: string;
   logo: string;

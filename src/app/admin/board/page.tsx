@@ -35,50 +35,91 @@ export default async function AdminBoardPage() {
                 </AlertDescription>
             </Alert>
         )}
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Photo</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Title</TableHead>
-              <TableHead>Organization</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {boardMembers.map((member) => (
-              <TableRow key={member.id}>
-                <TableCell>
-                  <Avatar className="h-12 w-12">
+        <div className="hidden md:block">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Photo</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Title</TableHead>
+                <TableHead>Organization</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {boardMembers.map((member) => (
+                <TableRow key={member.id}>
+                  <TableCell>
+                    <Avatar className="h-12 w-12">
+                      <AvatarImage src={member.image} alt={member.name} />
+                      <AvatarFallback>{member.initials}</AvatarFallback>
+                    </Avatar>
+                  </TableCell>
+                  <TableCell className="font-medium">{member.name}</TableCell>
+                  <TableCell>{member.title}</TableCell>
+                  <TableCell>{member.organization || '-'}</TableCell>
+                  <TableCell className="text-right">
+                     <Button asChild variant="ghost" size="icon">
+                        <Link href={`/admin/board/${member.id}/edit`}>
+                          <Pencil className="h-4 w-4" />
+                          <span className="sr-only">Edit</span>
+                        </Link>
+                      </Button>
+                    <form action={async (formData: FormData) => {
+                      'use server';
+                      await deleteBoardMember(formData);
+                    }} className="inline-block">
+                      <input type="hidden" name="id" value={member.id} />
+                      <Button variant="ghost" size="icon" type="submit">
+                        <Trash2 className="h-4 w-4" />
+                        <span className="sr-only">Delete</span>
+                      </Button>
+                    </form>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+
+        {/* Mobile View */}
+        <div className="grid grid-cols-1 gap-4 mt-4 md:hidden">
+          {boardMembers.map((member) => (
+            <Card key={member.id} className="overflow-hidden border border-gray-200 shadow-sm">
+              <CardContent className="p-4 flex flex-col gap-3">
+                <div className="flex items-center gap-4">
+                  <Avatar className="h-14 w-14 border border-gray-100">
                     <AvatarImage src={member.image} alt={member.name} />
                     <AvatarFallback>{member.initials}</AvatarFallback>
                   </Avatar>
-                </TableCell>
-                <TableCell className="font-medium">{member.name}</TableCell>
-                <TableCell>{member.title}</TableCell>
-                <TableCell>{member.organization || '-'}</TableCell>
-                <TableCell className="text-right">
-                   <Button asChild variant="ghost" size="icon">
-                      <Link href={`/admin/board/${member.id}/edit`}>
-                        <Pencil className="h-4 w-4" />
-                        <span className="sr-only">Edit</span>
-                      </Link>
-                    </Button>
+                  <div>
+                    <div className="font-bold text-lg leading-tight">{member.name}</div>
+                    <div className="text-sm font-medium text-violet-600">{member.title}</div>
+                    {member.organization && <div className="text-xs text-gray-500 mt-1">{member.organization}</div>}
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2 mt-2 pt-3 border-t border-gray-100">
+                  <Button asChild variant="outline" size="sm" className="h-8">
+                    <Link href={`/admin/board/${member.id}/edit`}>
+                      <Pencil className="h-3 w-3 mr-2" />
+                      Edit
+                    </Link>
+                  </Button>
                   <form action={async (formData: FormData) => {
                     'use server';
                     await deleteBoardMember(formData);
                   }} className="inline-block">
                     <input type="hidden" name="id" value={member.id} />
-                    <Button variant="ghost" size="icon" type="submit">
-                      <Trash2 className="h-4 w-4" />
-                      <span className="sr-only">Delete</span>
+                    <Button variant="destructive" size="sm" type="submit" className="h-8">
+                      <Trash2 className="h-3 w-3 mr-2" />
+                      Delete
                     </Button>
                   </form>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </CardContent>
     </Card>
   );

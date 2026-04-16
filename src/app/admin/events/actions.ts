@@ -13,6 +13,7 @@ const eventSchema = z.object({
   description: z.string().min(10, "Description must be at least 10 characters."),
   image: z.string().url("Image URL is required."),
   eventType: z.enum(['internal', 'external', 'info_only']),
+  status: z.enum(['draft', 'published']),
   rsvpEnabled: z.boolean(),
   externalLink: z.string().url().optional().or(z.literal("")),
   maxAttendees: z.number().optional(),
@@ -29,7 +30,7 @@ export async function createEvent(values: z.infer<typeof eventSchema>) {
     return { error: 'Invalid fields!' };
   }
 
-  const { title, date, time, location, description, image, eventType, rsvpEnabled, externalLink, maxAttendees } = validatedFields.data;
+  const { title, date, time, location, description, image, eventType, status, rsvpEnabled, externalLink, maxAttendees } = validatedFields.data;
   
   // Validate external link requirement
   if (eventType === 'external' && !externalLink) {
@@ -50,6 +51,9 @@ export async function createEvent(values: z.infer<typeof eventSchema>) {
     image_hint: "community event",
     rsvpLink: externalLink || "#",
     eventType,
+    status,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
     rsvpEnabled,
     currentAttendees: 0,
     ...(externalLink && { externalLink }),

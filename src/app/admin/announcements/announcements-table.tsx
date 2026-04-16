@@ -186,43 +186,84 @@ export function AnnouncementsTable({ announcements }: AnnouncementsTableProps) {
       )}
 
       {/* Table */}
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-12">Select</TableHead>
-            <TableHead>Title</TableHead>
-            <TableHead>Date</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {filteredAnnouncements.map((announcement) => (
-            <TableRow 
-              key={announcement.id}
-              className={selectedIds.includes(announcement.id) ? "bg-muted/50" : ""}
-            >
-              <TableCell>
-                <Checkbox
-                  checked={selectedIds.includes(announcement.id)}
-                  onCheckedChange={(checked) => handleSelectItem(announcement.id, !!checked)}
-                />
-              </TableCell>
-              <TableCell className="font-medium">{announcement.title}</TableCell>
-              <TableCell>{announcement.date}</TableCell>
-              <TableCell>{getStatusBadge(announcement)}</TableCell>
-              <TableCell className="text-right">
-                <Link href={`/admin/announcements/${announcement.id}/edit`}>
-                  <Button variant="ghost" size="icon" type="button">
-                    Edit
-                  </Button>
-                </Link>
-                <DeleteAnnouncementButton announcement={announcement} />
-              </TableCell>
+      <div className="hidden md:block">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-12">Select</TableHead>
+              <TableHead>Title</TableHead>
+              <TableHead>Date</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {filteredAnnouncements.map((announcement) => (
+              <TableRow 
+                key={announcement.id}
+                className={selectedIds.includes(announcement.id) ? "bg-muted/50" : ""}
+              >
+                <TableCell>
+                  <Checkbox
+                    checked={selectedIds.includes(announcement.id)}
+                    onCheckedChange={(checked) => handleSelectItem(announcement.id, !!checked)}
+                  />
+                </TableCell>
+                <TableCell className="font-medium">{announcement.title}</TableCell>
+                <TableCell>{announcement.date}</TableCell>
+                <TableCell>{getStatusBadge(announcement)}</TableCell>
+                <TableCell className="text-right">
+                  <Link href={`/admin/announcements/${announcement.id}/edit`}>
+                    <Button variant="ghost" size="icon" type="button">
+                      Edit
+                    </Button>
+                  </Link>
+                  <DeleteAnnouncementButton announcement={announcement} />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Mobile View */}
+      <div className="grid grid-cols-1 gap-4 mt-4 md:hidden">
+        {filteredAnnouncements.map((announcement) => (
+          <div 
+            key={announcement.id} 
+            className={`rounded-lg border overflow-hidden transition-all duration-200 ${selectedIds.includes(announcement.id) ? "border-violet-300 bg-violet-50/50" : "border-gray-200 bg-white"}`}
+          >
+            <div className="p-4 flex flex-col gap-3">
+              <div className="flex justify-between items-start gap-2">
+                <div className="flex items-start gap-3">
+                  <Checkbox
+                    checked={selectedIds.includes(announcement.id)}
+                    onCheckedChange={(checked) => handleSelectItem(announcement.id, !!checked)}
+                    className="mt-1 flex-shrink-0"
+                  />
+                  <div className="font-bold text-lg leading-tight">{announcement.title}</div>
+                </div>
+              </div>
+              
+              <div className="flex flex-wrap gap-2 text-sm pl-7">
+                {getStatusBadge(announcement)}
+                <div className="text-gray-500 flex items-center">
+                  {announcement.date}
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-3 mt-1 border-t border-gray-100">
+                <Button asChild variant="outline" size="sm" className="h-8">
+                  <Link href={`/admin/announcements/${announcement.id}/edit`}>
+                    Edit
+                  </Link>
+                </Button>
+                <DeleteAnnouncementButton announcement={announcement} />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
 
       {filteredAnnouncements.length === 0 && searchTerm && (
         <div className="text-center py-8 text-muted-foreground">
