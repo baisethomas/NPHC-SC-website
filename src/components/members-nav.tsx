@@ -7,6 +7,7 @@ import { LayoutDashboard, FileText, MessageSquare, Send, Users } from "lucide-re
 
 const navLinks = [
   { href: "/members", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/members/directory", label: "Directory", icon: Users },
   { href: "/members/meeting-notes", label: "Meeting Notes", icon: FileText },
   { href: "/members/documents", label: "Documents", icon: FileText },
   { href: "/members/messages", label: "Messages", icon: MessageSquare },

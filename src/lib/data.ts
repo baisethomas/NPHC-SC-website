@@ -526,3 +526,26 @@ export async function getPrograms(): Promise<{ programs: Program[], error?: stri
     return { programs: [], error: errorMessage };
   }
 }
+
+export async function getDirectoryMembers(): Promise<{ members: import('./definitions').MemberProfile[], error?: string }> {
+  if (!adminDb) {
+    return { 
+      members: [], 
+      error: handleFirestoreError(new Error("Firebase Admin SDK not initialized."), "get members") 
+    };
+  }
+  try {
+    const membersRef = adminDb.collection('members');
+    const snapshot = await membersRef.orderBy('displayName').get();
+    
+    const members = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    })) as import('./definitions').MemberProfile[];
+    
+    return { members };
+  } catch (error) {
+    const errorMessage = handleFirestoreError(error, 'get directory members');
+    return { members: [], error: errorMessage };
+  }
+}
