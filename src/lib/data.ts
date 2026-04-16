@@ -16,7 +16,7 @@ const handleFirestoreError = (error: unknown, context: string): string => {
 };
 
 
-export async function getEvents(): Promise<Event[]> {
+export async function getEvents(includeAll = false): Promise<Event[]> {
   if (!adminDb) {
     console.warn('Firebase Admin SDK not initialized. Cannot fetch events.');
     return [];
@@ -35,7 +35,13 @@ export async function getEvents(): Promise<Event[]> {
     console.log(`Fetched ${eventList.length} events from Firestore`);
     
     // Sort events by date - handle formatted date strings like "January 15, 2025"
-    return eventList.filter(event => event && event.title).sort((a, b) => {
+    let filteredList = eventList.filter(event => event && event.title);
+    
+    if (!includeAll) {
+      filteredList = filteredList.filter(event => !event.status || event.status === 'published');
+    }
+
+    return filteredList.sort((a, b) => {
       if (!a.date || !b.date) {
         return 0; // Keep order if dates are missing
       }

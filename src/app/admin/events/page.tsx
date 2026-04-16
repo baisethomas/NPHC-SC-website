@@ -8,7 +8,7 @@ import Link from "next/link";
 import { deleteEvent } from "./actions";
 
 export default async function AdminEventsPage() {
-  const events = await getEvents();
+  const events = await getEvents(true);
 
   return (
     <Card>
@@ -38,7 +38,12 @@ export default async function AdminEventsPage() {
           <TableBody>
             {events.map((event) => (
               <TableRow key={event.id}>
-                <TableCell className="font-medium">{event.title}</TableCell>
+                <TableCell className="font-medium">
+                  {event.title}
+                  {event.status === 'draft' && (
+                    <Badge variant="outline" className="ml-2 text-yellow-600 border-yellow-200 bg-yellow-50">Draft</Badge>
+                  )}
+                </TableCell>
                 <TableCell>{event.date}</TableCell>
                 <TableCell>
                   <Badge variant={

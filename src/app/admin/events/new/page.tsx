@@ -43,6 +43,7 @@ const formSchema = z.object({
   location: z.string().min(2, "Location is required."),
   description: z.string().min(10, "Description must be at least 10 characters."),
   eventType: z.enum(['internal', 'external', 'info_only']),
+  status: z.enum(['draft', 'published']),
   rsvpEnabled: z.boolean(),
   externalLink: z.string().url().optional().or(z.literal("")),
   maxAttendees: z.number().optional(),
@@ -76,6 +77,7 @@ export default function NewEventPage() {
       location: "",
       description: "",
       eventType: "internal" as const,
+      status: "published" as const,
       rsvpEnabled: true,
       externalLink: "",
       maxAttendees: undefined,
@@ -108,6 +110,7 @@ export default function NewEventPage() {
         description: values.description,
         image: imageUrl,
         eventType: values.eventType,
+        status: values.status,
         rsvpEnabled: values.rsvpEnabled,
         externalLink: values.externalLink || undefined,
         maxAttendees: values.maxAttendees,
@@ -243,7 +246,7 @@ export default function NewEventPage() {
               </FormItem>
             )} />
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-t pt-6">
               <FormField control={form.control} name="eventType" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Event Type</FormLabel>
@@ -257,6 +260,24 @@ export default function NewEventPage() {
                       <SelectItem value="internal">NPHC Internal Event</SelectItem>
                       <SelectItem value="external">Chapter/External Event</SelectItem>
                       <SelectItem value="info_only">Information Only</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )} />
+
+              <FormField control={form.control} name="status" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Status</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="published">Published</SelectItem>
+                      <SelectItem value="draft">Draft (Hidden)</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
