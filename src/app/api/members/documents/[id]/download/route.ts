@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { documentService } from '@/lib/firestore';
+import { documentService } from '@/lib/firestore-admin';
 import { isAdminUser, requireUser } from '@/lib/authz';
 
 export async function POST(

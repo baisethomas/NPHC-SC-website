@@ -11,9 +11,10 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { PlusCircle, Upload, FileText, Download, Trash2, Search, AlertCircle, Shield, Book, Users, Gavel, LoaderCircle } from "lucide-react";
+import { PlusCircle, Upload, FileText, Download, Trash2, Pencil, Search, AlertCircle, Shield, Book, Users, Gavel, LoaderCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useDocuments, useDocumentMutations } from "@/hooks/useMembers";
+import { Document } from "@/types/members";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -36,16 +37,29 @@ export default function AdminDocumentsPage() {
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [editingDocument, setEditingDocument] = useState<Document | null>(null);
 
   const { data: documentsData, loading: documentsLoading, error: documentsError, refetch } = useDocuments({
     search: searchTerm,
     category: selectedCategory === 'all' ? undefined : selectedCategory,
-    restricted: true // Show all documents including restricted for admin
+    restricted: undefined // Show all documents (restricted and public) for admin
   });
 
-  const { createDocument, deleteDocument } = useDocumentMutations();
+  const { createDocument, updateDocument, deleteDocument } = useDocumentMutations();
 
   const form = useForm<DocumentFormValues>({
+    resolver: zodResolver(documentSchema),
+    defaultValues: {
+      title: "",
+      category: "",
+      description: "",
+      version: "1.0",
+      restricted: false,
+      tags: ""
+    }
+  });
+
+  const editForm = useForm<DocumentFormValues>({
     resolver: zodResolver(documentSchema),
     defaultValues: {
       title: "",
@@ -108,11 +122,38 @@ export default function AdminDocumentsPage() {
     if (confirm('Are you sure you want to delete this document?')) {
       try {
         await deleteDocument(documentId);
-        refetch(); // Refresh documents list
+        refetch();
       } catch (error) {
         console.error('Delete failed:', error);
         alert('Failed to delete document. Please try again.');
       }
+    }
+  };
+
+  const openEditDialog = (doc: Document) => {
+    setEditingDocument(doc);
+    editForm.reset({
+      title: doc.title,
+      category: doc.category,
+      description: doc.description,
+      version: doc.version,
+      restricted: doc.restricted,
+      tags: doc.tags?.join(', ') ?? ''
+    });
+  };
+
+  const onEditSubmit = async (values: DocumentFormValues) => {
+    if (!editingDocument) return;
+    try {
+      await updateDocument(editingDocument.id, {
+        ...values,
+        tags: values.tags ? values.tags.split(',').map(t => t.trim()).filter(Boolean) : []
+      });
+      setEditingDocument(null);
+      refetch();
+    } catch (error) {
+      console.error('Edit failed:', error);
+      alert('Failed to update document. Please try again.');
     }
   };
 
@@ -409,6 +450,13 @@ export default function AdminDocumentsPage() {
                     <Button
                       variant="outline"
                       size="sm"
+                      onClick={() => openEditDialog(doc)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => handleDelete(doc.id)}
                       className="text-red-600 hover:text-red-700"
                     >
@@ -431,6 +479,141 @@ export default function AdminDocumentsPage() {
           )}
         </div>
       </CardContent>
+
+      {/* Edit Document Dialog */}
+      <Dialog open={!!editingDocument} onOpenChange={(open) => { if (!open) setEditingDocument(null); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Document</DialogTitle>
+            <DialogDescription>
+              Update the document metadata. The file itself cannot be replaced here.
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...editForm}>
+            <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-4">
+              <FormField
+                control={editForm.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Title</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Document title" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={editForm.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Category</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="constitution">Constitution</SelectItem>
+                        <SelectItem value="bylaws">Bylaws</SelectItem>
+                        <SelectItem value="policies">Policies</SelectItem>
+                        <SelectItem value="procedures">Procedures</SelectItem>
+                        <SelectItem value="forms">Forms</SelectItem>
+                        <SelectItem value="guidelines">Guidelines</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={editForm.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="Brief description of the document" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={editForm.control}
+                name="version"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Version</FormLabel>
+                    <FormControl>
+                      <Input placeholder="1.0" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={editForm.control}
+                name="restricted"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base">Restricted Access</FormLabel>
+                      <FormDescription>
+                        Only admins can view and download this document
+                      </FormDescription>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={editForm.control}
+                name="tags"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tags (Optional)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="tag1, tag2, tag3" {...field} />
+                    </FormControl>
+                    <FormDescription>Comma-separated tags</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setEditingDocument(null)}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={editForm.formState.isSubmitting}>
+                  {editForm.formState.isSubmitting ? (
+                    <>
+                      <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    'Save Changes'
+                  )}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

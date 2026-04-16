@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { messageService } from '@/lib/firestore';
+import { messageService } from '@/lib/firestore-admin';
 import { requireUser } from '@/lib/authz';
 
 export async function POST(

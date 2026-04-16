@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { messageService, activityService } from '@/lib/firestore';
+import { messageService, activityService } from '@/lib/firestore-admin';
 import { requireAdmin, requireUser } from '@/lib/authz';
 import { Message, MessageQuery } from '@/types/members';
 

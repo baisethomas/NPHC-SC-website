@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { activityService } from '@/lib/firestore';
+import { activityService } from '@/lib/firestore-admin';
 import { requireUser } from '@/lib/authz';
 
 export async function GET(request: NextRequest) {
