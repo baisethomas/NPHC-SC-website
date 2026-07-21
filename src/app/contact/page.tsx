@@ -1,8 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+
+import { submitContactForm } from "./actions";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,7 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mail, Phone } from "lucide-react";
+import { Mail } from "lucide-react";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -26,30 +29,56 @@ const formSchema = z.object({
   email: z.string().email({
     message: "Please enter a valid email address.",
   }),
+  subject: z.string().max(200, {
+    message: "Subject must be at most 200 characters.",
+  }).optional(),
   message: z.string().min(10, {
     message: "Message must be at least 10 characters.",
+  }).max(5000, {
+    message: "Message must be at most 5000 characters.",
   }),
 });
 
 export default function ContactPage() {
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       email: "",
+      subject: "",
       message: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    toast({
-      title: "Message Sent!",
-      description: "Thank you for contacting us. We will get back to you shortly.",
-    });
-    form.reset();
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsSubmitting(true);
+    try {
+      const result = await submitContactForm(values);
+      if (result.success) {
+        toast({
+          title: "Message Sent!",
+          description: "Thank you for contacting us. We will get back to you shortly.",
+        });
+        form.reset();
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Message Not Sent",
+          description: result.error ?? "Something went wrong. Please try again.",
+        });
+      }
+    } catch {
+      toast({
+        variant: "destructive",
+        title: "Message Not Sent",
+        description: "Something went wrong. Please try again.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -102,6 +131,19 @@ export default function ContactPage() {
                     />
                     <FormField
                       control={form.control}
+                      name="subject"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Subject (optional)</FormLabel>
+                          <FormControl>
+                            <Input placeholder="What is this about?" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
                       name="message"
                       render={({ field }) => (
                         <FormItem>
@@ -117,7 +159,9 @@ export default function ContactPage() {
                         </FormItem>
                       )}
                     />
-                    <Button type="submit">Send Message</Button>
+                    <Button type="submit" disabled={isSubmitting}>
+                      {isSubmitting ? "Sending..." : "Send Message"}
+                    </Button>
                   </form>
                 </Form>
               </CardContent>
@@ -130,18 +174,8 @@ export default function ContactPage() {
                 <Mail className="h-5 w-5 text-primary"/>
                 <a href="mailto:info@nphcsolano.org" className="hover:text-primary">info@nphcsolano.org</a>
               </div>
-              <div className="flex items-center space-x-3">
-                <Phone className="h-5 w-5 text-primary"/>
-                <span>(707) 123-4567</span>
-              </div>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-2 text-foreground">Mailing Address</h4>
-              <p className="text-muted-foreground">
-                NPHC of Solano County<br/>
-                P.O. Box 1234<br/>
-                Fairfield, CA 94533
-              </p>
+              {/* Phone and mailing address removed until real contact details are available.
+                  They can be added via site settings in Phase 2 of the CMS roadmap. */}
             </div>
           </div>
         </div>

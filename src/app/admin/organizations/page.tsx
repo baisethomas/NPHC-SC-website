@@ -2,9 +2,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getOrganizations } from "@/lib/data";
-import { PlusCircle, Trash2, Pencil, Terminal } from "lucide-react";
+import { PlusCircle, Pencil, Terminal } from "lucide-react";
 import Link from "next/link";
-import { deleteOrganization } from "./actions";
+import { DeleteOrganizationButton } from "./delete-button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default async function AdminOrganizationsPage() {
@@ -57,13 +57,7 @@ export default async function AdminOrganizationsPage() {
                         <span className="sr-only">Edit</span>
                       </Link>
                     </Button>
-                    <form action={deleteOrganization} className="inline-block">
-                      <input type="hidden" name="id" value={org.id} />
-                      <Button variant="ghost" size="icon" type="submit">
-                        <Trash2 className="h-4 w-4" />
-                        <span className="sr-only">Delete</span>
-                      </Button>
-                    </form>
+                    <DeleteOrganizationButton organizationId={org.id} organizationName={org.name} />
                   </TableCell>
                 </TableRow>
               ))}
@@ -88,13 +82,7 @@ export default async function AdminOrganizationsPage() {
                       Edit
                     </Link>
                   </Button>
-                  <form action={deleteOrganization} className="inline-block">
-                    <input type="hidden" name="id" value={org.id} />
-                    <Button variant="destructive" size="sm" type="submit" className="h-8">
-                      <Trash2 className="h-3 w-3 mr-2" />
-                      Delete
-                    </Button>
-                  </form>
+                  <DeleteOrganizationButton organizationId={org.id} organizationName={org.name} variant="full" />
                 </div>
               </CardContent>
             </Card>

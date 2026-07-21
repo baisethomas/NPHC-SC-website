@@ -85,15 +85,16 @@ Cloud Functions in `functions/src/admin/user-management.ts` export `setUserRoles
 
 ### Data Layer
 
-**Firestore collection constants**: `src/lib/cms-collections.ts` — always use `CMS_COLLECTIONS.X` (new) or `LEGACY_COLLECTIONS.X` (old) instead of string literals.
+**Production collections** (the real system — services in `src/lib/firestore-admin.ts` and helpers in `src/lib/data.ts`):
+- Member portal: `documents`, `meetings`, `messages`, `requests`, `activities`
+- Public content: `organizations`, `events`, `announcements`, `boardMembers`, `programs`
+- People & security: `members` (profile/status/roles, written by `setUserRoles` and `scripts/migrate-roles.ts`), `auditLogs` (role-change trail; client writes blocked in rules), `rateLimits`, `rsvps`
 
-**Two collection systems exist in parallel:**
-- **CMS collections** (new, `src/types/cms.ts`): `members`, `membershipTiers`, `cms_events`, `registrations`, `invoices`, `payments`, `donations`, `cms_announcements`, `contentPages`, `cms_documents`, `committees`, `commTemplates`, `auditLogs`, `analyticsDaily`
-- **Legacy collections** (existing): `users`, `documents`, `meetings`, `messages`, `requests`, `activities`, `organizations`, `events`, `announcements`, `board`, `programs`
+**Aspirational collections** (planned, NOT built — see `CMS_ROADMAP.md`): `src/lib/cms-collections.ts` lists a designed future schema (`membershipTiers`, `cms_events`, `registrations`, `invoices`, `payments`, `donations`, `contentPages`, `committees`, `analyticsDaily`, …). Nothing imports that file and those collections have no types, UI, or data. Do not build against them without consulting the roadmap.
 
 ### TypeScript Types
 
-All CMS data model types are in `src/types/cms.ts`. This is the source of truth for `Member`, `MembershipTier`, `CMSEvent`, `Registration`, `Invoice`, `Payment`, `Donation`, `Announcement`, `Committee`, `ContentPage`, `CMSDocument`, etc.
+`src/types/cms.ts` defines only `Member` and `MembershipStatus`. The working data model types for the portal (Document, Message, MeetingNote, Request, Activity, PaginatedResponse) live in `src/types/members.ts`; public content types (Event, Announcement, BoardMember, Organization, Program) live in `src/lib/definitions.ts`.
 
 ### Environment Variables
 

@@ -2,9 +2,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getBoardMembers } from "@/lib/data";
-import { PlusCircle, Trash2, Pencil, Terminal } from "lucide-react";
+import { PlusCircle, Pencil, Terminal } from "lucide-react";
 import Link from "next/link";
-import { deleteBoardMember } from "./actions";
+import { DeleteBoardMemberButton } from "./delete-button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -65,16 +65,7 @@ export default async function AdminBoardPage() {
                           <span className="sr-only">Edit</span>
                         </Link>
                       </Button>
-                    <form action={async (formData: FormData) => {
-                      'use server';
-                      await deleteBoardMember(formData);
-                    }} className="inline-block">
-                      <input type="hidden" name="id" value={member.id} />
-                      <Button variant="ghost" size="icon" type="submit">
-                        <Trash2 className="h-4 w-4" />
-                        <span className="sr-only">Delete</span>
-                      </Button>
-                    </form>
+                    <DeleteBoardMemberButton memberId={member.id} memberName={member.name} />
                   </TableCell>
                 </TableRow>
               ))}
@@ -105,16 +96,7 @@ export default async function AdminBoardPage() {
                       Edit
                     </Link>
                   </Button>
-                  <form action={async (formData: FormData) => {
-                    'use server';
-                    await deleteBoardMember(formData);
-                  }} className="inline-block">
-                    <input type="hidden" name="id" value={member.id} />
-                    <Button variant="destructive" size="sm" type="submit" className="h-8">
-                      <Trash2 className="h-3 w-3 mr-2" />
-                      Delete
-                    </Button>
-                  </form>
+                  <DeleteBoardMemberButton memberId={member.id} memberName={member.name} variant="full" />
                 </div>
               </CardContent>
             </Card>

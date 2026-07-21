@@ -3,9 +3,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { getEvents } from "@/lib/data";
-import { PlusCircle, Trash2, Pencil, Users, ExternalLink } from "lucide-react";
+import { PlusCircle, Pencil, Users, ExternalLink } from "lucide-react";
 import Link from "next/link";
-import { deleteEvent } from "./actions";
+import { DeleteEventButton } from "./delete-button";
 
 export default async function AdminEventsPage() {
   const events = await getEvents(true);
@@ -82,13 +82,7 @@ export default async function AdminEventsPage() {
                           <span className="sr-only">Edit</span>
                         </Link>
                       </Button>
-                     <form action={deleteEvent} className="inline-block">
-                        <input type="hidden" name="id" value={event.id} />
-                        <Button variant="ghost" size="icon" type="submit">
-                          <Trash2 className="h-4 w-4" />
-                          <span className="sr-only">Delete</span>
-                        </Button>
-                      </form>
+                     <DeleteEventButton eventId={event.id} eventTitle={event.title} />
                   </TableCell>
                 </TableRow>
               ))}
@@ -148,13 +142,7 @@ export default async function AdminEventsPage() {
                       Edit
                     </Link>
                   </Button>
-                  <form action={deleteEvent} className="inline-block">
-                    <input type="hidden" name="id" value={event.id} />
-                    <Button variant="destructive" size="sm" type="submit" className="h-8">
-                      <Trash2 className="h-3 w-3 mr-2" />
-                      Delete
-                    </Button>
-                  </form>
+                  <DeleteEventButton eventId={event.id} eventTitle={event.title} variant="full" />
                 </div>
               </CardContent>
             </Card>

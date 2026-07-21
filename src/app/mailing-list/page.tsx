@@ -1,10 +1,85 @@
+"use client";
+
+import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
+import { subscribeToMailingList } from "./actions";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
+
+const formSchema = z.object({
+  firstName: z.string().min(1, {
+    message: "First name is required.",
+  }),
+  lastName: z.string().min(1, {
+    message: "Last name is required.",
+  }),
+  email: z.string().email({
+    message: "Please enter a valid email address.",
+  }),
+  privacy: z.boolean().refine((value) => value, {
+    message: "You must agree to receive communications to subscribe.",
+  }),
+});
 
 export default function MailingListPage() {
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      privacy: false,
+    },
+  });
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsSubmitting(true);
+    try {
+      const result = await subscribeToMailingList({
+        email: values.email,
+        name: `${values.firstName} ${values.lastName}`.trim(),
+      });
+      if (result.success) {
+        toast({
+          title: "You're Subscribed!",
+          description: "Thanks for joining our mailing list. Watch your inbox for updates.",
+        });
+        form.reset();
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Subscription Failed",
+          description: result.error ?? "Something went wrong. Please try again.",
+        });
+      }
+    } catch {
+      toast({
+        variant: "destructive",
+        title: "Subscription Failed",
+        description: "Something went wrong. Please try again.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-2xl mx-auto">
@@ -23,64 +98,77 @@ export default function MailingListPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name *</Label>
-                  <Input id="firstName" placeholder="Enter your first name" required />
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="firstName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>First Name *</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter your first name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="lastName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Last Name *</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter your last name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name *</Label>
-                  <Input id="lastName" placeholder="Enter your last name" required />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address *</Label>
-                <Input id="email" type="email" placeholder="Enter your email address" required />
-              </div>
 
-              <div className="space-y-4">
-                <Label className="text-base font-medium">Subscription Preferences</Label>
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="events" defaultChecked />
-                    <Label htmlFor="events" className="text-sm font-normal">
-                      Event announcements and updates
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="news" defaultChecked />
-                    <Label htmlFor="news" className="text-sm font-normal">
-                      Community news and achievements
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="programs" />
-                    <Label htmlFor="programs" className="text-sm font-normal">
-                      Program and initiative updates
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="monthly" />
-                    <Label htmlFor="monthly" className="text-sm font-normal">
-                      Monthly newsletter digest
-                    </Label>
-                  </div>
-                </div>
-              </div>
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email Address *</FormLabel>
+                      <FormControl>
+                        <Input type="email" placeholder="Enter your email address" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <div className="flex items-center space-x-2">
-                <Checkbox id="privacy" required />
-                <Label htmlFor="privacy" className="text-sm">
-                  I agree to receive communications from NPHC Solano County and understand I can unsubscribe at any time.
-                </Label>
-              </div>
+                <FormField
+                  control={form.control}
+                  name="privacy"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center space-x-2">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={(checked) => field.onChange(!!checked)}
+                          />
+                        </FormControl>
+                        <FormLabel className="text-sm font-normal">
+                          I agree to receive communications from NPHC Solano County and understand I can unsubscribe at any time.
+                        </FormLabel>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <Button type="submit" className="w-full">
-                Subscribe to Mailing List
-              </Button>
-            </form>
+                <Button type="submit" className="w-full" disabled={isSubmitting}>
+                  {isSubmitting ? "Subscribing..." : "Subscribe to Mailing List"}
+                </Button>
+              </form>
+            </Form>
           </CardContent>
         </Card>
 
@@ -93,4 +181,4 @@ export default function MailingListPage() {
       </div>
     </div>
   );
-} 
+}
