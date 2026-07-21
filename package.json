@@ -2,6 +2,9 @@
   "name": "nextn",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "dev": "next dev -p 9002",
     "genkit:dev": "genkit start -- tsx src/ai/dev.ts",
@@ -9,17 +12,30 @@
     "prebuild": "npm run typecheck",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "check": "npm run typecheck && npm run lint"
+    "check": "npm run typecheck && npm run lint",
+    "test": "vitest run --exclude \"tests/rules/**\"",
+    "test:watch": "vitest",
+    "test:rules": "firebase emulators:exec --project nphc-solano-rules-test --only firestore,storage \"vitest run tests/rules/firebase-rules.test.ts\"",
+    "migrate:roles": "tsx scripts/migrate-roles.ts",
+    "env:check": "node scripts/check-env.js",
+    "env:check:ci": "node scripts/check-env.js --ci",
+    "audit:dependencies": "node scripts/audit-dependencies.mjs"
   },
   "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.1",
     "@types/jsdom": "^27.0.0",
     "@types/react": "19.2.7",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.2.10",
+    "firebase-tools": "^15.23.0",
     "jsdom": "^27.3.0",
     "sharp": "^0.34.5",
     "to-ico": "^1.1.5",
-    "typescript": "5.9.3"
+    "tsx": "^4.23.0",
+    "typescript": "5.9.3",
+    "vitest": "^4.1.10"
   },
   "overrides": {
     "react-google-places-autocomplete": {

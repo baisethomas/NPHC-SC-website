@@ -8,6 +8,7 @@ import {
   Message, 
   Request, 
   Activity,
+  ActivityQuery,
   DocumentQuery,
   MeetingQuery,
   MessageQuery,
@@ -195,8 +196,16 @@ export function useRequestMutations() {
 }
 
 // Activities hook
-export function useActivities(limit: number = 10) {
-  return useApiQuery<Activity[]>(`/members/activities?limit=${limit}`, {}, [limit]);
+export function useActivities(query: ActivityQuery = {}) {
+  const queryString = new URLSearchParams(
+    Object.entries(query).reduce((acc, [key, value]) => {
+      if (value !== undefined) acc[key] = String(value);
+      return acc;
+    }, {} as Record<string, string>)
+  ).toString();
+
+  const endpoint = `/members/activities${queryString ? `?${queryString}` : ''}`;
+  return useApiQuery<PaginatedResponse<Activity>>(endpoint, {}, [queryString]);
 }
 
 // Custom hook for unread message count
@@ -223,7 +232,7 @@ export function useUserRequests() {
 
 // Custom hook for recent activities with formatted data
 export function useRecentActivities(limit: number = 5) {
-  const { data, loading, error } = useActivities(limit);
+  const { data, loading, error } = useActivities({ limit });
   
   const formatActivity = useCallback((activity: Activity) => {
     const actionMap = {
@@ -245,7 +254,7 @@ export function useRecentActivities(limit: number = 5) {
     };
   }, []);
   
-  const formattedActivities = data?.map(formatActivity) || [];
+  const formattedActivities = data?.items.map(formatActivity) || [];
   
   return { activities: formattedActivities, loading, error };
 }

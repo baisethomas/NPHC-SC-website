@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requestService, activityService } from '@/lib/firestore-admin';
-import { requireAdmin } from '@/lib/authz';
+import { requirePermission } from '@/lib/authz-v2';
+import { PERMISSIONS } from '@/lib/roles';
 import { Request } from '@/types/members';
+import { requestStatusSchema } from '@/lib/member-api-schemas';
 
 export async function PUT(
   request: NextRequest,
@@ -9,14 +11,14 @@ export async function PUT(
 ) {
   try {
     const { id } = await params;
-    const auth = await requireAdmin(request);
+    const auth = await requirePermission(request, PERMISSIONS.APPROVE_MEMBERS);
     if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
-    const { status, reviewNotes } = await request.json();
-    
-    if (!['pending', 'under_review', 'approved', 'denied'].includes(status)) {
+    const parsedStatus = requestStatusSchema.safeParse(await request.json());
+    if (!parsedStatus.success) {
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
     }
+    const { status, reviewNotes } = parsedStatus.data;
 
     await requestService.updateStatus(
       id,

@@ -1,9 +1,16 @@
 import { getDirectoryMembers } from "@/lib/data";
+import { requireActiveMemberSession } from '@/lib/server-auth';
+import { redirect } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Mail, Building2, UserCircle } from "lucide-react";
 
 export default async function MemberDirectoryPage() {
+  const auth = await requireActiveMemberSession();
+  if (!auth.ok) {
+    redirect('/login');
+  }
+
   const { members, error } = await getDirectoryMembers();
 
   return (
@@ -37,16 +44,18 @@ export default async function MemberDirectoryPage() {
             <Card key={member.id} className="overflow-hidden hover:shadow-md transition-all duration-300 border-gray-200">
               <CardHeader className="pb-4 items-center text-center bg-gradient-to-b from-gray-50 to-white border-b border-gray-100">
                 <div className="w-20 h-20 mb-3 rounded-full shadow-sm flex items-center justify-center bg-violet-100 text-violet-700 overflow-hidden shrink-0 border border-violet-200 relative">
-                  {member.avatarUrl ? (
+                  {member.avatarUrl?.startsWith('https://') ? (
+                    // https-only: a member-set URL must not downgrade transport
+                    // or reach non-web schemes.
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img 
-                      src={member.avatarUrl} 
-                      alt={member.displayName} 
-                      className="absolute inset-0 w-full h-full object-cover" 
+                    <img
+                      src={member.avatarUrl}
+                      alt={member.displayName ?? 'Member'}
+                      className="absolute inset-0 w-full h-full object-cover"
                     />
                   ) : (
                     <span className="text-2xl font-bold font-headline tracking-wide">
-                      {member.displayName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+                      {(member.displayName ?? '?').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || '?'}
                     </span>
                   )}
                 </div>

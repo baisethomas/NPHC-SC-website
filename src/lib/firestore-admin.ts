@@ -1,9 +1,9 @@
 // Server-side Firestore operations using Firebase Admin SDK.
 // Use this in API routes and Server Actions — NOT the client-side firestore.ts.
 //
-// Queries use only orderBy (no composite where+orderBy) so that no manual
-// Firestore composite indexes are required. All equality / boolean filters
-// are applied in-memory after fetching.
+// List queries are bounded cursor queries. Filters that Firestore can express
+// are applied in the query; text and per-user visibility filters remain at
+// the API layer because they cannot be indexed safely in this schema.
 
 import { adminDb } from './firebase-admin';
 import {
@@ -12,13 +12,15 @@ import {
   Message,
   Request,
   Activity,
+  ActivityQuery,
   PaginatedResponse,
   DocumentQuery,
   MeetingQuery,
   MessageQuery,
   RequestQuery,
 } from '@/types/members';
-import { FieldValue, Timestamp } from 'firebase-admin/firestore';
+import { decodeFirestoreCursor, encodeFirestoreCursor } from './firestore-cursor';
+import { FieldPath, FieldValue, Query, QueryDocumentSnapshot, Timestamp } from 'firebase-admin/firestore';
 
 const COLLECTIONS = {
   USERS: 'users',
@@ -41,49 +43,81 @@ function getDb() {
   return adminDb;
 }
 
+function pageSize(limit: number | undefined): number {
+  return Math.min(Math.max(limit ?? 10, 1), 50);
+}
+
+async function getCursorPage<T>(
+  query: Query,
+  orderField: string,
+  params: { cursor?: string; limit?: number; page?: number },
+  map: (snapshot: QueryDocumentSnapshot) => T,
+  matches: (item: T) => boolean = () => true
+): Promise<PaginatedResponse<T>> {
+  const limit = pageSize(params.limit);
+  let pagedQuery = query
+    .orderBy(orderField, 'desc')
+    .orderBy(FieldPath.documentId(), 'desc');
+
+  if (params.cursor) {
+    const cursor = decodeFirestoreCursor(params.cursor);
+    pagedQuery = pagedQuery.startAfter(Timestamp.fromDate(new Date(cursor.value)), cursor.id);
+  }
+
+  const snapshot = await pagedQuery.limit(limit + 1).get();
+  const pageDocuments = snapshot.docs.slice(0, limit);
+  const hasMore = snapshot.docs.length > limit;
+  const lastDocument = pageDocuments.at(-1);
+
+  return {
+    items: pageDocuments.map(map).filter(matches),
+    nextCursor:
+      hasMore && lastDocument
+        ? encodeFirestoreCursor({
+            value: timestampToString(lastDocument.get(orderField)),
+            id: lastDocument.id,
+          })
+        : undefined,
+    hasMore,
+    // Offset page numbers are retained in query types for migration only.
+    page: 1,
+    limit,
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Document service
 // ---------------------------------------------------------------------------
 export const documentService = {
   async getAll(queryParams: DocumentQuery = {}): Promise<PaginatedResponse<Document>> {
     const db = getDb();
-
-    const snapshot = await db
+    let query: Query = db
       .collection(COLLECTIONS.DOCUMENTS)
-      .orderBy('lastUpdated', 'desc')
-      .get();
+      .where('isActive', '==', true);
 
-    let documents: Document[] = snapshot.docs
-      .map((d) => ({
+    if (queryParams.category) query = query.where('category', '==', queryParams.category);
+    if (queryParams.restricted !== undefined) {
+      query = query.where('restricted', '==', queryParams.restricted);
+    }
+
+    return getCursorPage(
+      query,
+      'lastUpdated',
+      queryParams,
+      (d) => ({
         id: d.id,
         ...(d.data() as Omit<Document, 'id'>),
         lastUpdated: timestampToString(d.data().lastUpdated),
-      }))
-      .filter((d) => d.isActive);
-
-    if (queryParams.category) {
-      documents = documents.filter((d) => d.category === queryParams.category);
-    }
-    if (queryParams.restricted !== undefined) {
-      documents = documents.filter((d) => d.restricted === queryParams.restricted);
-    }
-    if (queryParams.search) {
-      const term = queryParams.search.toLowerCase();
-      documents = documents.filter(
-        (d) =>
-          d.title.toLowerCase().includes(term) ||
-          d.description?.toLowerCase().includes(term)
-      );
-    }
-
-    const pageSize = queryParams.limit || 10;
-    return {
-      items: documents,
-      total: documents.length,
-      page: queryParams.page || 1,
-      limit: pageSize,
-      totalPages: Math.ceil(documents.length / pageSize),
-    };
+      }),
+      (document) => {
+        if (!queryParams.search) return true;
+        const term = queryParams.search.toLowerCase();
+        return (
+          document.title.toLowerCase().includes(term) ||
+          document.description?.toLowerCase().includes(term)
+        );
+      }
+    );
   },
 
   async getById(id: string): Promise<Document | null> {
@@ -136,41 +170,19 @@ export const documentService = {
 export const messageService = {
   async getAll(queryParams: MessageQuery = {}): Promise<PaginatedResponse<Message>> {
     const db = getDb();
-
-    const snapshot = await db
+    let query: Query = db
       .collection(COLLECTIONS.MESSAGES)
-      .orderBy('timestamp', 'desc')
-      .get();
+      .where('isActive', '==', true);
 
-    let messages: Message[] = snapshot.docs
-      .map((d) => ({
+    if (queryParams.category) query = query.where('category', '==', queryParams.category);
+    if (queryParams.priority) query = query.where('priority', '==', queryParams.priority);
+    if (queryParams.pinnedOnly) query = query.where('pinned', '==', true);
+
+    return getCursorPage(query, 'timestamp', queryParams, (d) => ({
         id: d.id,
         ...(d.data() as Omit<Message, 'id'>),
         timestamp: timestampToString(d.data().timestamp),
-      }))
-      .filter((m) => m.isActive);
-
-    if (queryParams.category) {
-      messages = messages.filter((m) => m.category === queryParams.category);
-    }
-    if (queryParams.priority) {
-      messages = messages.filter((m) => m.priority === queryParams.priority);
-    }
-    if (queryParams.pinnedOnly) {
-      messages = messages.filter((m) => m.pinned);
-    }
-    if (queryParams.limit) {
-      messages = messages.slice(0, queryParams.limit);
-    }
-
-    const pageSize = queryParams.limit || 10;
-    return {
-      items: messages,
-      total: messages.length,
-      page: queryParams.page || 1,
-      limit: pageSize,
-      totalPages: Math.ceil(messages.length / pageSize),
-    };
+      }));
   },
 
   async getById(id: string): Promise<Message | null> {
@@ -237,15 +249,13 @@ export const activityService = {
     }
   },
 
-  async getRecent(limitCount: number = 10): Promise<Activity[]> {
+  async getRecent(queryParams: ActivityQuery = {}): Promise<PaginatedResponse<Activity>> {
     const db = getDb();
-    const snapshot = await db
+    let query: Query = db
       .collection(COLLECTIONS.ACTIVITIES)
-      .orderBy('timestamp', 'desc')
-      .limit(limitCount)
-      .get();
+    if (queryParams.userId) query = query.where('userId', '==', queryParams.userId);
 
-    return snapshot.docs.map((d) => ({
+    return getCursorPage(query, 'timestamp', queryParams, (d) => ({
       id: d.id,
       ...(d.data() as Omit<Activity, 'id'>),
       timestamp: timestampToString(d.data().timestamp),
@@ -259,36 +269,25 @@ export const activityService = {
 export const meetingService = {
   async getAll(queryParams: MeetingQuery = {}): Promise<PaginatedResponse<MeetingNote>> {
     const db = getDb();
-
-    const snapshot = await db
+    let query: Query = db
       .collection(COLLECTIONS.MEETINGS)
-      .orderBy('date', 'desc')
-      .get();
+      .where('isActive', '==', true);
 
-    let meetings: MeetingNote[] = snapshot.docs
-      .map((d) => ({
+    if (queryParams.type) query = query.where('type', '==', queryParams.type);
+    if (queryParams.status) query = query.where('status', '==', queryParams.status);
+    if (queryParams.dateFrom) {
+      query = query.where('date', '>=', Timestamp.fromDate(new Date(queryParams.dateFrom)));
+    }
+    if (queryParams.dateTo) {
+      query = query.where('date', '<=', Timestamp.fromDate(new Date(queryParams.dateTo)));
+    }
+
+    return getCursorPage(query, 'date', queryParams, (d) => ({
         id: d.id,
         ...(d.data() as Omit<MeetingNote, 'id'>),
         date: timestampToString(d.data().date),
         lastModified: timestampToString(d.data().lastModified),
-      }))
-      .filter((m) => m.isActive);
-
-    if (queryParams.type) {
-      meetings = meetings.filter((m) => m.type === queryParams.type);
-    }
-    if (queryParams.status) {
-      meetings = meetings.filter((m) => m.status === queryParams.status);
-    }
-
-    const pageSize = queryParams.limit || 10;
-    return {
-      items: meetings,
-      total: meetings.length,
-      page: queryParams.page || 1,
-      limit: pageSize,
-      totalPages: Math.ceil(meetings.length / pageSize),
-    };
+      }));
   },
 
   async getById(id: string): Promise<MeetingNote | null> {
@@ -338,41 +337,30 @@ export const meetingService = {
 export const requestService = {
   async getAll(queryParams: RequestQuery = {}): Promise<PaginatedResponse<Request>> {
     const db = getDb();
-
-    const snapshot = await db
+    let query: Query = db
       .collection(COLLECTIONS.REQUESTS)
-      .orderBy('submittedDate', 'desc')
-      .get();
+      .where('isActive', '==', true);
 
-    let requests: Request[] = snapshot.docs
-      .map((d) => ({
+    if (queryParams.type) query = query.where('type', '==', queryParams.type);
+    if (queryParams.status) query = query.where('status', '==', queryParams.status);
+    if (queryParams.submittedBy) {
+      query = query.where('submittedBy', '==', queryParams.submittedBy);
+    }
+    if (queryParams.dateFrom) {
+      query = query.where('submittedDate', '>=', Timestamp.fromDate(new Date(queryParams.dateFrom)));
+    }
+    if (queryParams.dateTo) {
+      query = query.where('submittedDate', '<=', Timestamp.fromDate(new Date(queryParams.dateTo)));
+    }
+
+    return getCursorPage(query, 'submittedDate', queryParams, (d) => ({
         id: d.id,
         ...(d.data() as Omit<Request, 'id'>),
         submittedDate: timestampToString(d.data().submittedDate),
         reviewedDate: d.data().reviewedDate
           ? timestampToString(d.data().reviewedDate)
           : undefined,
-      }))
-      .filter((r) => r.isActive);
-
-    if (queryParams.type) {
-      requests = requests.filter((r) => r.type === queryParams.type);
-    }
-    if (queryParams.status) {
-      requests = requests.filter((r) => r.status === queryParams.status);
-    }
-    if (queryParams.submittedBy) {
-      requests = requests.filter((r) => r.submittedBy === queryParams.submittedBy);
-    }
-
-    const pageSize = queryParams.limit || 10;
-    return {
-      items: requests,
-      total: requests.length,
-      page: queryParams.page || 1,
-      limit: pageSize,
-      totalPages: Math.ceil(requests.length / pageSize),
-    };
+      }));
   },
 
   async getById(id: string): Promise<Request | null> {

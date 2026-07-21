@@ -9,21 +9,24 @@ NPHC Solano Hub — the official website for the National Pan-Hellenic Council o
 ## Commands
 
 ```bash
-npm run dev          # Start dev server on port 9002
-npm run build        # Runs typecheck then next build
-npm run typecheck    # tsc --noEmit
-npm run lint         # eslint on .js/.jsx/.ts/.tsx files
-npm run check        # typecheck + lint together
+npm run dev                 # Start dev server on port 9002
+npm run build               # Runs typecheck then next build
+npm run check               # Typecheck + lint
+npm test                    # Unit tests (excluding emulator rules tests)
+npm run test:rules          # Firestore/Storage rules tests through emulators
+npm run env:check           # Validate local environment without printing secrets
+npm run env:check:ci        # Validate the secret-free environment template
+npm run audit:dependencies  # Production dependency policy check
 ```
 
-There is no test suite configured. There is no `npm test` command.
+`test:rules` uses `firebase emulators:exec` and needs Java 21. The configured emulator ports are Auth 9099, Firestore 8080, Storage 9199, Functions 5001, and UI 4000.
 
 Firebase Cloud Functions (in `functions/`):
 ```bash
-cd functions && npm run build   # Compile functions TypeScript
-firebase emulators:start        # Run Firebase emulators (Firestore :8080, Auth :9099, Functions :5001, UI :4000)
-firebase deploy --only firestore:rules   # Deploy Firestore security rules
-firebase deploy --only functions         # Deploy Cloud Functions
+cd functions && npm run build
+firebase emulators:start
+firebase deploy --only firestore:rules,firestore:indexes,storage
+firebase deploy --only functions
 ```
 
 Admin utility scripts (run with `ts-node` or `npx tsx`):
@@ -68,7 +71,7 @@ if (!result.ok) return NextResponse.json({ error: result.error }, { status: resu
 
 Available guards: `requireUser`, `requirePermission`, `requireAnyRole`, `requireAdmin`.
 
-**Firebase Admin SDK** — `src/lib/firebase-admin.ts`. Only runs server-side (`typeof window === 'undefined'`). Falls back to `serviceAccountKey.json` if `FIREBASE_SERVICE_ACCOUNT_KEY` env var is missing. Exports `adminDb`, `adminAuth`, and `verifyIdToken()`.
+**Firebase Admin SDK** — `src/lib/firebase-admin.ts` initializes from `FIREBASE_ADMIN_CREDENTIALS_JSON`, the `FIREBASE_ADMIN_CLIENT_EMAIL`/`FIREBASE_ADMIN_PRIVATE_KEY` pair, or Application Default Credentials/`GOOGLE_APPLICATION_CREDENTIALS`. It exports `adminDb`, `adminAuth`, and `verifyIdToken()`. Never expose Admin credentials to client code.
 
 ### Role & Permission System
 
@@ -76,13 +79,11 @@ Defined in `src/lib/roles.ts`. Roles (10 total): `super_admin`, `admin`, `conten
 
 Permissions (18 total): `manage_roles`, `manage_site_settings`, `edit_content`, `publish_announcements`, `manage_members`, `approve_members`, `manage_tiers`, `view_directory`, `manage_events`, `check_in_attendees`, `manage_payments`, `process_refunds`, `view_financial_reports`, `send_communications`, `manage_documents`, `manage_committees`, `view_analytics`, `view_audit_log`.
 
-Roles are stored as custom claims on Firebase Auth tokens: `{ roles: Role[] }`. Firestore security rules check `request.auth.token.roles`.
+Roles are stored as custom claims on Firebase Auth tokens: `{ roles: Role[] }`. Firestore security rules check `request.auth.token.roles`; the legacy `admin` claim exists only during migration. Member profile reads are owner-or-admin, and other protected portal content flows through server routes guarded by `authz-v2`.
 
-Cloud Functions in `functions/src/admin/user-management.ts` manage role assignment atomically (updates both Firebase Auth claims and the Firestore `members` document).
+Cloud Functions in `functions/src/admin/user-management.ts` export `setUserRoles`, a callable function restricted to `super_admin`. It updates Firebase Auth custom claims and the Firestore `members` document together.
 
 ### Data Layer
-
-**Server-side data access**: `src/lib/cms-data.ts` — exports service objects (`memberService`, `membershipTierService`, `cmsEventService`, `registrationService`, `committeeService`, `announcementService`) that use `adminDb` (Firebase Admin). Use these in API routes and Server Actions only.
 
 **Firestore collection constants**: `src/lib/cms-collections.ts` — always use `CMS_COLLECTIONS.X` (new) or `LEGACY_COLLECTIONS.X` (old) instead of string literals.
 
@@ -97,11 +98,12 @@ All CMS data model types are in `src/types/cms.ts`. This is the source of truth 
 ### Environment Variables
 
 Required — see `.env.example`:
-- `NEXT_PUBLIC_FIREBASE_*` — client-side Firebase config (6 vars)
-- `FIREBASE_SERVICE_ACCOUNT_KEY` — JSON string of service account (server-side)
-- `NEXT_PUBLIC_ADMIN_EMAIL_ALLOWLIST` / `ADMIN_EMAIL_ALLOWLIST` — legacy, being replaced by role system
-- `NEXT_PUBLIC_BASE_URL` — app URL (needed for Stripe in Phase 5)
+- `NEXT_PUBLIC_FIREBASE_*` plus `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` — client configuration
+- `FIREBASE_ADMIN_CREDENTIALS_JSON`, `FIREBASE_ADMIN_CLIENT_EMAIL`/`FIREBASE_ADMIN_PRIVATE_KEY`, or `GOOGLE_APPLICATION_CREDENTIALS` — server-side Admin credentials
+- `NEXT_PUBLIC_ADMIN_EMAIL_ALLOWLIST` / `ADMIN_EMAIL_ALLOWLIST` — temporary migration compatibility, not RBAC authority
 
-### Development Phase Status
+### Testing, CI, and Deployment
 
-The project is being built in phases. Phases 1 (role system) and 2 (data models) are complete. Phase 3 (Admin UI: `cms-events`, `cms-members`, `membership-tiers` admin pages) is in progress. Phases 4–7 (communications, payments, mobile PWA, analytics) are planned.
+The Verify workflow uses Node 22 and Java 21, then runs the secret-free environment template check, TypeScript/lint, unit tests, Firebase rules emulator tests, the production dependency-policy audit, the Next.js build, and the Functions TypeScript build. High/critical audit exceptions are documented in `DEPENDENCY_POLICY.md`; do not add one without triage.
+
+The website deploys through Firebase App Hosting (`apphosting.yaml`). Firestore rules/indexes, Storage rules, and Cloud Functions deploy independently through Firebase CLI commands above.

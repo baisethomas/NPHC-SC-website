@@ -1,0 +1,20 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isAdmin() {
+      return request.auth != null && (
+        request.auth.token.admin == true ||
+        ('roles' in request.auth.token &&
+          request.auth.token.roles.hasAny(['super_admin', 'admin']))
+      );
+    }
+
+    // User-controlled uploads are intentionally blocked until they are moved
+    // behind an authenticated server upload boundary with MIME and content
+    // validation. Administrative uploads remain available to claimed admins.
+    match /{allPaths=**} {
+      allow read, write: if isAdmin();
+    }
+  }
+}

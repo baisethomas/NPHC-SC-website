@@ -2,6 +2,9 @@
 
 # dependencies
 /node_modules
+functions/node_modules
+# Functions build output (rebuilt by CI/deploy)
+functions/lib
 /.pnp
 .pnp.js
 .yarn/install-state.gz
@@ -41,3 +44,15 @@ serviceAccountKey.json
 # genkit
 .genkit/cache
 .env*.local
+
+# environment files (never commit real credentials)
+.env
+.env.*
+!.env.example
+
+# build caches and local scratch
+*.tsbuildinfo
+.tmp/
+
+# internal review artifacts
+*.docx

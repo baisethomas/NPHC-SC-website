@@ -80,6 +80,7 @@ export interface Program {
 
 export interface MemberProfile {
   id: string;
+  authUid?: string;
   displayName: string;
   email: string;
   role: string;
@@ -87,6 +88,8 @@ export interface MemberProfile {
   chapter?: string;
   avatarUrl?: string;
   joinedAt?: string;
+  membershipStatus?: 'pending' | 'approved' | 'suspended' | 'rejected';
+  isActive?: boolean;
 }
 
 export interface DivineNineOrganization {

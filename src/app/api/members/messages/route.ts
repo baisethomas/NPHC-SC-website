@@ -1,35 +1,53 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { messageService, activityService } from '@/lib/firestore-admin';
-import { requireAdmin, requireUser } from '@/lib/authz';
+import { requireActiveMember } from '@/lib/authz';
+import { requirePermission } from '@/lib/authz-v2';
+import { PERMISSIONS } from '@/lib/roles';
+import { getMemberAccessRecord } from '@/lib/member-access';
+import { canViewMessage, messageResponse } from '@/lib/member-content-access';
+import { messageCreateSchema } from '@/lib/member-api-schemas';
+import { parsePagination } from '@/lib/pagination';
 import { Message, MessageQuery } from '@/types/members';
 
 export async function GET(request: NextRequest) {
   try {
-    const auth = await requireUser(request);
+    const auth = await requireActiveMember(request);
     if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
     const searchParams = request.nextUrl.searchParams;
+    const pagination = parsePagination(searchParams.get('page'), searchParams.get('limit'));
     const query: MessageQuery = {
       category: searchParams.get('category') || undefined,
       priority: searchParams.get('priority') || undefined,
       unreadOnly: searchParams.get('unreadOnly') === 'true',
       pinnedOnly: searchParams.get('pinnedOnly') === 'true',
-      page: parseInt(searchParams.get('page') || '1'),
-      limit: parseInt(searchParams.get('limit') || '10'),
+      cursor: searchParams.get('cursor') || undefined,
+      ...pagination,
     };
 
     const messages = await messageService.getAll(query);
+    const member = await getMemberAccessRecord(auth.user.uid);
+    let visibleMessages = messages.items.filter((message) =>
+      canViewMessage(message, auth.user, member)
+    );
     
     // Filter messages based on user's read status if unreadOnly is true
     if (query.unreadOnly) {
-      messages.items = messages.items.filter(message => 
+      visibleMessages = visibleMessages.filter(message => 
         !message.readBy.some(read => read.userId === auth.user.uid)
       );
     }
+
+    const responseMessages = visibleMessages.map((message) =>
+      messageResponse(message, auth.user.uid)
+    );
     
     return NextResponse.json({
       success: true,
-      data: messages
+      data: {
+        ...messages,
+        items: responseMessages,
+      }
     });
   } catch (error) {
     console.error('Error fetching messages:', error);
@@ -42,10 +60,14 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const auth = await requireAdmin(request);
+    const auth = await requirePermission(request, PERMISSIONS.SEND_COMMUNICATIONS);
     if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
-    const messageData = await request.json();
+    const parsedMessage = messageCreateSchema.safeParse(await request.json());
+    if (!parsedMessage.success) {
+      return NextResponse.json({ error: 'Invalid message payload' }, { status: 400 });
+    }
+    const messageData = parsedMessage.data;
     
     const newMessage: Omit<Message, 'id'> = {
       ...messageData,

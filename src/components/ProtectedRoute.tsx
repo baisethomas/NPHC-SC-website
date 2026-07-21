@@ -10,10 +10,15 @@ import Link from 'next/link';
 interface ProtectedRouteProps {
   children: ReactNode;
   allowedRoles: Role[];
+  requireApprovedMembership?: boolean;
 }
 
-export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
-  const { role, loading } = useAuth();
+export function ProtectedRoute({
+  children,
+  allowedRoles,
+  requireApprovedMembership = false,
+}: ProtectedRouteProps) {
+  const { role, loading, membershipApproved } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -43,7 +48,10 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
   }
 
   // Unauthorized state
-  if (!allowedRoles.includes(role)) {
+  if (
+    !allowedRoles.includes(role) ||
+    (requireApprovedMembership && !membershipApproved)
+  ) {
     return (
       <div className="flex h-screen w-full flex-col items-center justify-center bg-slate-50 p-6 text-center">
         <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-6 text-red-600">

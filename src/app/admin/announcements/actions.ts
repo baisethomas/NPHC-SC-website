@@ -2,6 +2,8 @@
 
 import { revalidatePath } from 'next/cache';
 import { adminDb } from '@/lib/firebase-admin';
+import { requirePermissionSession } from '@/lib/server-auth';
+import { PERMISSIONS } from '@/lib/roles';
 import { z } from 'zod';
 import { slugify, type Announcement } from '@/lib/definitions';
 
@@ -15,6 +17,9 @@ const formSchema = z.object({
 });
 
 export async function createAnnouncement(values: z.infer<typeof formSchema>) {
+  const auth = await requirePermissionSession(PERMISSIONS.PUBLISH_ANNOUNCEMENTS);
+  if (!auth.ok) return { error: auth.error };
+
   if (!adminDb) {
     return { error: 'Firebase Admin SDK is not initialized.' };
   }
@@ -43,7 +48,7 @@ export async function createAnnouncement(values: z.infer<typeof formSchema>) {
   };
 
   try {
-    await adminDb.collection("announcements").doc(slug).set(newAnnouncement);
+    await adminDb.collection("announcements").doc(slug).create(newAnnouncement);
 
     revalidatePath('/');
     revalidatePath('/admin/announcements');
@@ -54,6 +59,9 @@ export async function createAnnouncement(values: z.infer<typeof formSchema>) {
   } catch (e: unknown) {
     const error = e instanceof Error ? e : new Error(String(e));
     console.error(`Announcement Creation Failed: ${error.message}`);
+    if (error.message.includes('already exists')) {
+      return { error: 'An announcement with this title already exists.' };
+    }
     if (error.message.includes('permission-denied') || error.message.includes('insufficient permissions')) {
         return { error: 'Database write failed: Firestore permission denied. Check security rules.' };
     }
@@ -65,6 +73,9 @@ export async function createAnnouncement(values: z.infer<typeof formSchema>) {
 }
 
 export async function deleteAnnouncement(formData: FormData) {
+  const auth = await requirePermissionSession(PERMISSIONS.PUBLISH_ANNOUNCEMENTS);
+  if (!auth.ok) return { error: auth.error };
+
   if (!adminDb) {
     const errorMsg = 'Firebase Admin SDK is not initialized. Cannot delete announcement.';
     console.error(errorMsg);
@@ -102,6 +113,9 @@ export async function deleteAnnouncement(formData: FormData) {
 }
 
 export async function getAnnouncementById(id: string) {
+  const auth = await requirePermissionSession(PERMISSIONS.PUBLISH_ANNOUNCEMENTS);
+  if (!auth.ok) return null;
+
   if (!adminDb) {
     return null;
   }
@@ -116,6 +130,9 @@ export async function getAnnouncementById(id: string) {
 }
 
 export async function updateAnnouncement(id: string, values: z.infer<typeof formSchema>) {
+  const auth = await requirePermissionSession(PERMISSIONS.PUBLISH_ANNOUNCEMENTS);
+  if (!auth.ok) return { error: auth.error };
+
   if (!adminDb) {
     return { error: 'Firebase Admin SDK is not initialized.' };
   }

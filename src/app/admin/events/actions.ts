@@ -2,6 +2,8 @@
 
 import { revalidatePath } from 'next/cache';
 import { adminDb } from '@/lib/firebase-admin';
+import { requirePermissionSession } from '@/lib/server-auth';
+import { PERMISSIONS } from '@/lib/roles';
 import { z } from 'zod';
 import { slugify, type Event } from '@/lib/definitions';
 
@@ -20,6 +22,9 @@ const eventSchema = z.object({
 });
 
 export async function createEvent(values: z.infer<typeof eventSchema>) {
+  const auth = await requirePermissionSession(PERMISSIONS.MANAGE_EVENTS);
+  if (!auth.ok) return { error: auth.error };
+
   if (!adminDb) {
     return { error: 'Firebase Admin SDK is not initialized.' };
   }
@@ -61,7 +66,7 @@ export async function createEvent(values: z.infer<typeof eventSchema>) {
   };
 
   try {
-    await adminDb.collection("events").doc(slug).set(newEvent);
+    await adminDb.collection("events").doc(slug).create(newEvent);
 
     revalidatePath('/events');
     revalidatePath('/admin/events');
@@ -72,6 +77,9 @@ export async function createEvent(values: z.infer<typeof eventSchema>) {
   } catch (e: unknown) {
     const error = e instanceof Error ? e : new Error(String(e));
     console.error(`Event Creation Failed: ${error.message}`);
+    if (error.message.includes('already exists')) {
+      return { error: 'An event with this title already exists.' };
+    }
     if (error.message.includes('permission-denied') || error.message.includes('insufficient permissions')) {
       return { error: 'Database write failed: Firestore permission denied. Check security rules.' };
     }
@@ -83,6 +91,12 @@ export async function createEvent(values: z.infer<typeof eventSchema>) {
 }
 
 export async function deleteEvent(formData: FormData): Promise<void> {
+  const auth = await requirePermissionSession(PERMISSIONS.MANAGE_EVENTS);
+  if (!auth.ok) {
+    console.error(auth.error);
+    return;
+  }
+
   if (!adminDb) {
     const errorMsg = 'Firebase Admin SDK is not initialized. Cannot delete event.';
     console.error(errorMsg);

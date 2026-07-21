@@ -89,14 +89,14 @@ try {
 }
 
 // Helper function to verify Firebase ID tokens
-export async function verifyIdToken(token: string) {
+export async function verifyIdToken(token: string, checkRevoked = false) {
   if (!adminAuth) {
     console.warn('Firebase Admin Auth not initialized. Cannot verify token.');
     return null;
   }
   
   try {
-    const decodedToken = await adminAuth.verifyIdToken(token);
+    const decodedToken = await adminAuth.verifyIdToken(token, checkRevoked);
     return decodedToken;
   } catch (error) {
     console.warn('Token verification failed:', error);
@@ -104,4 +104,4 @@ export async function verifyIdToken(token: string) {
   }
 }
 
-export { adminDb, adminAuth };
+export { admin, adminDb, adminAuth };

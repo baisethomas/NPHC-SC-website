@@ -4,7 +4,12 @@
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { adminDb } from '@/lib/firebase-admin';
+import { requirePermissionSession } from '@/lib/server-auth';
+import { PERMISSIONS } from '@/lib/roles';
 import { slugify } from '@/lib/definitions';
+
+const requireAdminSession = () =>
+  requirePermissionSession(PERMISSIONS.EDIT_CONTENT);
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
@@ -15,6 +20,9 @@ const formSchema = z.object({
 });
 
 export async function createOrganization(values: z.infer<typeof formSchema>) {
+  const auth = await requireAdminSession();
+  if (!auth.ok) return { error: auth.error };
+
   if (!adminDb) {
     return { error: 'Firebase Admin SDK not initialized.' };
   }
@@ -38,7 +46,7 @@ export async function createOrganization(values: z.infer<typeof formSchema>) {
       hint: "organization crest",
     };
 
-    await adminDb.collection('organizations').doc(id).set(newOrg);
+    await adminDb.collection('organizations').doc(id).create(newOrg);
 
     revalidatePath('/organizations');
     revalidatePath('/admin/organizations');
@@ -48,11 +56,20 @@ export async function createOrganization(values: z.infer<typeof formSchema>) {
   } catch (e: unknown) {
     const error = e instanceof Error ? e : new Error(String(e));
     console.error(`Organization Creation Failed: ${error.message}`);
+    if (error.message.includes('already exists')) {
+      return { error: 'An organization with this name and chapter already exists.' };
+    }
     return { error: 'An unexpected server error occurred. Please try again later.' };
   }
 }
 
 export async function deleteOrganization(formData: FormData): Promise<void> {
+  const auth = await requireAdminSession();
+  if (!auth.ok) {
+    console.error(auth.error);
+    return;
+  }
+
   if (!adminDb) {
     console.error('Firebase Admin SDK not initialized.');
     return;
@@ -81,6 +98,9 @@ const updateFormSchema = z.object({
 });
 
 export async function updateOrganization(values: z.infer<typeof updateFormSchema>) {
+    const auth = await requireAdminSession();
+    if (!auth.ok) return { error: auth.error };
+
     if (!adminDb) {
         return { error: 'Firebase Admin SDK not initialized.' };
     }

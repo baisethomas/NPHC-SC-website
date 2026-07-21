@@ -63,17 +63,18 @@ function createRateLimitKey(ip: string, userId?: string, endpoint?: string): str
  * Get client IP address from request
  */
 export function getClientIP(request: Request | NextRequest): string {
-  // Try various headers that might contain the real IP
-  const headers = request.headers;
-  
-  return (
-    headers.get('x-forwarded-for')?.split(',')[0] ||
-    headers.get('x-real-ip') ||
-    headers.get('x-client-ip') ||
-    headers.get('cf-connecting-ip') || // Cloudflare
-    headers.get('x-forwarded') ||
-    'unknown'
-  );
+  // Each proxy appends the peer it saw to x-forwarded-for, so the LAST entry
+  // was written by our own fronting proxy (Google Front End on App Hosting)
+  // and is the only one the client cannot forge. The first entries — and
+  // headers like x-real-ip/x-client-ip — are freely attacker-settable and
+  // must not be used for rate limiting.
+  const forwarded = request.headers.get('x-forwarded-for');
+  if (forwarded) {
+    const entries = forwarded.split(',').map((entry) => entry.trim()).filter(Boolean);
+    const trusted = entries[entries.length - 1];
+    if (trusted) return trusted;
+  }
+  return 'unknown';
 }
 
 /**

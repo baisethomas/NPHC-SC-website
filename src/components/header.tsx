@@ -28,7 +28,11 @@ const logoUrl = "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.fir
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
-  const { user, loading } = useAuth();
+  const { user, loading, roles, membershipApproved } = useAuth();
+  const canAccessMembers = membershipApproved;
+  const canAccessAdmin = roles.some(
+    (role) => role !== 'visitor' && role !== 'member'
+  );
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -39,7 +43,7 @@ export function Header() {
   const navLinks = baseNavLinks.filter(link => {
     // Show Members link only when user is logged in
     if (link.href === "/members") {
-      return !loading && user !== null;
+      return !loading && user !== null && canAccessMembers;
     }
     return true;
   });
@@ -77,7 +81,7 @@ export function Header() {
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
               </Link>
             ))}
-             {!loading && user && (
+             {!loading && user && canAccessAdmin && (
                 <Link 
                   href="/admin" 
                   className={cn(
@@ -155,7 +159,7 @@ export function Header() {
                     </Link>
                   ))}
                   
-                  {!loading && user && (
+                  {!loading && user && canAccessAdmin && (
                      <Link
                       href="/admin"
                       onClick={() => setIsOpen(false)}

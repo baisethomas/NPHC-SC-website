@@ -2,6 +2,8 @@
 # https://firebase.google.com/docs/app-hosting/configure
 
 runConfig:
-  # Increase this value if you'd like to automatically spin up
-  # more instances in response to increased traffic.
+  # Deliberate cost ceiling for current traffic levels. Raising it is safe:
+  # rate limiting and sessions are Firestore-backed (durable-rate-limiter,
+  # Firebase session cookies), not in-memory, so nothing assumes one instance.
+  # Revisit when traffic warrants (e.g. maxInstances: 4).
   maxInstances: 1

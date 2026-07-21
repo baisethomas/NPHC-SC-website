@@ -1,0 +1,35 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn() && (
+        request.auth.token.admin == true ||
+        ('roles' in request.auth.token &&
+          request.auth.token.roles.hasAny(['super_admin', 'admin']))
+      );
+    }
+
+    // Member profile data is private to its owner. Administrative operations
+    // use the Admin SDK and are additionally protected in server code.
+    match /members/{memberId} {
+      allow read: if isAdmin() || (signedIn() && request.auth.uid == memberId);
+      allow write: if isAdmin();
+    }
+
+    // All portal content flows through server routes, where approved-active
+    // membership, audience, and restricted-document checks are enforced.
+    // Audit logs and financial records are server-only writes (Admin SDK
+    // bypasses rules): a compromised admin account must not be able to
+    // rewrite them from the client SDK.
+    match /{collection}/{document=**} {
+      allow read: if isAdmin();
+      allow write: if isAdmin()
+        && !(collection in ['auditLogs', 'payments', 'invoices']);
+    }
+  }
+}

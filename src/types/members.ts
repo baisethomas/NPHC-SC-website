@@ -23,7 +23,8 @@ export interface Document {
   lastUpdated: string;
   uploadedBy: string;
   uploadedByName: string;
-  fileUrl: string;
+  fileUrl?: string;
+  storagePath?: string;
   fileName: string;
   fileSize: number;
   mimeType: string;
@@ -178,45 +179,55 @@ export interface ApiResponse<T> {
 
 export interface PaginatedResponse<T> {
   items: T[];
-  total: number;
+  nextCursor?: string;
+  hasMore?: boolean;
+  /**
+   * Cursor pagination does not scan a collection to calculate exact totals.
+   * Retained as optional for legacy callers while they migrate to `hasMore`.
+   */
+  total?: number;
   page: number;
   limit: number;
-  totalPages: number;
+  totalPages?: number;
 }
 
 // Query types
-export interface DocumentQuery {
+export interface CursorPaginationQuery {
+  /** Opaque continuation token returned as `nextCursor` from the prior response. */
+  cursor?: string;
+  limit?: number;
+  /** @deprecated Cursor pagination cannot reliably seek by page number. */
+  page?: number;
+}
+
+export interface DocumentQuery extends CursorPaginationQuery {
   category?: string;
   restricted?: boolean;
   search?: string;
-  page?: number;
-  limit?: number;
 }
 
-export interface MeetingQuery {
+export interface MeetingQuery extends CursorPaginationQuery {
   type?: string;
   status?: string;
   dateFrom?: string;
   dateTo?: string;
-  page?: number;
-  limit?: number;
 }
 
-export interface MessageQuery {
+export interface MessageQuery extends CursorPaginationQuery {
   category?: string;
   priority?: string;
   unreadOnly?: boolean;
   pinnedOnly?: boolean;
-  page?: number;
-  limit?: number;
 }
 
-export interface RequestQuery {
+export interface RequestQuery extends CursorPaginationQuery {
   type?: string;
   status?: string;
   submittedBy?: string;
   dateFrom?: string;
   dateTo?: string;
-  page?: number;
-  limit?: number;
+}
+
+export interface ActivityQuery extends CursorPaginationQuery {
+  userId?: string;
 }

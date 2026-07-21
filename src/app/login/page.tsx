@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signInWithEmailAndPassword, AuthError } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
+import { normalizeRoles } from '@/lib/roles';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -25,9 +26,25 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      toast({ title: 'Login Successful', description: 'Redirecting to admin panel...' });
-      router.push('/admin');
+      const credential = await signInWithEmailAndPassword(auth, email, password);
+      const token = await credential.user.getIdTokenResult();
+      const roles = normalizeRoles(token.claims.roles);
+      const isStaff = roles.some((role) => role !== 'visitor' && role !== 'member');
+      const isMember = roles.includes('member') || isStaff;
+
+      if (isStaff) {
+        toast({ title: 'Login Successful', description: 'Redirecting to the admin panel...' });
+        router.push('/admin');
+      } else if (isMember) {
+        toast({ title: 'Login Successful', description: 'Redirecting to the member portal...' });
+        router.push('/members');
+      } else {
+        toast({
+          title: 'Login Successful',
+          description: 'Your membership access is awaiting approval.',
+        });
+        router.push('/');
+      }
     } catch (error: unknown) {
         const authError = error as AuthError;
         toast({

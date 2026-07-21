@@ -1,22 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requestService, activityService } from '@/lib/firestore-admin';
-import { isAdminUser, requireUser } from '@/lib/authz';
+import { isAdminUser, requireActiveMember } from '@/lib/authz';
+import { requestCreateSchema } from '@/lib/member-api-schemas';
+import { checkDurableRateLimit } from '@/lib/durable-rate-limiter';
+import { RATE_LIMITS } from '@/lib/rate-limiter';
+import { parsePagination } from '@/lib/pagination';
 import { Request, RequestQuery } from '@/types/members';
 
 export async function GET(request: NextRequest) {
   try {
-    const auth = await requireUser(request);
+    const auth = await requireActiveMember(request);
     if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
     const searchParams = request.nextUrl.searchParams;
+    const pagination = parsePagination(searchParams.get('page'), searchParams.get('limit'));
     const query: RequestQuery = {
       type: searchParams.get('type') || undefined,
       status: searchParams.get('status') || undefined,
       submittedBy: searchParams.get('submittedBy') || undefined,
       dateFrom: searchParams.get('dateFrom') || undefined,
       dateTo: searchParams.get('dateTo') || undefined,
-      page: parseInt(searchParams.get('page') || '1'),
-      limit: parseInt(searchParams.get('limit') || '10'),
+      cursor: searchParams.get('cursor') || undefined,
+      ...pagination,
     };
 
     // If not admin, filter to only show user's own requests
@@ -41,10 +46,28 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const auth = await requireUser(request);
+    const auth = await requireActiveMember(request);
     if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
-    const requestData = await request.json();
+    const rateLimit = await checkDurableRateLimit(
+      `member-requests:${auth.user.uid}`,
+      RATE_LIMITS.CREATE
+    );
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      );
+    }
+
+    const parsedRequest = requestCreateSchema.safeParse(await request.json());
+    if (!parsedRequest.success) {
+      return NextResponse.json({ error: 'Invalid request payload' }, { status: 400 });
+    }
+    if (!auth.user.email) {
+      return NextResponse.json({ error: 'Account email is required' }, { status: 400 });
+    }
+    const requestData = parsedRequest.data;
     
     const newRequest: Omit<Request, 'id'> = {
       ...requestData,

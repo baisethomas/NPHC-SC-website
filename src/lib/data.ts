@@ -400,7 +400,9 @@ const initialOrganizations: Organization[] = [
 ];
 
 
-async function seedOrganizations() {
+// Run explicitly from an admin context (e.g. npx tsx -e "…"); no longer
+// triggered by public reads.
+export async function seedOrganizations() {
     if (!adminDb) {
         console.error('Cannot seed organizations: adminDb is not initialized');
         return;
@@ -438,34 +440,9 @@ export async function getOrganizations(): Promise<{ organizations: Organization[
       orgSnapshot = await adminDb.collection('organizations').get();
     }
     
-    if (orgSnapshot.empty) {
-        console.log("Organizations collection is empty, seeding with initial data...");
-        await seedOrganizations();
-        // Try to fetch again after seeding
-        try {
-          const seededSnapshot = await adminDb.collection('organizations').orderBy('name').get();
-          const orgList = seededSnapshot.docs.map(doc => ({
-            ...doc.data(),
-            id: doc.id
-          } as Organization));
-          // Sort manually if orderBy worked
-          orgList.sort((a, b) => a.name.localeCompare(b.name));
-          console.log(`Seeded and fetched ${orgList.length} organizations`);
-          return { organizations: orgList, error: null };
-        } catch (seedFetchError: any) {
-          // If orderBy fails after seeding, fetch without ordering
-          console.warn('orderBy failed after seeding, fetching without ordering:', seedFetchError.message);
-          const seededSnapshot = await adminDb.collection('organizations').get();
-          const orgList = seededSnapshot.docs.map(doc => ({
-            ...doc.data(),
-            id: doc.id
-          } as Organization));
-          orgList.sort((a, b) => a.name.localeCompare(b.name));
-          console.log(`Seeded and fetched ${orgList.length} organizations (without orderBy)`);
-          return { organizations: orgList, error: null };
-        }
-    }
-
+    // Reads must never write: seeding from this (publicly reachable) path let
+    // unauthenticated GETs trigger Firestore writes. Seed explicitly instead
+    // via the admin-only seedOrganizations() helper.
     const orgList = orgSnapshot.docs.map(doc => ({
       ...doc.data(),
       id: doc.id
@@ -538,10 +515,12 @@ export async function getDirectoryMembers(): Promise<{ members: import('./defini
     const membersRef = adminDb.collection('members');
     const snapshot = await membersRef.orderBy('displayName').get();
     
-    const members = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    })) as import('./definitions').MemberProfile[];
+    const members = snapshot.docs
+      .map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }) as import('./definitions').MemberProfile)
+      .filter(member => member.membershipStatus === 'approved' && member.isActive === true);
     
     return { members };
   } catch (error) {

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { messageService } from '@/lib/firestore-admin';
-import { requireUser } from '@/lib/authz';
+import { requireActiveMember } from '@/lib/authz';
+import { getMemberAccessRecord } from '@/lib/member-access';
+import { canViewMessage } from '@/lib/member-content-access';
 
 export async function POST(
   request: NextRequest,
@@ -8,8 +10,18 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
-    const auth = await requireUser(request);
+    const auth = await requireActiveMember(request);
     if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
+
+    const message = await messageService.getById(id);
+    if (!message) {
+      return NextResponse.json({ error: 'Message not found' }, { status: 404 });
+    }
+
+    const member = await getMemberAccessRecord(auth.user.uid);
+    if (!canViewMessage(message, auth.user, member)) {
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+    }
 
     await messageService.markAsRead(id, auth.user.uid);
 

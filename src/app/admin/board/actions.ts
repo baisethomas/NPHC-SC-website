@@ -4,9 +4,14 @@
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { adminDb } from '@/lib/firebase-admin';
+import { requirePermissionSession } from '@/lib/server-auth';
+import { PERMISSIONS } from '@/lib/roles';
 import { slugify, type BoardMember } from '@/lib/definitions';
-import { uploadBoardMemberImage } from '@/lib/storage';
+import { uploadImageFromServer } from '@/lib/admin-storage';
 import admin from 'firebase-admin';
+
+const requireAdminSession = () =>
+  requirePermissionSession(PERMISSIONS.EDIT_CONTENT);
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
@@ -16,6 +21,9 @@ const formSchema = z.object({
 });
 
 export async function createBoardMember(values: z.infer<typeof formSchema>) {
+  const auth = await requireAdminSession();
+  if (!auth.ok) return { error: auth.error };
+
   if (!adminDb) {
     const errorMsg = 'Firebase Admin SDK not initialized. Cannot create board member.';
     console.error(errorMsg);
@@ -45,7 +53,7 @@ export async function createBoardMember(values: z.infer<typeof formSchema>) {
       organization: organization || undefined,
     };
 
-    await adminDb.collection('boardMembers').doc(id).set(newMember);
+    await adminDb.collection('boardMembers').doc(id).create(newMember);
 
     revalidatePath('/about');
     revalidatePath('/admin/board');
@@ -54,6 +62,9 @@ export async function createBoardMember(values: z.infer<typeof formSchema>) {
   } catch (e: unknown) {
     const error = e instanceof Error ? e : new Error(String(e));
     console.error(`Board Member Creation Failed: ${error.message}`);
+    if (error.message.includes('already exists')) {
+      return { error: 'A board member with this name already exists.' };
+    }
     
     if (error.message.includes('Could not refresh access token')) {
         return { error: 'Database authentication failed. The server could not connect to Firebase. See server logs.' };
@@ -63,6 +74,9 @@ export async function createBoardMember(values: z.infer<typeof formSchema>) {
 }
 
 export async function createBoardMemberWithImage(formData: FormData) {
+  const auth = await requireAdminSession();
+  if (!auth.ok) return { error: auth.error };
+
   if (!adminDb) {
     const errorMsg = 'Firebase Admin SDK not initialized. Cannot create board member.';
     console.error(errorMsg);
@@ -89,7 +103,7 @@ export async function createBoardMemberWithImage(formData: FormData) {
     
     if (imageFile && imageFile.size > 0) {
       try {
-        imageUrl = await uploadBoardMemberImage(imageFile);
+        imageUrl = await uploadImageFromServer(imageFile, 'board-members');
       } catch (uploadError) {
         console.error('Image upload failed:', uploadError);
         return { error: 'Failed to upload image. Please try again.' };
@@ -106,7 +120,7 @@ export async function createBoardMemberWithImage(formData: FormData) {
       organization: organization || undefined,
     };
 
-    await adminDb.collection('boardMembers').doc(id).set(newMember);
+    await adminDb.collection('boardMembers').doc(id).create(newMember);
 
     revalidatePath('/about');
     revalidatePath('/admin/board');
@@ -115,6 +129,9 @@ export async function createBoardMemberWithImage(formData: FormData) {
   } catch (e: unknown) {
     const error = e instanceof Error ? e : new Error(String(e));
     console.error(`Board Member Creation Failed: ${error.message}`);
+    if (error.message.includes('already exists')) {
+      return { error: 'A board member with this name already exists.' };
+    }
     
     if (error.message.includes('Could not refresh access token')) {
         return { error: 'Database authentication failed. The server could not connect to Firebase. See server logs.' };
@@ -124,6 +141,9 @@ export async function createBoardMemberWithImage(formData: FormData) {
 }
 
 export async function deleteBoardMember(formData: FormData) {
+  const auth = await requireAdminSession();
+  if (!auth.ok) return { error: auth.error };
+
   if (!adminDb) {
     const errorMsg = 'Firebase Admin SDK not initialized. Cannot delete board member.';
     console.error(errorMsg);
@@ -165,6 +185,9 @@ const updateFormSchema = z.object({
 });
 
 export async function updateBoardMember(values: z.infer<typeof updateFormSchema>) {
+    const auth = await requireAdminSession();
+    if (!auth.ok) return { error: auth.error };
+
     if (!adminDb) {
         const errorMsg = 'Firebase Admin SDK not initialized. Cannot update board member.';
         console.error(errorMsg);
@@ -181,7 +204,11 @@ export async function updateBoardMember(values: z.infer<typeof updateFormSchema>
         const { id, name, title, image, organization } = validatedFields.data;
         const initials = name.split(' ').map((n) => n[0]).join('');
         
-        const updateData: any = { name, title, initials };
+        const updateData: Record<string, string | admin.firestore.FieldValue> = {
+            name,
+            title,
+            initials,
+        };
         if (image) {
             updateData.image = image;
         }
@@ -212,6 +239,9 @@ export async function updateBoardMember(values: z.infer<typeof updateFormSchema>
 }
 
 export async function updateBoardMemberWithImage(formData: FormData) {
+    const auth = await requireAdminSession();
+    if (!auth.ok) return { error: auth.error };
+
     if (!adminDb) {
         const errorMsg = 'Firebase Admin SDK not initialized. Cannot update board member.';
         console.error(errorMsg);
@@ -237,11 +267,15 @@ export async function updateBoardMemberWithImage(formData: FormData) {
 
         const initials = name.split(' ').map((n) => n[0]).join('');
         
-        const updateData: any = { name, title, initials };
+        const updateData: Record<string, string | admin.firestore.FieldValue> = {
+            name,
+            title,
+            initials,
+        };
         
         if (imageFile && imageFile.size > 0) {
             try {
-                const imageUrl = await uploadBoardMemberImage(imageFile);
+                const imageUrl = await uploadImageFromServer(imageFile, 'board-members');
                 updateData.image = imageUrl;
             } catch (uploadError) {
                 console.error('Image upload failed:', uploadError);

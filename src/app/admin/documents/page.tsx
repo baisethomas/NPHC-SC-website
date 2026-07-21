@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -18,7 +18,7 @@ import { Document } from "@/types/members";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { storageService } from "@/lib/storage";
+import { auth } from "@/lib/firebase";
 
 const documentSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -33,14 +33,21 @@ type DocumentFormValues = z.infer<typeof documentSchema>;
 
 export default function AdminDocumentsPage() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [editingDocument, setEditingDocument] = useState<Document | null>(null);
 
+  // Debounce so each keystroke doesn't fire a refetch (and blank the list).
+  useEffect(() => {
+    const handle = setTimeout(() => setDebouncedSearch(searchTerm), 300);
+    return () => clearTimeout(handle);
+  }, [searchTerm]);
+
   const { data: documentsData, loading: documentsLoading, error: documentsError, refetch } = useDocuments({
-    search: searchTerm,
+    search: debouncedSearch,
     category: selectedCategory === 'all' ? undefined : selectedCategory,
     restricted: undefined // Show all documents (restricted and public) for admin
   });
@@ -89,16 +96,30 @@ export default function AdminDocumentsPage() {
     try {
       setUploading(true);
       
-      // Upload file to storage
-      const uploadResult = await storageService.uploadDocument(selectedFile, values.category);
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) throw new Error('Administrator authentication is required.');
+      const uploadForm = new FormData();
+      uploadForm.set('file', selectedFile);
+      const uploadResponse = await fetch('/api/admin/documents/upload', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: uploadForm,
+      });
+      if (!uploadResponse.ok) throw new Error('File upload failed.');
+      const uploadResult = (await uploadResponse.json()).data as {
+        storagePath: string;
+        fileName: string;
+        fileSize: number;
+        mimeType: string;
+      };
       
       // Create document record
       const documentData = {
         ...values,
-        fileUrl: uploadResult.url,
-        fileName: uploadResult.name,
-        fileSize: uploadResult.size,
-        mimeType: uploadResult.type,
+        storagePath: uploadResult.storagePath,
+        fileName: uploadResult.fileName,
+        fileSize: uploadResult.fileSize,
+        mimeType: uploadResult.mimeType,
         tags: values.tags ? values.tags.split(',').map(tag => tag.trim()).filter(Boolean) : []
       };
 
@@ -189,7 +210,9 @@ export default function AdminDocumentsPage() {
     }
   };
 
-  if (documentsLoading) {
+  // Full-page spinner only before the first load; refetches (search/filter
+  // changes) keep the current list on screen instead of blanking the page.
+  if (documentsLoading && !documentsData) {
     return (
       <div className="flex h-96 w-full items-center justify-center">
         <LoaderCircle className="h-8 w-8 animate-spin" />

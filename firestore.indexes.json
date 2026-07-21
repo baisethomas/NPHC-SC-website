@@ -1,0 +1,125 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "documents",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isActive", "order": "ASCENDING" },
+        { "fieldPath": "lastUpdated", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "documents", "queryScope": "COLLECTION",
+      "fields": [{ "fieldPath": "isActive", "order": "ASCENDING" }, { "fieldPath": "category", "order": "ASCENDING" }, { "fieldPath": "lastUpdated", "order": "DESCENDING" }]
+    },
+    {
+      "collectionGroup": "documents", "queryScope": "COLLECTION",
+      "fields": [{ "fieldPath": "isActive", "order": "ASCENDING" }, { "fieldPath": "restricted", "order": "ASCENDING" }, { "fieldPath": "lastUpdated", "order": "DESCENDING" }]
+    },
+    {
+      "collectionGroup": "documents", "queryScope": "COLLECTION",
+      "fields": [{ "fieldPath": "isActive", "order": "ASCENDING" }, { "fieldPath": "category", "order": "ASCENDING" }, { "fieldPath": "restricted", "order": "ASCENDING" }, { "fieldPath": "lastUpdated", "order": "DESCENDING" }]
+    },
+    {
+      "collectionGroup": "messages",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isActive", "order": "ASCENDING" },
+        { "fieldPath": "timestamp", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "messages", "queryScope": "COLLECTION",
+      "fields": [{ "fieldPath": "isActive", "order": "ASCENDING" }, { "fieldPath": "category", "order": "ASCENDING" }, { "fieldPath": "timestamp", "order": "DESCENDING" }]
+    },
+    {
+      "collectionGroup": "messages", "queryScope": "COLLECTION",
+      "fields": [{ "fieldPath": "isActive", "order": "ASCENDING" }, { "fieldPath": "priority", "order": "ASCENDING" }, { "fieldPath": "timestamp", "order": "DESCENDING" }]
+    },
+    {
+      "collectionGroup": "messages", "queryScope": "COLLECTION",
+      "fields": [{ "fieldPath": "isActive", "order": "ASCENDING" }, { "fieldPath": "pinned", "order": "ASCENDING" }, { "fieldPath": "timestamp", "order": "DESCENDING" }]
+    },
+    {
+      "collectionGroup": "messages", "queryScope": "COLLECTION",
+      "fields": [{ "fieldPath": "isActive", "order": "ASCENDING" }, { "fieldPath": "category", "order": "ASCENDING" }, { "fieldPath": "priority", "order": "ASCENDING" }, { "fieldPath": "timestamp", "order": "DESCENDING" }]
+    },
+    {
+      "collectionGroup": "messages", "queryScope": "COLLECTION",
+      "fields": [{ "fieldPath": "isActive", "order": "ASCENDING" }, { "fieldPath": "category", "order": "ASCENDING" }, { "fieldPath": "pinned", "order": "ASCENDING" }, { "fieldPath": "timestamp", "order": "DESCENDING" }]
+    },
+    {
+      "collectionGroup": "messages", "queryScope": "COLLECTION",
+      "fields": [{ "fieldPath": "isActive", "order": "ASCENDING" }, { "fieldPath": "priority", "order": "ASCENDING" }, { "fieldPath": "pinned", "order": "ASCENDING" }, { "fieldPath": "timestamp", "order": "DESCENDING" }]
+    },
+    {
+      "collectionGroup": "messages", "queryScope": "COLLECTION",
+      "fields": [{ "fieldPath": "isActive", "order": "ASCENDING" }, { "fieldPath": "category", "order": "ASCENDING" }, { "fieldPath": "priority", "order": "ASCENDING" }, { "fieldPath": "pinned", "order": "ASCENDING" }, { "fieldPath": "timestamp", "order": "DESCENDING" }]
+    },
+    {
+      "collectionGroup": "meetings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isActive", "order": "ASCENDING" },
+        { "fieldPath": "date", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "meetings", "queryScope": "COLLECTION",
+      "fields": [{ "fieldPath": "isActive", "order": "ASCENDING" }, { "fieldPath": "type", "order": "ASCENDING" }, { "fieldPath": "date", "order": "DESCENDING" }]
+    },
+    {
+      "collectionGroup": "meetings", "queryScope": "COLLECTION",
+      "fields": [{ "fieldPath": "isActive", "order": "ASCENDING" }, { "fieldPath": "status", "order": "ASCENDING" }, { "fieldPath": "date", "order": "DESCENDING" }]
+    },
+    {
+      "collectionGroup": "meetings", "queryScope": "COLLECTION",
+      "fields": [{ "fieldPath": "isActive", "order": "ASCENDING" }, { "fieldPath": "type", "order": "ASCENDING" }, { "fieldPath": "status", "order": "ASCENDING" }, { "fieldPath": "date", "order": "DESCENDING" }]
+    },
+    {
+      "collectionGroup": "requests",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isActive", "order": "ASCENDING" },
+        { "fieldPath": "submittedDate", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "requests", "queryScope": "COLLECTION",
+      "fields": [{ "fieldPath": "isActive", "order": "ASCENDING" }, { "fieldPath": "type", "order": "ASCENDING" }, { "fieldPath": "submittedDate", "order": "DESCENDING" }]
+    },
+    {
+      "collectionGroup": "requests", "queryScope": "COLLECTION",
+      "fields": [{ "fieldPath": "isActive", "order": "ASCENDING" }, { "fieldPath": "status", "order": "ASCENDING" }, { "fieldPath": "submittedDate", "order": "DESCENDING" }]
+    },
+    {
+      "collectionGroup": "requests", "queryScope": "COLLECTION",
+      "fields": [{ "fieldPath": "isActive", "order": "ASCENDING" }, { "fieldPath": "submittedBy", "order": "ASCENDING" }, { "fieldPath": "submittedDate", "order": "DESCENDING" }]
+    },
+    {
+      "collectionGroup": "requests", "queryScope": "COLLECTION",
+      "fields": [{ "fieldPath": "isActive", "order": "ASCENDING" }, { "fieldPath": "type", "order": "ASCENDING" }, { "fieldPath": "status", "order": "ASCENDING" }, { "fieldPath": "submittedDate", "order": "DESCENDING" }]
+    },
+    {
+      "collectionGroup": "requests", "queryScope": "COLLECTION",
+      "fields": [{ "fieldPath": "isActive", "order": "ASCENDING" }, { "fieldPath": "type", "order": "ASCENDING" }, { "fieldPath": "submittedBy", "order": "ASCENDING" }, { "fieldPath": "submittedDate", "order": "DESCENDING" }]
+    },
+    {
+      "collectionGroup": "requests", "queryScope": "COLLECTION",
+      "fields": [{ "fieldPath": "isActive", "order": "ASCENDING" }, { "fieldPath": "status", "order": "ASCENDING" }, { "fieldPath": "submittedBy", "order": "ASCENDING" }, { "fieldPath": "submittedDate", "order": "DESCENDING" }]
+    },
+    {
+      "collectionGroup": "requests", "queryScope": "COLLECTION",
+      "fields": [{ "fieldPath": "isActive", "order": "ASCENDING" }, { "fieldPath": "type", "order": "ASCENDING" }, { "fieldPath": "status", "order": "ASCENDING" }, { "fieldPath": "submittedBy", "order": "ASCENDING" }, { "fieldPath": "submittedDate", "order": "DESCENDING" }]
+    },
+    {
+      "collectionGroup": "activities",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "timestamp", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

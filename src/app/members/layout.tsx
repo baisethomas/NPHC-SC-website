@@ -22,7 +22,7 @@ export default function MembersLayout({ children }: { children: ReactNode }) {
   };
 
   return (
-    <ProtectedRoute allowedRoles={['admin', 'member']}>
+    <ProtectedRoute allowedRoles={['admin', 'member']} requireApprovedMembership>
       <div className="flex h-screen bg-gray-50">
         {/* Sidebar */}
         <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
