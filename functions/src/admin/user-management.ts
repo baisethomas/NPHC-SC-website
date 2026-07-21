@@ -15,7 +15,10 @@ const ROLES = new Set([
   'visitor',
 ]);
 
-export const setUserRoles = onCall(async (request) => {
+// enforceAppCheck: callers must present a valid App Check token once the web
+// app is registered in Firebase console → App Check. Nothing in the current
+// UI invokes this callable yet, so enforcement cannot break existing flows.
+export const setUserRoles = onCall({ enforceAppCheck: true }, async (request) => {
   const callerRoles = request.auth?.token.roles;
   if (!Array.isArray(callerRoles) || !callerRoles.includes('super_admin')) {
     throw new HttpsError('permission-denied', 'Super administrator access is required.');

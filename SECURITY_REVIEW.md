@@ -7,7 +7,7 @@
 ---
 
 > **Remediation status (2026-07-21):** All Critical, High, Medium, and code-fixable Low findings have been addressed. Still open, deliberately:
-> - **App Check** — requires Firebase console setup: register the app with reCAPTCHA Enterprise, initialize App Check in `src/lib/firebase.ts`, set `enforceAppCheck: true` on `setUserRoles`, and enable enforcement for Firestore/Storage in the console.
+> - **App Check** — code side is DONE: `src/lib/firebase.ts` initializes App Check when `NEXT_PUBLIC_RECAPTCHA_ENTERPRISE_SITE_KEY` is set (with dev debug-token support), and `setUserRoles` has `enforceAppCheck: true`. Remaining console steps (service account lacks permission to do these): (1) Firebase console → App Check → Apps → register the web app with reCAPTCHA Enterprise (console creates the key), (2) put the site key in `NEXT_PUBLIC_RECAPTCHA_ENTERPRISE_SITE_KEY` locally and in Vercel env, (3) deploy functions (`firebase deploy --only functions`), (4) after the App Check metrics page shows healthy verified-traffic ratios, flip Firestore/Storage/Auth enforcement to Enforced in the console — monitor first, enforce second.
 > - **`rateLimits` TTL policy** — code now writes an `expireAt` field; enable once with `gcloud firestore fields ttls update expireAt --collection-group=rateLimits --enable-ttl`.
 > - **ESLint warnings-as-errors** — 104 pre-existing warnings must be cleaned up before CI can run with `--max-warnings=0`.
 > - **Handler-level test coverage** for API routes/server actions — project-sized effort, not a point fix.

@@ -2,6 +2,7 @@ import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
 import { getFirestore, Firestore } from "firebase/firestore";
 import { getStorage, FirebaseStorage } from "firebase/storage";
 import { getAuth, Auth } from "firebase/auth";
+import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check";
 
 // Your web app's Firebase configuration read from environment variables
 const firebaseConfig = {
@@ -29,6 +30,25 @@ try {
 
   // Initialize Firebase
   app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+
+  // App Check: attests requests come from this app (bot/abuse protection).
+  // Activates only in the browser and only once the site key env var is set,
+  // so the app keeps working before the console registration is done.
+  const appCheckSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_ENTERPRISE_SITE_KEY;
+  if (typeof window !== "undefined" && appCheckSiteKey) {
+    if (process.env.NODE_ENV !== "production") {
+      // Dev builds use a debug token (register it in Firebase console →
+      // App Check → Apps → Manage debug tokens; value appears in devtools).
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (window as any).FIREBASE_APPCHECK_DEBUG_TOKEN =
+        process.env.NEXT_PUBLIC_APPCHECK_DEBUG_TOKEN ?? true;
+    }
+    initializeAppCheck(app, {
+      provider: new ReCaptchaEnterpriseProvider(appCheckSiteKey),
+      isTokenAutoRefreshEnabled: true,
+    });
+  }
+
   db = getFirestore(app);
   storage = getStorage(app);
   auth = getAuth(app);
