@@ -10,12 +10,16 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { RegisterForm } from './register-form';
+
+type AuthMode = 'sign-in' | 'register';
 
 export default function LoginPage() {
+  const [mode, setMode] = useState<AuthMode>('sign-in');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -107,15 +111,50 @@ export default function LoginPage() {
             <CardHeader className="space-y-4 lg:mb-2 items-center text-center pb-6">
               <div className="lg:hidden mx-auto h-1 w-16 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 mb-2 mt-4" />
               <div className="space-y-2">
-                <CardTitle className="text-3xl lg:text-3xl font-headline font-semibold text-slate-900 tracking-tight">Welcome back</CardTitle>
+                <CardTitle className="text-3xl lg:text-3xl font-headline font-semibold text-slate-900 tracking-tight">
+                  {mode === 'sign-in' ? 'Welcome back' : 'Join our community'}
+                </CardTitle>
                 <div className="hidden lg:block mx-auto h-1 w-16 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 mt-3 mb-3" />
                 <CardDescription className="text-base text-slate-500">
-                  Sign in to your admin account
+                  {mode === 'sign-in'
+                    ? 'Sign in to your account'
+                    : 'Request a member account for review'}
                 </CardDescription>
+              </div>
+              <div className="grid w-full grid-cols-2 rounded-lg bg-slate-100 p-1" role="tablist" aria-label="Sign in or request an account">
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={mode === 'sign-in'}
+                  onClick={() => setMode('sign-in')}
+                  className={`rounded-md py-2 text-sm font-medium transition-colors ${
+                    mode === 'sign-in'
+                      ? 'bg-white text-slate-900 shadow-sm'
+                      : 'text-slate-500 hover:text-slate-700'
+                  }`}
+                >
+                  Sign In
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={mode === 'register'}
+                  onClick={() => setMode('register')}
+                  className={`rounded-md py-2 text-sm font-medium transition-colors ${
+                    mode === 'register'
+                      ? 'bg-white text-slate-900 shadow-sm'
+                      : 'text-slate-500 hover:text-slate-700'
+                  }`}
+                >
+                  Request Account
+                </button>
               </div>
             </CardHeader>
 
             <CardContent>
+              {mode === 'register' ? (
+                <RegisterForm onSwitchToSignIn={() => setMode('sign-in')} />
+              ) : (
               <form onSubmit={handleLogin} className="space-y-5">
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-slate-700 font-medium">Email Address</Label>
@@ -160,6 +199,7 @@ export default function LoginPage() {
                   )}
                 </Button>
               </form>
+              )}
             </CardContent>
           </Card>
         </div>

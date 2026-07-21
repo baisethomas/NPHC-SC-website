@@ -1,15 +1,22 @@
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowRight, Calendar, Bell, Users } from "lucide-react";
+import { ArrowRight, Calendar, Bell, Users, UserCheck } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { getEvents, getAnnouncements, getDirectoryMembers } from "@/lib/data";
+import { getMembers } from "./members/actions";
 
 export default async function AdminDashboardPage() {
-  const [events, { announcements }, { members }] = await Promise.all([
+  const [events, { announcements }, { members }, { members: cmsMembers }] = await Promise.all([
     getEvents(true),
     getAnnouncements(true),
-    getDirectoryMembers()
+    getDirectoryMembers(),
+    getMembers()
   ]);
+
+  const pendingMembersCount = cmsMembers.filter(
+    (member) => member.membershipStatus === 'pending'
+  ).length;
 
   return (
     <div>
@@ -17,7 +24,20 @@ export default async function AdminDashboardPage() {
       <p className="text-muted-foreground mb-6">Welcome to the admin panel. Here you can manage the content of the website.</p>
       
       {/* KPI Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-sm font-medium">Pending Members</CardTitle>
+            <UserCheck className="h-4 w-4 text-violet-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold flex items-center gap-2">
+              {pendingMembersCount}
+              {pendingMembersCount > 0 && <Badge>Needs review</Badge>}
+            </div>
+            <p className="text-xs text-muted-foreground">Sign-ups awaiting approval</p>
+          </CardContent>
+        </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium">Total Members</CardTitle>
@@ -52,6 +72,20 @@ export default async function AdminDashboardPage() {
 
       <h2 className="text-xl font-bold font-headline mb-4">Quick Links</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              Manage Members
+              {pendingMembersCount > 0 && <Badge>{pendingMembersCount} pending</Badge>}
+            </CardTitle>
+            <CardDescription>Approve sign-ups, manage status, and assign roles.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild>
+              <Link href="/admin/members">Go to Members <ArrowRight className="ml-2 h-4 w-4" /></Link>
+            </Button>
+          </CardContent>
+        </Card>
         <Card>
           <CardHeader>
             <CardTitle>Manage Events</CardTitle>

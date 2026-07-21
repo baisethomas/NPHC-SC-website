@@ -8,6 +8,7 @@ import { LayoutDashboard, Calendar, Newspaper, Users, Building2, FileText, Gradu
 const navLinks = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/inbox", label: "Inbox", icon: Inbox },
+  { href: "/admin/members", label: "Members", icon: Users },
   { href: "/admin/mailing-list", label: "Mailing List", icon: Mail },
   { href: "/admin/events", label: "Events", icon: Calendar },
   { href: "/admin/announcements", label: "Announcements", icon: Newspaper },
