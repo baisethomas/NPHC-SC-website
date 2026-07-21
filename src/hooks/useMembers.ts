@@ -254,7 +254,11 @@ export function useRecentActivities(limit: number = 5) {
     };
   }, []);
   
-  const formattedActivities = data?.items.map(formatActivity) || [];
+  // Array.isArray guard: during a deploy, a stale client can receive a
+  // response shape it doesn't expect — degrade to empty rather than crash.
+  const formattedActivities = Array.isArray(data?.items)
+    ? data.items.map(formatActivity)
+    : [];
   
   return { activities: formattedActivities, loading, error };
 }
