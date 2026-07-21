@@ -2,8 +2,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Heart, Users, GraduationCap, Calendar, DollarSign, HandHeart } from "lucide-react";
+import { getSiteSettings } from "@/lib/site-settings";
 
-export default function DonationsPage() {
+export default async function DonationsPage() {
+  const { donationUrl } = await getSiteSettings();
+
   return (
     <div className="flex flex-col">
       {/* Vibrant Hero Section */}
@@ -76,28 +79,55 @@ export default function DonationsPage() {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid grid-cols-2 gap-3">
-                <Button variant="outline" className="h-16 text-lg">
-                  $25
-                </Button>
-                <Button variant="outline" className="h-16 text-lg">
-                  $50
-                </Button>
-                <Button variant="outline" className="h-16 text-lg">
-                  $100
-                </Button>
-                <Button variant="outline" className="h-16 text-lg">
-                  $250
-                </Button>
+                {["$25", "$50", "$100", "$250"].map((amount) =>
+                  donationUrl ? (
+                    <Button key={amount} variant="outline" className="h-16 text-lg" asChild>
+                      <a href={donationUrl} target="_blank" rel="noopener noreferrer">
+                        {amount}
+                      </a>
+                    </Button>
+                  ) : (
+                    <Button key={amount} variant="outline" className="h-16 text-lg" disabled>
+                      {amount}
+                    </Button>
+                  )
+                )}
               </div>
-              
+
               <div className="space-y-3">
-                <Button className="w-full h-12 text-lg bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700">
-                  <Heart className="mr-2 h-5 w-5" />
-                  Donate Now
+                {donationUrl ? (
+                  <Button
+                    className="w-full h-12 text-lg bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700"
+                    asChild
+                  >
+                    <a href={donationUrl} target="_blank" rel="noopener noreferrer">
+                      <Heart className="mr-2 h-5 w-5" />
+                      Donate Now
+                    </a>
+                  </Button>
+                ) : (
+                  <Button
+                    className="w-full h-12 text-lg bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700"
+                    disabled
+                  >
+                    <Heart className="mr-2 h-5 w-5" />
+                    Donate Now
+                  </Button>
+                )}
+                <Button variant="outline" className="w-full" disabled={!donationUrl} asChild={Boolean(donationUrl)}>
+                  {donationUrl ? (
+                    <a href={donationUrl} target="_blank" rel="noopener noreferrer">
+                      Set Up Monthly Giving
+                    </a>
+                  ) : (
+                    <span>Set Up Monthly Giving</span>
+                  )}
                 </Button>
-                <Button variant="outline" className="w-full">
-                  Set Up Monthly Giving
-                </Button>
+                {!donationUrl && (
+                  <p className="text-center text-sm text-muted-foreground">
+                    Online donations coming soon.
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>

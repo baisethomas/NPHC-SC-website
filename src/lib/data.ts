@@ -1,6 +1,7 @@
 
 import { adminDb } from './firebase-admin';
-import type { Event, Announcement, BoardMember, Organization, Program } from './definitions';
+import type { Event, Announcement, BoardMember, Organization, Program, DivineNineDoc } from './definitions';
+import { getDivineNineOrganizations, slugify } from './definitions';
 
 const handleFirestoreError = (error: unknown, context: string): string => {
   const err = error instanceof Error ? error : new Error(String(error));
@@ -526,5 +527,52 @@ export async function getDirectoryMembers(): Promise<{ members: import('./defini
   } catch (error) {
     const errorMessage = handleFirestoreError(error, 'get directory members');
     return { members: [], error: errorMessage };
+  }
+}
+
+/**
+ * Seed helper: builds the default Divine Nine docs from the hardcoded array in
+ * definitions.ts. Used as the read fallback below, by the admin upsert action,
+ * and by scripts/seed-divine-nine.ts.
+ */
+export function buildDivineNineSeedDocs(): DivineNineDoc[] {
+  return getDivineNineOrganizations().map((org, index) => ({
+    id: slugify(org.name),
+    name: org.name,
+    logo: org.logo,
+    hint: org.hint,
+    order: index,
+  }));
+}
+
+/**
+ * Fetches the nine national organizations from the Firestore `divineNine`
+ * collection, ordered by their `order` field. Falls back to the hardcoded
+ * list in definitions.ts when the Admin SDK is unavailable or the collection
+ * is empty, so public pages never regress.
+ */
+export async function getDivineNine(): Promise<DivineNineDoc[]> {
+  if (!adminDb) {
+    console.warn('Firebase Admin SDK not initialized. Using hardcoded Divine Nine list.');
+    return buildDivineNineSeedDocs();
+  }
+  try {
+    const snapshot = await adminDb.collection('divineNine').orderBy('order').get();
+    if (snapshot.empty) {
+      return buildDivineNineSeedDocs();
+    }
+    return snapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        name: typeof data.name === 'string' ? data.name : '',
+        logo: typeof data.logo === 'string' ? data.logo : 'https://placehold.co/200x200.png',
+        hint: typeof data.hint === 'string' ? data.hint : 'organization crest',
+        order: typeof data.order === 'number' ? data.order : 0,
+      } satisfies DivineNineDoc;
+    });
+  } catch (error) {
+    handleFirestoreError(error, 'get Divine Nine organizations');
+    return buildDivineNineSeedDocs();
   }
 }

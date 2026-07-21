@@ -3,17 +3,26 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight, Calendar, Clock, MapPin, Terminal, Mail, Heart } from "lucide-react";
-import { getEvents, getAnnouncements, getBoardMembers } from "@/lib/data";
-import { getDivineNineOrganizations, type DivineNineOrganization } from "@/lib/definitions";
+import { getEvents, getAnnouncements, getBoardMembers, getDivineNine } from "@/lib/data";
+import { type DivineNineOrganization } from "@/lib/definitions";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { getSiteContent } from "@/lib/site-content";
+import { sanitizeHtml } from "@/lib/sanitizer";
 
 export default async function Home() {
+  const content = await getSiteContent([
+    'home.hero.headline',
+    'home.hero.tagline',
+    'home.hero.image',
+    'home.president.message',
+    'home.mission',
+  ]);
   const events = (await getEvents()).slice(0, 2);
   const { announcements, error: announcementsError } = await getAnnouncements();
   const latestAnnouncements = announcements.slice(0, 3);
   const { boardMembers } = await getBoardMembers();
   const president = boardMembers.find(member => member.title.toLowerCase() === 'president');
-  const organizations: DivineNineOrganization[] = getDivineNineOrganizations();
+  const organizations: DivineNineOrganization[] = await getDivineNine();
 
   return (
     <div className="flex flex-col">
@@ -21,7 +30,7 @@ export default async function Home() {
         {/* Background Image */}
         <div className="absolute inset-0">
           <Image
-            src="https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/photos%2F486065740_4131253287097506_5154761858775003667_n.jpg?alt=media&token=98ce7896-a868-4359-80d6-5177068e11df"
+            src={content['home.hero.image']}
             alt="NPHC Solano County Community"
             fill
             className="object-cover object-center"
@@ -31,9 +40,9 @@ export default async function Home() {
         </div>
         <div className="absolute inset-0 bg-black/60 z-10" />
         <div className="z-20 p-4 relative w-full">
-          <h1 className="text-4xl md:text-6xl font-headline font-bold mb-4 tracking-tight animate-fade-in-up">NPHC of Solano County</h1>
+          <h1 className="text-4xl md:text-6xl font-headline font-bold mb-4 tracking-tight animate-fade-in-up">{content['home.hero.headline']}</h1>
           <p className="max-w-2xl mx-auto text-lg md:text-xl text-primary-foreground/90 animate-fade-in-up animation-delay-200">
-            Fostering brotherhood and sisterhood, scholarship, and service within the Solano County community.
+            {content['home.hero.tagline']}
           </p>
         </div>
       </section>
@@ -83,17 +92,10 @@ export default async function Home() {
                   
                   {/* Message Section */}
                   <div className="p-8 md:p-12">
-                    <blockquote className="text-lg text-gray-700 leading-relaxed mb-6">
-                      &quot;Welcome to the National Pan-Hellenic Council of Solano County. Our organization stands as a beacon of unity, scholarship, and service in our community. 
-                      
-                      <br /><br />
-                      
-                      Through the collective strength of our Divine Nine organizations, we continue to foster brotherhood and sisterhood while making meaningful contributions to Solano County. Our commitment to academic excellence, community service, and leadership development remains unwavering.
-                      
-                      <br /><br />
-                      
-                      I invite you to join us in our mission to uplift our community and create lasting positive change. Together, we embody the true spirit of &apos;Unanimity of Thought and Action.&apos;&quot;
-                    </blockquote>
+                    <blockquote
+                      className="text-lg text-gray-700 leading-relaxed mb-6 space-y-4"
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(content['home.president.message']) }}
+                    />
                     
                     <div className="flex items-center gap-4">
                       <div className="h-px bg-gradient-to-r from-yellow-400 to-yellow-600 flex-1"></div>
@@ -113,9 +115,10 @@ export default async function Home() {
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl font-headline font-bold mb-2">Our Mission</h2>
             <div className="mx-auto mb-4 h-1 w-24 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600" />
-            <p className="text-muted-foreground text-lg">
-              The National Pan-Hellenic Council of Solano County is dedicated to &quot;Unanimity of Thought and Action.&quot; We are committed to uplifting our community through service, promoting academic excellence, and creating a lasting legacy of unity and leadership among our member organizations.
-            </p>
+            <div
+              className="text-muted-foreground text-lg space-y-4"
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(content['home.mission']) }}
+            />
           </div>
         </div>
       </section>

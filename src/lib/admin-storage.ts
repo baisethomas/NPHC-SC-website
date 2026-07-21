@@ -9,7 +9,7 @@ import { admin } from '@/lib/firebase-admin';
 const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 
-type ImageFolder = 'board-members' | 'programs' | 'announcements' | 'events';
+type ImageFolder = 'board-members' | 'programs' | 'announcements' | 'events' | 'organizations';
 
 export async function uploadImageFromServer(file: File, folder: ImageFolder): Promise<string> {
   if (!ALLOWED_IMAGE_TYPES.has(file.type)) {

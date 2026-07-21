@@ -98,6 +98,15 @@ export interface DivineNineOrganization {
   hint: string;
 }
 
+/**
+ * A Divine Nine national organization as stored in the Firestore
+ * `divineNine` collection (doc id + explicit sort order).
+ */
+export interface DivineNineDoc extends DivineNineOrganization {
+  id: string;
+  order: number;
+}
+
 export const slugify = (text: string): string => 
   text.toLowerCase()
     .replace(/&/g, 'and')  // Replace & with 'and' before other replacements

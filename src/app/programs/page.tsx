@@ -1,15 +1,15 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getDivineNineOrganizations, type DivineNineOrganization } from "@/lib/definitions";
-import { getPrograms } from "@/lib/data";
+import { type DivineNineOrganization } from "@/lib/definitions";
+import { getPrograms, getDivineNine } from "@/lib/data";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Terminal, Users, HandHeart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
 export default async function ProgramsPage() {
-  const organizations: DivineNineOrganization[] = getDivineNineOrganizations();
+  const organizations: DivineNineOrganization[] = await getDivineNine();
   const { programs, error } = await getPrograms();
 
   // Filter only active programs

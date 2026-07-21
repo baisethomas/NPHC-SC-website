@@ -5,15 +5,15 @@ import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { createOrganization } from "../actions";
+import { updateDivineNineOrganization } from "../../../actions";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import type { DivineNineDoc } from "@/lib/definitions";
 import { LoaderCircle, X } from "lucide-react";
 import Image from "next/image";
 
-export default function NewOrganizationPage() {
+export function EditDivineNineForm({ organization }: { organization: DivineNineDoc }) {
   const { toast } = useToast();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -47,13 +47,14 @@ export default function NewOrganizationPage() {
 
     try {
       const formData = new FormData(e.currentTarget);
+      formData.set("id", organization.id);
       if (selectedFile) {
         formData.set("logo", selectedFile);
       } else {
         formData.delete("logo");
       }
 
-      const result = await createOrganization(formData);
+      const result = await updateDivineNineOrganization(formData);
 
       if ("error" in result) {
         toast({
@@ -63,18 +64,19 @@ export default function NewOrganizationPage() {
         });
       } else {
         toast({
-          title: "Organization Added!",
-          description: "The new organization has been added successfully.",
+          title: "Organization Updated!",
+          description: "The national organization has been updated successfully.",
         });
         router.push("/admin/organizations");
         router.refresh();
       }
     } catch (error) {
-      console.error("Submission failed:", error);
+      console.error("Update failed:", error);
+      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
       toast({
         variant: "destructive",
-        title: "Submission Error",
-        description: "An unexpected error occurred. Please try again.",
+        title: "Update Error",
+        description: `An unexpected error occurred: ${errorMessage}`,
       });
     } finally {
       setIsSubmitting(false);
@@ -84,8 +86,11 @@ export default function NewOrganizationPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Add New Organization</CardTitle>
-        <CardDescription>Fill out the form below to add a new organization.</CardDescription>
+        <CardTitle>Edit Divine Nine Organization</CardTitle>
+        <CardDescription>
+          Update the national listing for &quot;{organization.name}&quot; shown on the homepage and
+          Programs page.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={onSubmit} className="space-y-6">
@@ -95,58 +100,30 @@ export default function NewOrganizationPage() {
               id="name"
               name="name"
               placeholder="Alpha Kappa Alpha Sorority, Inc."
+              defaultValue={organization.name}
               required
               minLength={2}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="chapter">Chapter Name</Label>
+            <Label htmlFor="order">Display Order</Label>
             <Input
-              id="chapter"
-              name="chapter"
-              placeholder="Mu Eta Omega Chapter"
+              id="order"
+              name="order"
+              type="number"
+              min={0}
+              step={1}
+              defaultValue={organization.order}
               required
-              minLength={2}
             />
+            <p className="text-sm text-muted-foreground">
+              Lower numbers appear first in the grid.
+            </p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="link">Website Link</Label>
-            <Input
-              id="link"
-              name="link"
-              type="url"
-              placeholder="https://example.com"
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="president">President Name</Label>
-            <Input
-              id="president"
-              name="president"
-              placeholder="Jane Doe"
-              required
-              minLength={2}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              name="description"
-              placeholder="A short description of the organization..."
-              className="min-h-[150px]"
-              required
-              minLength={10}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="logo">Organization Logo</Label>
+            <Label htmlFor="logo">Crest / Logo</Label>
             <div className="flex items-center space-x-4">
               <div className="flex-1">
                 <Input
@@ -160,40 +137,52 @@ export default function NewOrganizationPage() {
                 />
               </div>
 
-              {logoPreview && (
-                <div className="relative">
+              <div className="relative">
+                {logoPreview ? (
+                  <div className="relative">
+                    <Image
+                      src={logoPreview}
+                      alt="New crest preview"
+                      width={80}
+                      height={80}
+                      className="rounded-md object-contain"
+                      unoptimized
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute -top-2 -right-2 h-6 w-6"
+                      onClick={removeLogo}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
                   <Image
-                    src={logoPreview}
-                    alt="Logo preview"
+                    src={organization.logo}
+                    alt={`${organization.name} crest`}
                     width={80}
                     height={80}
                     className="rounded-md object-contain"
-                    unoptimized
                   />
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="icon"
-                    className="absolute -top-2 -right-2 h-6 w-6"
-                    onClick={removeLogo}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
+                )}
+              </div>
             </div>
             <p className="text-sm text-muted-foreground">
-              Optional. JPEG, PNG, WebP, or GIF, up to 5 MB. A placeholder is used if none is uploaded.
+              {logoPreview
+                ? "New crest selected"
+                : "Current crest. Choose a file to replace it (JPEG, PNG, WebP, or GIF, up to 5 MB)."}
             </p>
           </div>
 
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting ? (
               <>
-                <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> Adding...
+                <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> Saving...
               </>
             ) : (
-              "Add Organization"
+              "Save Changes"
             )}
           </Button>
         </form>
