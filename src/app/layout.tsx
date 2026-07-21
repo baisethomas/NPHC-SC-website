@@ -6,6 +6,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
+import { Analytics } from "@vercel/analytics/next";
 
 const fontBody = Inter({ 
   subsets: ['latin'],
@@ -50,6 +51,7 @@ export default function RootLayout({
           </div>
           <Toaster />
         </AuthProvider>
+        <Analytics />
       </body>
     </html>
   );

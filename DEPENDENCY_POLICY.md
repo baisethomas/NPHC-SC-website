@@ -23,3 +23,8 @@ These are documented exceptions, not accepted indefinitely. Most are transitive,
 5. Review this policy and every remaining exception at least monthly and after every framework, Firebase, Genkit, or image-tooling upgrade. Remove baseline entries as fixes land.
 
 The full audit remains visible in CI logs so moderate and low advisories can be triaged promptly. Dependency changes that increase any advisory count should be explained in the pull request.
+
+## Approved exceptions — 2026-07-21 review (owner: Baise Thomas)
+
+- `@opentelemetry/propagator-jaeger` (high) and `@opentelemetry/sdk-trace-node` (high): additional package names in the existing Genkit-pinned OpenTelemetry transitive chain, surfaced after the July 2026 dependency-PR merges reshuffled the lockfile. Not directly exploitable in this app (no OTLP/Jaeger exporters configured). Remediation target: Genkit release that lifts its otel pins; tracked with the other Genkit-chain entries.
+- `sharp` was NOT excepted: upgraded 0.34.5 → 0.35.x the same day to clear four libvips CVEs.

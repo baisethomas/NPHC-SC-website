@@ -12,6 +12,10 @@ const auditTargets = [
       ['@grpc/grpc-js', 'high'],
       ['@opentelemetry/auto-instrumentations-node', 'high'],
       ['@opentelemetry/sdk-node', 'high'],
+      // Same Genkit-pinned otel chain as above; names surfaced after the
+      // July 2026 dependency-PR merges reshuffled the lockfile.
+      ['@opentelemetry/propagator-jaeger', 'high'],
+      ['@opentelemetry/sdk-trace-node', 'high'],
       ['@firebase/firestore', 'high'],
       ['@firebase/firestore-compat', 'high'],
       ['@genkit-ai/ai', 'high'],
