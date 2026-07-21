@@ -16,7 +16,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { CheckCircle2, Loader2, Terminal, Trash2 } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { CheckCircle2, Eye, Loader2, Mail, Terminal, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
   deleteContactSubmission,
@@ -49,6 +57,7 @@ export default function AdminInboxPage() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ContactSubmission | null>(null);
+  const [viewTarget, setViewTarget] = useState<ContactSubmission | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const loadSubmissions = useCallback(async () => {
@@ -111,6 +120,10 @@ export default function AdminInboxPage() {
 
   const renderActions = (submission: ContactSubmission) => (
     <div className="flex justify-end gap-2">
+      <Button variant="outline" size="sm" onClick={() => setViewTarget(submission)}>
+        <Eye className="h-4 w-4 mr-2" />
+        View
+      </Button>
       {submission.status === 'new' && (
         <Button
           variant="outline"
@@ -191,9 +204,16 @@ export default function AdminInboxPage() {
                       </TableCell>
                       <TableCell>{submission.subject || '—'}</TableCell>
                       <TableCell className="max-w-xs">
-                        <p className="whitespace-pre-wrap break-words line-clamp-3">
-                          {submission.message}
-                        </p>
+                        <button
+                          type="button"
+                          onClick={() => setViewTarget(submission)}
+                          className="text-left w-full cursor-pointer hover:text-primary"
+                          title="Open message"
+                        >
+                          <p className="whitespace-pre-wrap break-words line-clamp-3">
+                            {submission.message}
+                          </p>
+                        </button>
                       </TableCell>
                       <TableCell className="whitespace-nowrap">
                         {formatDate(submission.submittedAt)}
@@ -233,6 +253,52 @@ export default function AdminInboxPage() {
           </>
         )}
       </CardContent>
+
+      {/* Message Detail Dialog */}
+      <Dialog
+        open={viewTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setViewTarget(null);
+        }}
+      >
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{viewTarget?.subject || 'Contact Message'}</DialogTitle>
+            <DialogDescription>
+              From {viewTarget?.name} ({viewTarget?.email}) ·{' '}
+              {viewTarget ? formatDate(viewTarget.submittedAt) : ''}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-[50vh] overflow-y-auto rounded-md border bg-muted/40 p-4">
+            <p className="whitespace-pre-wrap break-words text-sm">{viewTarget?.message}</p>
+          </div>
+          <DialogFooter className="gap-2 sm:gap-2">
+            {viewTarget?.status === 'new' && (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  void handleMarkHandled(viewTarget);
+                  setViewTarget({ ...viewTarget, status: 'handled' });
+                }}
+                disabled={pendingId === viewTarget?.id}
+              >
+                <CheckCircle2 className="h-4 w-4 mr-2" />
+                Mark Handled
+              </Button>
+            )}
+            <Button asChild>
+              <a
+                href={`mailto:${viewTarget?.email}?subject=${encodeURIComponent(
+                  `Re: ${viewTarget?.subject || 'Your message to NPHC Solano'}`
+                )}`}
+              >
+                <Mail className="h-4 w-4 mr-2" />
+                Reply via Email
+              </a>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog
