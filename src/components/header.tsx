@@ -23,7 +23,9 @@ const baseNavLinks = [
   { href: "/contact", label: "Contact Us" },
 ];
 
-const logoUrl = "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2FNPHC-Official-Logo-sq.png?alt=media";
+// Tokened download URL: Storage rules are admin-only, so public reads must
+// carry the object's download token (tokens bypass rules).
+const logoUrl = "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2FNPHC-Official-Logo-sq.png?alt=media&token=d7a5c6b7-4460-492b-871f-13bd90b64da7";
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);

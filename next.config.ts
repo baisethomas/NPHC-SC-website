@@ -37,6 +37,12 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
+    // Org logos include SVGs (e.g. the AKA crest). Safe-serving combo per
+    // Next.js docs: attachment disposition + sandboxed CSP means an SVG can
+    // render in <img> but never execute script if opened directly.
+    dangerouslyAllowSVG: true,
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     remotePatterns: [
       {
         protocol: 'https',
