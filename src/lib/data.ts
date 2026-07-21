@@ -330,7 +330,7 @@ const initialOrganizations: Organization[] = [
     {
     id: "alpha-kappa-alpha-sorority-inc--kappa-beta-omega-chapter",
     name: "Alpha Kappa Alpha Sorority, Inc.",
-    logo: "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2Fbg_logo_aka.svg?alt=media",
+    logo: "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2Fbg_logo_aka.svg?alt=media&token=38c60162-5882-424c-984c-79474af03cdf",
     hint: "organization crest",
     description: "The first intercollegiate historically African American Greek-lettered sorority.",
     chapter: "Kappa Beta Omega Chapter",
@@ -340,7 +340,7 @@ const initialOrganizations: Organization[] = [
   {
     id: "alpha-kappa-alpha-sorority-inc--tau-upsilon-omega-chapter",
     name: "Alpha Kappa Alpha Sorority, Inc.",
-    logo: "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2Fbg_logo_aka.svg?alt=media",
+    logo: "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2Fbg_logo_aka.svg?alt=media&token=38c60162-5882-424c-984c-79474af03cdf",
     hint: "organization crest",
     description: "The first intercollegiate historically African American Greek-lettered sorority.",
     chapter: "Tau Upsilon Omega Chapter",
@@ -350,7 +350,7 @@ const initialOrganizations: Organization[] = [
   {
     id: "alpha-phi-alpha-fraternity-inc--kappa-omicron-lambda-chapter",
     name: "Alpha Phi Alpha Fraternity, Inc.",
-    logo: "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2Fapa_crest_132_c.webp?alt=media",
+    logo: "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2Fapa_crest_132_c.webp?alt=media&token=760876ea-073d-40c0-89a6-8b0f9bcb0895",
     hint: "organization crest",
     description: "The first intercollegiate Greek-letter fraternity established for African American Men.",
     chapter: "Kappa Omicron Lambda Chapter",
@@ -360,7 +360,7 @@ const initialOrganizations: Organization[] = [
     {
     id: "delta-sigma-theta-sorority-inc--fairfield-suisun-valley-alumnae-chapter",
     name: "Delta Sigma Theta Sorority, Inc.",
-    logo: "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2FCrest_Logo_rszd.webp?alt=media",
+    logo: "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2FCrest_Logo_rszd.webp?alt=media&token=4626362b-92fc-4ad1-8527-55276a36ac99",
     hint: "organization crest",
     description: "An organization of college educated women committed to the constructive development of its members and to public service.",
     chapter: "Fairfield-Suisun Valley Alumnae Chapter",
@@ -370,7 +370,7 @@ const initialOrganizations: Organization[] = [
    {
     id: "delta-sigma-theta-sorority-inc--vallejo-alumnae-chapter",
     name: "Delta Sigma Theta Sorority, Inc.",
-    logo: "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2FCrest_Logo_rszd.webp?alt=media",
+    logo: "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2FCrest_Logo_rszd.webp?alt=media&token=4626362b-92fc-4ad1-8527-55276a36ac99",
     hint: "organization crest",
     description: "An organization of college educated women committed to the constructive development of its members and to public service.",
     chapter: "Vallejo Alumnae Chapter",
@@ -380,7 +380,7 @@ const initialOrganizations: Organization[] = [
   {
     id: "kappa-alpha-psi-fraternity-inc--fairfield-vacaville-alumni-chapter",
     name: "Kappa Alpha Psi Fraternity, Inc.",
-    logo: "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2FKAPsiCrest.webp?alt=media",
+    logo: "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2FKAPsiCrest.webp?alt=media&token=a5228d03-85f8-4ea9-9523-5bc69f17b296",
     hint: "organization crest",
     description: "A collegiate Greek-letter fraternity with a predominantly African-American membership, focused on achievement in every field of human endeavor.",
     chapter: "Fairfield-Vacaville Alumni Chapter",
@@ -390,7 +390,7 @@ const initialOrganizations: Organization[] = [
   {
     id: "omega-psi-phi-fraternity-inc--theta-pi-chapter",
     name: "Omega Psi Phi Fraternity, Inc.",
-    logo: "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2Foppf-shield-logo-flat2.png?alt=media",
+    logo: "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2Foppf-shield-logo-flat2.png?alt=media&token=5737b334-12a0-47d9-82c9-f307f814d79f",
     hint: "organization crest",
     description: "The first international fraternal organization founded on the campus of a historically black college, based on Friendship, Manhood, Scholarship, Perseverance, and Uplift.",
     chapter: "Theta Pi Chapter",

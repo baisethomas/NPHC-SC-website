@@ -110,47 +110,47 @@ export const slugify = (text: string): string =>
 const divineNineOrganizations: DivineNineOrganization[] = [
   {
     name: "Alpha Kappa Alpha Sorority, Inc.",
-    logo: "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2Fbg_logo_aka.svg?alt=media",
+    logo: "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2Fbg_logo_aka.svg?alt=media&token=38c60162-5882-424c-984c-79474af03cdf",
     hint: "organization crest",
   },
   {
     name: "Alpha Phi Alpha Fraternity, Inc.",
-    logo: "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2Fapa_crest_132_c.webp?alt=media",
+    logo: "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2Fapa_crest_132_c.webp?alt=media&token=760876ea-073d-40c0-89a6-8b0f9bcb0895",
     hint: "organization crest",
   },
   {
     name: "Delta Sigma Theta Sorority, Inc.",
-    logo: "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2FCrest_Logo_rszd.webp?alt=media",
+    logo: "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2FCrest_Logo_rszd.webp?alt=media&token=4626362b-92fc-4ad1-8527-55276a36ac99",
     hint: "organization crest",
   },
   {
     name: "Zeta Phi Beta Sorority, Inc.",
-    logo: "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2FZetaPBetaShield.webp?alt=media",
+    logo: "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2FZetaPBetaShield.webp?alt=media&token=2620543c-4f27-4df7-9db7-3622a8bd9ec8",
     hint: "organization crest",
   },
   {
     name: "Iota Phi Theta Fraternity, Inc.",
-    logo: "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2Fip-1.webp?alt=media",
+    logo: "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2Fip-1.webp?alt=media&token=1aa50626-e2e7-4907-b6e9-2aec61c8e92a",
     hint: "organization crest",
   },
   {
     name: "Kappa Alpha Psi Fraternity, Inc.",
-    logo: "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2FKAPsiCrest.webp?alt=media",
+    logo: "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2FKAPsiCrest.webp?alt=media&token=a5228d03-85f8-4ea9-9523-5bc69f17b296",
     hint: "organization crest",
   },
   {
     name: "Sigma Gamma Rho Sorority, Inc.",
-    logo: "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2FSigma_Gamma_Rho_Shield.webp?alt=media",
+    logo: "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2FSigma_Gamma_Rho_Shield.webp?alt=media&token=1c56cf79-fd09-4f60-90a1-d27faaf08f65",
     hint: "organization crest",
   },
   {
     name: "Phi Beta Sigma Fraternity, Inc.",
-    logo: "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2FPhiBetaSigmaShield.webp?alt=media",
+    logo: "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2FPhiBetaSigmaShield.webp?alt=media&token=ccbcfaed-497d-4190-ad85-d90f4caec067",
     hint: "organization crest",
   },
   {
     name: "Omega Psi Phi Fraternity, Inc.",
-    logo: "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2Foppf-shield-logo-flat2.png?alt=media",
+    logo: "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2Foppf-shield-logo-flat2.png?alt=media&token=5737b334-12a0-47d9-82c9-f307f814d79f",
     hint: "organization crest",
   },
 ];
