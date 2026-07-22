@@ -1,8 +1,10 @@
-// HTML sanitization for Tiptap rich-text content. Uses isomorphic-dompurify so
-// the same parser-based DOMPurify sanitization runs on the server (jsdom) and
-// in the browser. Regex-based sanitization is not acceptable here: it fails on
-// entity-encoded payloads, unquoted attributes, and scheme obfuscation.
-import DOMPurify from 'isomorphic-dompurify';
+// HTML sanitization for Tiptap rich-text content. Uses sanitize-html
+// (htmlparser2-based) rather than DOMPurify: DOMPurify needs jsdom on the
+// server, and recent jsdom versions require() ESM-only dependencies, which
+// crashes in Vercel's serverless runtime. Regex-based sanitization remains
+// unacceptable here: it fails on entity-encoded payloads, unquoted
+// attributes, and scheme obfuscation.
+import sanitize from 'sanitize-html';
 
 const ALLOWED_TAGS = [
   'p', 'br', 'strong', 'em', 'u', 's', 'blockquote', 'code', 'pre',
@@ -15,6 +17,14 @@ const ALLOWED_TAGS = [
 
 const ALLOWED_ATTR = ['href', 'title', 'target', 'rel', 'src', 'alt', 'width', 'height', 'class'];
 
+const BASE_OPTIONS: sanitize.IOptions = {
+  allowedTags: ALLOWED_TAGS,
+  allowedAttributes: { '*': ALLOWED_ATTR },
+  allowedSchemes: ['http', 'https', 'mailto', 'tel'],
+  allowedSchemesByTag: { img: ['http', 'https', 'data'] },
+  disallowedTagsMode: 'discard',
+};
+
 /**
  * Sanitizes HTML content to prevent XSS attacks while preserving safe formatting.
  *
@@ -25,12 +35,7 @@ export function sanitizeHtml(html: string): string {
   if (!html || typeof html !== 'string') {
     return '';
   }
-  return DOMPurify.sanitize(html, {
-    ALLOWED_TAGS,
-    ALLOWED_ATTR,
-    ALLOW_DATA_ATTR: false,
-    FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed', 'form'],
-  });
+  return sanitize(html, BASE_OPTIONS);
 }
 
 /**
@@ -40,9 +45,8 @@ export function sanitizeHtmlStrict(html: string): string {
   if (!html || typeof html !== 'string') {
     return '';
   }
-  return DOMPurify.sanitize(html, {
-    ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u'],
-    ALLOWED_ATTR: [],
-    ALLOW_DATA_ATTR: false,
+  return sanitize(html, {
+    allowedTags: ['p', 'br', 'strong', 'em', 'u'],
+    allowedAttributes: {},
   });
 }
