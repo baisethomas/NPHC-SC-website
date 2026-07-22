@@ -30,7 +30,7 @@
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.2.10",
     "firebase-tools": "^15.23.0",
-    "jsdom": "^27.3.0",
+    "jsdom": "27.3.0",
     "sharp": "^0.35.3",
     "to-ico": "^1.1.5",
     "tsx": "^4.23.0",
@@ -39,6 +39,7 @@
   },
   "overrides": {
     "sharp": "$sharp",
+    "jsdom": "$jsdom",
     "react-google-places-autocomplete": {
       "react": "$react",
       "react-dom": "$react-dom"
