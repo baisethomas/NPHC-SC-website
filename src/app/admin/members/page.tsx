@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -391,22 +391,26 @@ export default function AdminMembersPage() {
   };
 
   return (
-    <Card>
-      <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <CardTitle>Members</CardTitle>
-          <CardDescription>
+          <h1 className="font-headline text-2xl font-bold text-slate-900">Members</h1>
+          <p className="mt-1 text-sm text-slate-500">
             Review sign-ups, manage membership status, and assign roles.
-          </CardDescription>
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <Badge variant="secondary">{members.length} Total</Badge>
-          <Badge variant={pendingCount > 0 ? 'default' : 'secondary'}>
+          <Badge
+            variant="secondary"
+            className={cn(pendingCount > 0 && 'bg-amber-100 text-amber-800 hover:bg-amber-100')}
+          >
             {pendingCount} Pending
           </Badge>
         </div>
-      </CardHeader>
-      <CardContent>
+      </div>
+      <Card className="border-slate-200 shadow-none">
+      <CardContent className="pt-6">
         {loadError && (
           <Alert variant="destructive" className="mb-4">
             <Terminal className="h-4 w-4" />
@@ -469,8 +473,15 @@ export default function AdminMembersPage() {
                   {filteredMembers.map((member) => (
                     <TableRow key={member.id}>
                       <TableCell className="font-medium">
-                        <div>{member.displayName || 'Unnamed member'}</div>
-                        <div className="text-sm text-muted-foreground">{member.email}</div>
+                        <div className="flex items-center gap-3">
+                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-600">
+                            {(member.displayName || member.email).charAt(0).toUpperCase()}
+                          </span>
+                          <div className="min-w-0">
+                            <div className="truncate">{member.displayName || 'Unnamed member'}</div>
+                            <div className="truncate text-sm text-muted-foreground">{member.email}</div>
+                          </div>
+                        </div>
                       </TableCell>
                       <TableCell>
                         <StatusBadge status={member.membershipStatus} />
@@ -651,6 +662,7 @@ export default function AdminMembersPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </Card>
+      </Card>
+    </div>
   );
 }
