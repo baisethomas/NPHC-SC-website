@@ -8,13 +8,7 @@ import { z } from "zod";
 import { getSiteSettingsForAdmin, updateSiteSettings } from "./actions";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -25,7 +19,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 
@@ -138,24 +131,20 @@ export default function SiteSettingsPage() {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Site Settings</CardTitle>
-        <CardDescription>
+    <div className="space-y-6">
+      <div>
+        <h1 className="font-headline text-2xl font-bold text-slate-900">Site Settings</h1>
+        <p className="mt-1 text-sm text-slate-500">
           Manage the contact details, social links, and donation link shown on the
           public website. Leave a field blank to hide it.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <section className="space-y-4">
-              <div>
-                <h3 className="text-lg font-medium">Contact Info</h3>
-                <p className="text-sm text-muted-foreground">
-                  Shown on the Contact page.
-                </p>
-              </div>
+        </p>
+      </div>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <SettingsSection
+            title="Contact Info"
+            description="Shown on the Contact page."
+          >
               <FormField
                 control={form.control}
                 name="contactEmail"
@@ -202,17 +191,12 @@ export default function SiteSettingsPage() {
                   </FormItem>
                 )}
               />
-            </section>
+          </SettingsSection>
 
-            <Separator />
-
-            <section className="space-y-4">
-              <div>
-                <h3 className="text-lg font-medium">Social Links</h3>
-                <p className="text-sm text-muted-foreground">
-                  Icons appear in the site footer only for links that are set.
-                </p>
-              </div>
+          <SettingsSection
+            title="Social Links"
+            description="Icons appear in the site footer only for links that are set."
+          >
               <FormField
                 control={form.control}
                 name="facebookUrl"
@@ -252,17 +236,12 @@ export default function SiteSettingsPage() {
                   </FormItem>
                 )}
               />
-            </section>
+          </SettingsSection>
 
-            <Separator />
-
-            <section className="space-y-4">
-              <div>
-                <h3 className="text-lg font-medium">Donations</h3>
-                <p className="text-sm text-muted-foreground">
-                  Where the Donate buttons on the Donations page send visitors.
-                </p>
-              </div>
+          <SettingsSection
+            title="Donations"
+            description="Where the Donate buttons on the Donations page send visitors."
+          >
               <FormField
                 control={form.control}
                 name="donationUrl"
@@ -283,17 +262,12 @@ export default function SiteSettingsPage() {
                   </FormItem>
                 )}
               />
-            </section>
+          </SettingsSection>
 
-            <Separator />
-
-            <section className="space-y-4">
-              <div>
-                <h3 className="text-lg font-medium">Footer</h3>
-                <p className="text-sm text-muted-foreground">
-                  Text shown after the copyright year in the site footer.
-                </p>
-              </div>
+          <SettingsSection
+            title="Footer"
+            description="Text shown after the copyright year in the site footer."
+          >
               <FormField
                 control={form.control}
                 name="footerText"
@@ -310,13 +284,43 @@ export default function SiteSettingsPage() {
                   </FormItem>
                 )}
               />
-            </section>
+          </SettingsSection>
 
-            <Button type="submit" disabled={isLoading || isSaving}>
+          <div className="sticky bottom-0 -mx-4 flex items-center justify-end gap-3 border-t border-slate-200 bg-slate-50/95 px-4 py-3 backdrop-blur lg:-mx-8 lg:px-8">
+            {form.formState.isDirty && !isSaving && (
+              <span className="text-sm text-slate-500">Unsaved changes</span>
+            )}
+            <Button
+              type="submit"
+              disabled={isLoading || isSaving || !form.formState.isDirty}
+              className="bg-slate-900 hover:bg-slate-800"
+            >
               {isSaving ? "Saving..." : "Save Settings"}
             </Button>
-          </form>
-        </Form>
+          </div>
+        </form>
+      </Form>
+    </div>
+  );
+}
+
+function SettingsSection({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <Card className="border-slate-200 shadow-none">
+      <CardContent className="grid gap-6 p-6 md:grid-cols-[240px_1fr]">
+        <div>
+          <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
+          <p className="mt-1 text-sm text-slate-500">{description}</p>
+        </div>
+        <div className="space-y-4">{children}</div>
       </CardContent>
     </Card>
   );

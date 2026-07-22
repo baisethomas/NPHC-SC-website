@@ -24,10 +24,14 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Pencil } from 'lucide-react';
+import { ExternalLink, Loader2, Pencil } from 'lucide-react';
+import Link from 'next/link';
 import { updateContentBlock, uploadContentImage, type ContentBlockView } from './actions';
 
-const PAGE_GROUPS: ReadonlyArray<ContentBlockView['page']> = ['Homepage', 'About'];
+const PAGE_GROUPS: ReadonlyArray<{ page: ContentBlockView['page']; href: string }> = [
+  { page: 'Homepage', href: '/' },
+  { page: 'About', href: '/about' },
+];
 
 function stripHtml(html: string): string {
   return html
@@ -175,19 +179,27 @@ export function ContentBlockList({ blocks }: { blocks: ContentBlockView[] }) {
 
   return (
     <div className="space-y-10">
-      {PAGE_GROUPS.map((page) => {
+      {PAGE_GROUPS.map(({ page, href }) => {
         const pageBlocks = blocks.filter((block) => block.page === page);
         if (pageBlocks.length === 0) return null;
         return (
           <section key={page}>
-            <h2 className="mb-4 text-lg font-semibold">{page}</h2>
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-slate-900">{page}</h2>
+              <Button asChild variant="ghost" size="sm" className="text-slate-500">
+                <Link href={href} target="_blank" rel="noopener noreferrer">
+                  View live page
+                  <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
+                </Link>
+              </Button>
+            </div>
             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
               {pageBlocks.map((block) => (
-                <Card key={block.key} className="flex flex-col">
+                <Card key={block.key} className="flex flex-col border-slate-200 shadow-none transition-colors hover:border-slate-300">
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between gap-2">
                       <CardTitle className="text-base">{block.label}</CardTitle>
-                      <Badge variant="secondary" className="shrink-0 capitalize">
+                      <Badge variant="outline" className="shrink-0 font-normal capitalize text-slate-500">
                         {block.type === 'richtext' ? 'Rich text' : block.type}
                       </Badge>
                     </div>
@@ -196,12 +208,18 @@ export function ContentBlockList({ blocks }: { blocks: ContentBlockView[] }) {
                   <CardContent className="flex-grow">
                     <BlockValuePreview block={block} />
                   </CardContent>
-                  <CardFooter className="flex items-center justify-between gap-2">
-                    <p className="text-xs text-muted-foreground">
-                      {block.updatedAt
-                        ? `Last updated ${formatUpdatedAt(block.updatedAt)}`
-                        : 'Using default content'}
-                    </p>
+                  <CardFooter className="flex items-center justify-between gap-2 border-t border-slate-100 pt-4">
+                    {block.updatedAt ? (
+                      <span className="flex items-center gap-1.5 text-xs text-slate-500">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                        Edited {formatUpdatedAt(block.updatedAt)}
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1.5 text-xs text-slate-400">
+                        <span className="h-1.5 w-1.5 rounded-full bg-slate-300" />
+                        Default content
+                      </span>
+                    )}
                     <Button variant="outline" size="sm" onClick={() => setEditingKey(block.key)}>
                       <Pencil className="mr-2 h-3.5 w-3.5" />
                       Edit

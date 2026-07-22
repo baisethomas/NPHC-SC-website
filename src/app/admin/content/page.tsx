@@ -11,8 +11,8 @@ export default async function AdminContentPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Page Content</h1>
-        <p className="text-muted-foreground">
+        <h1 className="font-headline text-2xl font-bold text-slate-900">Page Content</h1>
+        <p className="mt-1 text-sm text-slate-500">
           Edit the copy and images on the Homepage and About page. Changes go live immediately.
         </p>
       </div>
