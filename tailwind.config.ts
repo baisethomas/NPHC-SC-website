@@ -26,6 +26,12 @@ export default {
         code: ['monospace'],
       },
       colors: {
+        ink: 'hsl(var(--brand-ink))',
+        gold: {
+          DEFAULT: 'hsl(var(--brand-gold))',
+          soft: 'hsl(var(--brand-gold-soft))',
+        },
+        ivory: 'hsl(var(--brand-ivory))',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         card: {

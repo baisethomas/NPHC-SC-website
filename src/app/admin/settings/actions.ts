@@ -33,6 +33,12 @@ const settingsSchema = z.object({
   twitterUrl: optionalHttpsUrl,
   donationUrl: optionalHttpsUrl,
   footerText: z.string().trim().max(300, 'Footer text is too long.'),
+  meetingCadence: z.string().trim().max(160, 'Keep the meeting line under 160 characters.'),
+  yearChartered: z.string().trim().regex(/^(\d{4})?$/, 'Enter a four-digit year.'),
+  statChapters: z.string().trim().max(20),
+  statScholarships: z.string().trim().max(20),
+  statServiceHours: z.string().trim().max(20),
+  statMembers: z.string().trim().max(20),
 });
 
 export type SiteSettingsInput = z.infer<typeof settingsSchema>;
@@ -87,6 +93,8 @@ export async function updateSiteSettings(
     revalidatePath('/');
     revalidatePath('/contact');
     revalidatePath('/donations');
+    revalidatePath('/about');
+    revalidatePath('/get-involved');
     revalidatePath('/admin/settings');
     return { success: true };
   } catch (e: unknown) {

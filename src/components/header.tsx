@@ -1,201 +1,149 @@
 "use client";
 
 import Link from "next/link";
-import { Menu, LogOut } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
+import { Menu, Heart, UserCircle, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
 import { useAuth } from "@/contexts/AuthContext";
-import { signOut } from "firebase/auth";
-import { auth } from "@/lib/firebase";
 
-const baseNavLinks = [
-  { href: "/", label: "Home" },
-  { href: "/about", label: "About Us" },
-  { href: "/organizations", label: "Organizations" },
+const NAV_LINKS = [
+  { href: "/about", label: "About" },
+  { href: "/organizations", label: "Chapters" },
   { href: "/programs", label: "Programs" },
   { href: "/events", label: "Events" },
   { href: "/news", label: "News" },
-  { href: "/members", label: "Members" },
-  { href: "/contact", label: "Contact Us" },
+  { href: "/scholarships", label: "Scholarships" },
+  { href: "/get-involved", label: "Get Involved" },
 ];
 
 // Tokened download URL: Storage rules are admin-only, so public reads must
 // carry the object's download token (tokens bypass rules).
-const logoUrl = "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2FNPHC-Official-Logo-sq.png?alt=media&token=d7a5c6b7-4460-492b-871f-13bd90b64da7";
+const LOGO_URL =
+  "https://firebasestorage.googleapis.com/v0/b/nphc-solano-hub.firebasestorage.app/o/organizations%2FNPHC-Official-Logo-sq.png?alt=media&token=d7a5c6b7-4460-492b-871f-13bd90b64da7";
 
-export function Header() {
+export function Header({ donateHref = "/donations" }: { donateHref?: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
   const { user, loading, roles, membershipApproved } = useAuth();
-  const canAccessMembers = membershipApproved;
-  const canAccessAdmin = roles.some(
-    (role) => role !== 'visitor' && role !== 'member'
-  );
 
-  const handleLogout = async () => {
-    await signOut(auth);
-    setIsOpen(false);
-  };
+  const isStaff = roles.some((role) => role !== "visitor" && role !== "member");
+  const portalHref = isStaff ? "/admin" : membershipApproved ? "/members" : null;
+  const portalLabel = isStaff ? "Admin" : "Member Portal";
+  const PortalIcon = isStaff ? ShieldCheck : UserCircle;
 
-  // Filter navigation links based on authentication status
-  const navLinks = baseNavLinks.filter(link => {
-    // Show Members link only when user is logged in
-    if (link.href === "/members") {
-      return !loading && user !== null && canAccessMembers;
-    }
-    return true;
-  });
+  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   return (
-    <header className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 w-full border-b sticky top-0 z-50 lg:static lg:top-auto lg:z-auto">
-      <div className="h-[15px] w-full bg-black" />
-      <div className="container flex h-20 lg:h-32 mobile-landscape-compact items-center justify-between">
-        <Link href="/" className="flex items-center">
-          <Image src={logoUrl} alt="NPHC Solano Logo" width={128} height={128} className="h-16 lg:h-28 w-auto mobile-landscape-logo" />
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+      <div className="container flex h-[72px] items-center justify-between gap-6">
+        <Link href="/" className="flex shrink-0 items-center gap-3" aria-label="NPHC of Solano County home">
+          <Image src={LOGO_URL} alt="" width={44} height={44} className="h-11 w-11 object-contain" priority />
+          <span className="hidden flex-col leading-tight sm:flex">
+            <span className="font-headline text-base font-bold tracking-tight">NPHC Solano County</span>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">Nine Legacies · One Council</span>
+          </span>
         </Link>
-        
-        <div className="hidden lg:flex items-center gap-6">
-          <nav className="flex items-center gap-6 text-sm font-medium">
-            {navLinks.map((link) => (
-              <Link 
-                key={link.href} 
-                href={link.href} 
-                className={cn(
-                  "relative px-3 py-2 transition-all duration-300 ease-in-out hover:scale-105 hover:text-foreground group overflow-hidden",
-                  pathname === link.href ? "text-foreground" : "text-foreground/60"
-                )}
-              >
-                <span className="relative z-10">{link.label}</span>
-                {/* Animated underline */}
-                <div className={cn(
-                  "absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-yellow-400 to-yellow-600 transition-all duration-300 ease-out",
-                  pathname === link.href ? "w-full" : "w-0 group-hover:w-full"
-                )} />
-                {/* Subtle background glow on hover */}
-                <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/10 to-yellow-600/10 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                {/* Ripple effect */}
-                <div className="absolute inset-0 rounded-md bg-gradient-to-r from-yellow-400/30 to-yellow-600/30 scale-0 group-hover:scale-110 opacity-0 group-hover:opacity-100 transition-all duration-500 ease-out" />
-                {/* Shimmer effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
+
+        <nav className="hidden items-center gap-1 lg:flex" aria-label="Primary">
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={cn(
+                "relative px-3 py-2 text-sm font-medium transition-colors hover:text-foreground",
+                "after:absolute after:inset-x-3 after:-bottom-px after:h-0.5 after:bg-gold after:transition-transform after:duration-200 after:content-['']",
+                isActive(link.href)
+                  ? "text-foreground after:scale-x-100"
+                  : "text-foreground/65 after:origin-left after:scale-x-0 hover:after:scale-x-100"
+              )}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+
+        <div className="hidden items-center gap-2 lg:flex">
+          {!loading && user && portalHref ? (
+            <Button asChild variant="outline" size="sm">
+              <Link href={portalHref}>
+                <PortalIcon className="h-4 w-4" />
+                {portalLabel}
               </Link>
-            ))}
-             {!loading && user && canAccessAdmin && (
-                <Link 
-                  href="/admin" 
-                  className={cn(
-                    "relative px-3 py-2 transition-all duration-300 ease-in-out hover:scale-105 hover:text-foreground group overflow-hidden",
-                    pathname.startsWith("/admin") ? "text-foreground" : "text-foreground/60"
-                  )}
-                >
-                  <span className="relative z-10">Admin</span>
-                  {/* Animated underline */}
-                  <div className={cn(
-                    "absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-yellow-400 to-yellow-600 transition-all duration-300 ease-out",
-                    pathname.startsWith("/admin") ? "w-full" : "w-0 group-hover:w-full"
-                  )} />
-                  {/* Subtle background glow on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/10 to-yellow-600/10 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  {/* Ripple effect */}
-                  <div className="absolute inset-0 rounded-md bg-gradient-to-r from-yellow-400/30 to-yellow-600/30 scale-0 group-hover:scale-110 opacity-0 group-hover:opacity-100 transition-all duration-500 ease-out" />
-                  {/* Shimmer effect */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
-                </Link>
-            )}
-          </nav>
-          {!loading && (
-            user ? (
-              <Button onClick={handleLogout} variant="outline" size="sm">
-                <LogOut className="mr-2 h-4 w-4" />
-                Logout
-              </Button>
-            ) : (
-              <Button asChild size="sm">
-                <Link href="/login">Login</Link>
+            </Button>
+          ) : (
+            !loading && (
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/login">Member Login</Link>
               </Button>
             )
           )}
+          <Button asChild size="sm" className="bg-gold text-ink hover:bg-gold/90">
+            <Link href={donateHref}>
+              <Heart className="h-4 w-4" />
+              Donate
+            </Link>
+          </Button>
         </div>
 
         <div className="lg:hidden">
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" aria-label="Open menu">
                 <Menu className="h-6 w-6" />
-                <span className="sr-only">Toggle Menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-[300px] sm:w-[400px] bg-background p-0">
+            <SheetContent side="right" className="flex w-[300px] flex-col bg-background p-0 sm:w-[360px]">
               <SheetTitle className="sr-only">Menu</SheetTitle>
-              <SheetDescription className="sr-only">A list of links to navigate the site.</SheetDescription>
-              <div className="flex flex-col h-full">
-                <div className="flex items-center justify-between p-4 border-b">
-                  <Link href="/" className="flex items-center space-x-2" onClick={() => setIsOpen(false)}>
-                    <Image src={logoUrl} alt="NPHC Solano Logo" width={80} height={80} />
-                    <span className="font-bold font-headline text-lg">NPHC Solano</span>
+              <SheetDescription className="sr-only">Site navigation</SheetDescription>
+              <div className="flex items-center gap-3 border-b border-border p-4">
+                <Image src={LOGO_URL} alt="" width={40} height={40} className="h-10 w-10 object-contain" />
+                <div className="leading-tight">
+                  <p className="font-headline font-bold">NPHC Solano County</p>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">Nine Legacies · One Council</p>
+                </div>
+              </div>
+              <nav className="flex flex-1 flex-col p-2" aria-label="Mobile">
+                <Link
+                  href="/"
+                  onClick={() => setIsOpen(false)}
+                  className={cn("rounded-md px-3 py-3 text-base font-medium", pathname === "/" ? "bg-secondary" : "hover:bg-secondary")}
+                >
+                  Home
+                </Link>
+                {NAV_LINKS.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setIsOpen(false)}
+                    className={cn("rounded-md px-3 py-3 text-base font-medium", isActive(link.href) ? "bg-secondary" : "hover:bg-secondary")}
+                  >
+                    {link.label}
                   </Link>
-                </div>
-                <nav className="flex flex-col items-start space-y-1 p-4">
-                  {navLinks.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      onClick={() => setIsOpen(false)}
-                      className={cn(
-                        "relative text-lg font-medium transition-all duration-300 ease-in-out hover:translate-x-2 hover:text-primary rounded-md px-3 py-2 w-full group overflow-hidden",
-                        pathname === link.href && "bg-muted"
-                      )}
-                    >
-                      <span className="relative z-10">{link.label}</span>
-                      {/* Sliding background effect */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 to-yellow-600/20 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300 ease-out" />
-                      {/* Left border accent */}
-                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-yellow-400 to-yellow-600 transform scale-y-0 group-hover:scale-y-100 transition-transform duration-300 ease-out origin-center" />
-                      {/* Pulse effect */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/40 to-yellow-600/40 rounded-md transform scale-95 opacity-0 group-hover:scale-105 group-hover:opacity-100 transition-all duration-400 ease-out" />
-                      {/* Diagonal sweep */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/10 to-transparent transform -translate-x-full -translate-y-full group-hover:translate-x-full group-hover:translate-y-0 transition-transform duration-600 ease-in-out" />
+                ))}
+              </nav>
+              <div className="flex flex-col gap-2 border-t border-border p-4">
+                <Button asChild className="bg-gold text-ink hover:bg-gold/90">
+                  <Link href={donateHref} onClick={() => setIsOpen(false)}>
+                    <Heart className="h-4 w-4" />
+                    Donate
+                  </Link>
+                </Button>
+                {!loading && user && portalHref ? (
+                  <Button asChild variant="outline">
+                    <Link href={portalHref} onClick={() => setIsOpen(false)}>
+                      <PortalIcon className="h-4 w-4" />
+                      {portalLabel}
                     </Link>
-                  ))}
-                  
-                  {!loading && user && canAccessAdmin && (
-                     <Link
-                      href="/admin"
-                      onClick={() => setIsOpen(false)}
-                      className={cn(
-                        "relative text-lg font-medium transition-all duration-300 ease-in-out hover:translate-x-2 hover:text-primary rounded-md px-3 py-2 w-full group overflow-hidden",
-                        pathname.startsWith("/admin") && "bg-muted"
-                      )}
-                    >
-                      <span className="relative z-10">Admin</span>
-                      {/* Sliding background effect */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 to-yellow-600/20 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300 ease-out" />
-                      {/* Left border accent */}
-                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-yellow-400 to-yellow-600 transform scale-y-0 group-hover:scale-y-100 transition-transform duration-300 ease-out origin-center" />
-                      {/* Pulse effect */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/40 to-yellow-600/40 rounded-md transform scale-95 opacity-0 group-hover:scale-105 group-hover:opacity-100 transition-all duration-400 ease-out" />
-                      {/* Diagonal sweep */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/10 to-transparent transform -translate-x-full -translate-y-full group-hover:translate-x-full group-hover:translate-y-0 transition-transform duration-600 ease-in-out" />
-                    </Link>
-                  )}
-                </nav>
-                <div className="mt-auto p-4 border-t">
-                  {!loading && (
-                    user ? (
-                      <Button onClick={handleLogout} className="w-full">
-                        <LogOut className="mr-2 h-4 w-4" />
-                        Logout
-                      </Button>
-                    ) : (
-                      <Button asChild className="w-full">
-                        <Link href="/login">Login</Link>
-                      </Button>
-                    )
-                  )}
-                </div>
+                  </Button>
+                ) : (
+                  <Button asChild variant="outline">
+                    <Link href="/login" onClick={() => setIsOpen(false)}>Member Login</Link>
+                  </Button>
+                )}
               </div>
             </SheetContent>
           </Sheet>

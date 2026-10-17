@@ -42,6 +42,12 @@ const formSchema = z.object({
   twitterUrl: optionalHttpsUrl,
   donationUrl: optionalHttpsUrl,
   footerText: z.string().trim().max(300, "Footer text is too long."),
+  meetingCadence: z.string().trim().max(160, "Keep the meeting line under 160 characters."),
+  yearChartered: z.string().trim().regex(/^(\d{4})?$/, "Enter a four-digit year."),
+  statChapters: z.string().trim().max(20),
+  statScholarships: z.string().trim().max(20),
+  statServiceHours: z.string().trim().max(20),
+  statMembers: z.string().trim().max(20),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -55,6 +61,12 @@ const emptyValues: FormValues = {
   twitterUrl: "",
   donationUrl: "",
   footerText: "",
+  meetingCadence: "",
+  yearChartered: "",
+  statChapters: "",
+  statScholarships: "",
+  statServiceHours: "",
+  statMembers: "",
 };
 
 export default function SiteSettingsPage() {
@@ -191,6 +203,92 @@ export default function SiteSettingsPage() {
                   </FormItem>
                 )}
               />
+          </SettingsSection>
+
+          <SettingsSection
+            title="Council facts"
+            description="Shown in the footer and the homepage stats bar. Leave a number blank to hide that stat."
+          >
+              <FormField
+                control={form.control}
+                name="yearChartered"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Year chartered</FormLabel>
+                    <FormControl>
+                      <Input placeholder="1998" inputMode="numeric" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="meetingCadence"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Meeting cadence</FormLabel>
+                    <FormControl>
+                      <Input placeholder="General body meets the second Thursday of each month." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="grid gap-4 sm:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="statChapters"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Chapters represented</FormLabel>
+                      <FormControl>
+                        <Input placeholder="12" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="statMembers"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Active members</FormLabel>
+                      <FormControl>
+                        <Input placeholder="200+" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="statScholarships"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Scholarship dollars awarded</FormLabel>
+                      <FormControl>
+                        <Input placeholder="$25,000" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="statServiceHours"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Service hours this year</FormLabel>
+                      <FormControl>
+                        <Input placeholder="1,500" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
           </SettingsSection>
 
           <SettingsSection

@@ -1,366 +1,329 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ArrowRight, Calendar, MapPin, Mail, Heart, HandHeart, GraduationCap, Vote, Landmark, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, Calendar, Clock, MapPin, Terminal, Mail, Heart } from "lucide-react";
 import { getEvents, getAnnouncements, getBoardMembers, getDivineNine } from "@/lib/data";
-import { type DivineNineOrganization } from "@/lib/definitions";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { getSiteContent } from "@/lib/site-content";
+import { getSiteSettings } from "@/lib/site-settings";
 import { sanitizeHtml } from "@/lib/sanitizer";
+import { pickSpotlightEvent, upcomingEvents, splitDate } from "@/lib/events";
+import { getDivineNineBrand } from "@/lib/divine-nine-brand";
+import { SectionHeading } from "@/components/site/section-heading";
+import { StatsBar, statsFromSettings } from "@/components/site/stats-bar";
+import { EventSpotlight } from "@/components/site/event-spotlight";
+
+const PILLARS = [
+  { icon: HandHeart, title: "Community Service", text: "Food drives, back-to-school events, and hands-on service across Solano County." },
+  { icon: GraduationCap, title: "Educational Advancement", text: "Scholarships, mentoring, and college readiness for local students." },
+  { icon: Vote, title: "Civic Engagement", text: "Voter registration, candidate forums, and a seat at the table for our community." },
+  { icon: Landmark, title: "Cultural Preservation", text: "Honoring the history of the Divine Nine and Black excellence in our region." },
+  { icon: Users, title: "Leadership Development", text: "Training the next generation of chapter and community leaders." },
+];
 
 export default async function Home() {
-  const content = await getSiteContent([
-    'home.hero.headline',
-    'home.hero.tagline',
-    'home.hero.image',
-    'home.president.message',
-    'home.mission',
+  const [content, settings, allEvents, { announcements }, { boardMembers }, organizations] = await Promise.all([
+    getSiteContent(["home.hero.headline", "home.hero.tagline", "home.hero.image", "home.president.message", "home.mission"]),
+    getSiteSettings(),
+    getEvents(),
+    getAnnouncements(),
+    getBoardMembers(),
+    getDivineNine(),
   ]);
-  const events = (await getEvents()).slice(0, 2);
-  const { announcements, error: announcementsError } = await getAnnouncements();
-  const latestAnnouncements = announcements.slice(0, 3);
-  const { boardMembers } = await getBoardMembers();
-  const president = boardMembers.find(member => member.title.toLowerCase() === 'president');
-  const organizations: DivineNineOrganization[] = await getDivineNine();
+
+  const spotlight = pickSpotlightEvent(allEvents);
+  const moreUpcoming = upcomingEvents(allEvents)
+    .filter((e) => e.id !== spotlight?.id)
+    .slice(0, 3);
+  const latestNews = announcements.slice(0, 3);
+  const president = boardMembers.find((m) => m.title.toLowerCase() === "president");
+  const stats = statsFromSettings(settings);
+  const donateHref = settings.donationUrl || "/donations";
 
   return (
     <div className="flex flex-col">
-      <section className="relative h-[60vh] min-h-[400px] w-full flex items-center justify-center text-center text-white overflow-hidden">
-        {/* Background Image */}
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-ink text-ivory">
         <div className="absolute inset-0">
           <Image
-            src={content['home.hero.image']}
-            alt="NPHC Solano County Community"
+            src={content["home.hero.image"]}
+            alt=""
             fill
-            className="object-cover object-center"
             priority
             sizes="100vw"
+            className="object-cover object-center"
           />
+          <div className="absolute inset-0 bg-ink/70" />
+          <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/70 to-transparent" />
         </div>
-        <div className="absolute inset-0 bg-black/60 z-10" />
-        <div className="z-20 p-4 relative w-full">
-          <h1 className="text-4xl md:text-6xl font-headline font-bold mb-4 tracking-tight animate-fade-in-up">{content['home.hero.headline']}</h1>
-          <p className="max-w-2xl mx-auto text-lg md:text-xl text-primary-foreground/90 animate-fade-in-up animation-delay-200">
-            {content['home.hero.tagline']}
-          </p>
-        </div>
-      </section>
-
-      {/* President's Message Section */}
-      <section className="py-16 md:py-24 bg-gradient-to-r from-blue-50 to-indigo-100">
-        <div className="container">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-headline font-bold mb-2">A Message from Our President</h2>
-              <div className="mx-auto mb-4 h-1 w-24 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600" />
+        <div className="container relative py-20 md:py-28 lg:py-36">
+          <div className="max-w-3xl">
+            <p className="eyebrow mb-5 animate-fade-in-up">National Pan-Hellenic Council · Solano County</p>
+            <h1 className="animate-fade-in-up font-headline text-4xl font-bold leading-[1.05] [text-wrap:balance] md:text-6xl lg:text-7xl">
+              {content["home.hero.headline"]}
+            </h1>
+            <p className="mt-6 max-w-xl animate-fade-in-up text-lg leading-relaxed text-ivory/80 animation-delay-200 md:text-xl">
+              {content["home.hero.tagline"]}
+            </p>
+            <div className="mt-9 flex flex-wrap gap-3 animate-fade-in-up animation-delay-400">
+              <Button asChild size="lg" className="bg-gold text-ink hover:bg-gold/90">
+                <Link href={spotlight ? `/events/${spotlight.slug}` : "/events"}>
+                  {spotlight ? "Join our next event" : "See upcoming events"}
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="border-ivory/30 bg-transparent text-ivory hover:bg-ivory/10 hover:text-ivory">
+                <Link href="/organizations">Meet the chapters</Link>
+              </Button>
             </div>
-            
-            <Card className="overflow-hidden shadow-xl border-0 bg-white/80 backdrop-blur-sm">
-              <CardContent className="p-0">
-                <div className="grid md:grid-cols-2 gap-0">
-                  {/* Image Section */}
-                  <div className="relative h-64 md:h-auto overflow-hidden">
-                    {president ? (
-                      <div className="relative w-full h-full">
-                        <Image
-                          src={president.image}
-                          alt={president.name}
-                          fill
-                          className="object-cover"
-                          data-ai-hint={president.hint}
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                        <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                          <h3 className="text-xl font-semibold mb-1">{president.name}</h3>
-                          <p className="text-white/90">{president.title}</p>
-                          <p className="text-white/70 text-sm">NPHC Solano County</p>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="relative h-full bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center">
-                        <div className="text-center text-white p-8">
-                          <div className="w-32 h-32 mx-auto mb-4 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-                            <span className="text-4xl font-bold">PB</span>
-                          </div>
-                          <h3 className="text-xl font-semibold mb-2">President</h3>
-                          <p className="text-blue-100">NPHC Solano County</p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* Message Section */}
-                  <div className="p-8 md:p-12">
-                    <blockquote
-                      className="text-lg text-gray-700 leading-relaxed mb-6 space-y-4"
-                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(content['home.president.message']) }}
-                    />
-                    
-                    <div className="flex items-center gap-4">
-                      <div className="h-px bg-gradient-to-r from-yellow-400 to-yellow-600 flex-1"></div>
-                      <span className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Unity • Service • Excellence</span>
-                      <div className="h-px bg-gradient-to-r from-yellow-400 to-yellow-600 flex-1"></div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </section>
 
-      <section className="py-16 md:py-24 bg-yellow-190">
-        <div className="container">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl font-headline font-bold mb-2">Our Mission</h2>
-            <div className="mx-auto mb-4 h-1 w-24 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600" />
-            <div
-              className="text-muted-foreground text-lg space-y-4"
-              dangerouslySetInnerHTML={{ __html: sanitizeHtml(content['home.mission']) }}
-            />
-          </div>
-        </div>
-      </section>
+      <StatsBar stats={stats} />
 
-      <section className="py-16 md:py-24 bg-muted">
+      {/* Spotlight + pillars */}
+      <section className="py-16 md:py-24">
         <div className="container">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-headline font-bold mb-2">Latest News</h2>
-            <div className="mx-auto mb-4 h-1 w-24 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600" />
-            <p className="text-muted-foreground mt-2">The latest updates from our council and member chapters.</p>
-          </div>
-          
-          {announcementsError ? (
-            <Alert variant="destructive" className="max-w-xl mx-auto">
-              <Terminal className="h-4 w-4" />
-              <AlertTitle>Error Loading Announcements</AlertTitle>
-              <AlertDescription>
-                Could not fetch announcements from the database. This may be due to a configuration issue.
-              </AlertDescription>
-            </Alert>
-          ) : latestAnnouncements.length > 0 ? (
-            <>
-              <div className="grid gap-8 md:grid-cols-3">
-                {latestAnnouncements.map((item) => (
-                  <Card key={item.id} className="flex flex-col transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-2">
-                    <CardHeader>
-                      <CardTitle className="text-xl font-headline">
-                         <Link href={`/news/${item.id}`} className="hover:underline">{item.title}</Link>
-                      </CardTitle>
-                      <CardDescription>{item.date}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="flex-grow">
-                      <p className="line-clamp-4 text-muted-foreground">{item.description}</p>
-                    </CardContent>
-                    <CardFooter>
-                       <Button asChild variant="link" className="p-0 h-auto font-semibold">
-                         <Link href={`/news/${item.id}`}>Read More <ArrowRight className="ml-2 h-4 w-4" /></Link>
-                       </Button>
-                    </CardFooter>
-                  </Card>
-                ))}
-              </div>
-              <div className="text-center mt-12">
-                <Button asChild className="transition-transform duration-300 ease-in-out hover:scale-105">
-                  <Link href="/news">View All News <ArrowRight className="ml-2 h-4 w-4" /></Link>
+          {spotlight ? (
+            <div className="grid gap-10 lg:grid-cols-[1.4fr_1fr] lg:gap-14">
+              <EventSpotlight event={spotlight} />
+              <div>
+                <SectionHeading eyebrow="Also on the calendar" title="More from the chapters" className="mb-6" />
+                {moreUpcoming.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">More events are being scheduled. Check back soon.</p>
+                ) : (
+                  <ul className="divide-y divide-border border-y border-border">
+                    {moreUpcoming.map((event) => {
+                      const { month, day } = splitDate(event);
+                      const brand = getDivineNineBrand(event.hostOrganization);
+                      return (
+                        <li key={event.id}>
+                          <Link href={`/events/${event.slug}`} className="group flex items-center gap-4 py-4">
+                            <div className="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-md border border-border bg-card">
+                              <span className="text-[10px] font-semibold uppercase leading-none tracking-[0.14em] text-gold">{month}</span>
+                              <span className="mt-0.5 font-headline text-lg font-bold leading-none">{day}</span>
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="truncate font-semibold group-hover:underline underline-offset-4">{event.title}</p>
+                              <p className="truncate text-sm text-muted-foreground">
+                                {brand ? `${brand.shortName} · ` : ""}
+                                {event.time}
+                                {event.location ? ` · ${event.location}` : ""}
+                              </p>
+                            </div>
+                            <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+                <Button asChild variant="link" className="mt-4 h-auto p-0 font-semibold">
+                  <Link href="/events">
+                    Full calendar <ArrowRight className="h-4 w-4" />
+                  </Link>
                 </Button>
               </div>
-            </>
+            </div>
           ) : (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">There are no announcements at this time.</p>
+            <div className="rounded-lg border border-dashed border-border p-10 text-center">
+              <Calendar className="mx-auto h-8 w-8 text-gold" />
+              <p className="mt-3 font-semibold">No upcoming events yet</p>
+              <p className="mt-1 text-sm text-muted-foreground">Join the mailing list and we will let you know when the next one is posted.</p>
             </div>
           )}
         </div>
       </section>
 
-      <section className="py-16 md:py-24 bg-background">
+      {/* Pillars */}
+      <section className="bg-ink py-16 text-ivory md:py-24">
         <div className="container">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-headline font-bold mb-2">Upcoming Events</h2>
-            <div className="mx-auto mb-4 h-1 w-24 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600" />
-            <p className="text-muted-foreground mt-2">Join us at our next community event.</p>
-          </div>
-          <div className="grid gap-8 md:grid-cols-2">
-            {events.map((event, index) => (
-              <Card key={index} className="overflow-hidden transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-2">
-                <div className="w-full h-80 bg-muted relative">
-                  <Image src={event.image} alt={event.title} fill className="p-4 object-contain" data-ai-hint={event.image_hint} />
-                </div>
-                <CardHeader>
-                  <CardTitle className="text-xl font-headline">{event.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center text-sm text-muted-foreground mb-2">
-                    <Calendar className="mr-2 h-4 w-4" />
-                    <span>{event.date}</span>
-                  </div>
-                  <div className="flex items-center text-sm text-muted-foreground mb-2">
-                    <Clock className="mr-2 h-4 w-4" />
-                    <span>{event.time}</span>
-                  </div>
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <MapPin className="mr-2 h-4 w-4" />
-                    <span>{event.location}</span>
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button asChild variant="outline">
-                    <Link href={`/events/${event.slug}`}>Learn More</Link>
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-          <div className="text-center mt-12">
-            <Button asChild className="transition-transform duration-300 ease-in-out hover:scale-105">
-              <Link href="/events">View All Events <ArrowRight className="ml-2 h-4 w-4" /></Link>
+          <SectionHeading
+            tone="inverse"
+            eyebrow="What we do"
+            title="Five commitments, nine organizations, one county."
+            lede="Every NPHC council organizes its work around the same five focus areas. Here is what they look like in Solano."
+          />
+          <ul className="grid gap-px overflow-hidden rounded-lg border border-ivory/10 bg-ivory/10 sm:grid-cols-2 lg:grid-cols-5">
+            {PILLARS.map((p) => {
+              const Icon = p.icon;
+              return (
+                <li key={p.title} className="bg-ink p-6">
+                  <Icon className="h-6 w-6 text-gold" />
+                  <h3 className="mt-5 font-headline text-lg font-bold leading-snug">{p.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-ivory/65">{p.text}</p>
+                </li>
+              );
+            })}
+          </ul>
+          <div className="mt-8">
+            <Button asChild variant="outline" className="border-ivory/30 bg-transparent text-ivory hover:bg-ivory/10 hover:text-ivory">
+              <Link href="/programs">
+                See our programs <ArrowRight className="h-4 w-4" />
+              </Link>
             </Button>
           </div>
         </div>
       </section>
 
-      <section className="py-16 md:py-24 relative overflow-hidden">
-        {/* Subtle gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-blue-50/50 to-purple-50/30" />
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-blue-200/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-1/4 w-80 h-80 bg-purple-200/20 rounded-full blur-3xl" />
-        
-        <div className="container relative z-10">
-          <div className="text-center mb-12" suppressHydrationWarning>
-            <h2 className="text-3xl font-headline font-bold mb-2">The Divine Nine</h2>
-            <div className="mx-auto mb-4 h-1 w-24 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600" />
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Nine historically Black Greek-letter organizations united in service, scholarship, and sisterhood/brotherhood.
-            </p>
+      {/* President's message */}
+      <section className="py-16 md:py-24">
+        <div className="container grid items-center gap-10 md:grid-cols-12">
+          <div className="md:col-span-5 lg:col-span-4">
+            <div className="relative aspect-[4/5] overflow-hidden rounded-lg bg-secondary">
+              {president ? (
+                <Image src={president.image} alt={president.name} fill className="object-cover" sizes="(min-width: 768px) 33vw, 100vw" />
+              ) : (
+                <div className="flex h-full items-center justify-center font-headline text-5xl text-muted-foreground">NPHC</div>
+              )}
+            </div>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-x-6 gap-y-12 items-start justify-center">
-            {organizations.map((org, index) => (
-              <div key={org.name} className="flex flex-col items-center text-center group">
-                  <div className="relative">
-                    {/* Subtle colored background that appears on hover */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-100/0 to-purple-100/0 group-hover:from-blue-100/60 group-hover:to-purple-100/60 rounded-2xl transition-all duration-500 ease-in-out transform group-hover:scale-110" />
-                    <div className="relative flex items-center justify-center h-32 p-4 transition-transform duration-300 ease-in-out group-hover:-translate-y-2">
-                      <Image src={org.logo} alt={`${org.name} logo`} width={200} height={200} className="h-28 w-28 object-contain transition-transform duration-300 group-hover:scale-105" data-ai-hint={org.hint} />
-                    </div>
-                  </div>
-                  <p className="mt-4 font-semibold text-sm h-10 group-hover:text-primary transition-colors duration-300">{org.name}</p>
-                </div>
+          <div className="md:col-span-7 lg:col-span-7 lg:col-start-6">
+            <p className="eyebrow mb-4">From the president</p>
+            <blockquote
+              className="font-headline text-2xl leading-snug md:text-3xl [&_p]:mb-4 [&_p:last-child]:mb-0"
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(content["home.president.message"]) }}
+            />
+            {president && (
+              <p className="mt-6 text-sm">
+                <span className="font-semibold">{president.name}</span>
+                <span className="text-muted-foreground"> · {president.title}, NPHC of Solano County</span>
+              </p>
+            )}
+            <Button asChild variant="link" className="mt-4 h-auto p-0 font-semibold">
+              <Link href="/about">
+                Meet the executive board <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Mission */}
+      <section className="border-y border-border bg-card py-14 md:py-20">
+        <div className="container grid gap-8 md:grid-cols-12">
+          <div className="md:col-span-4">
+            <p className="eyebrow mb-3">Our mission</p>
+            <div className="gold-rule" />
+          </div>
+          <div
+            className="text-lg leading-relaxed text-foreground/85 md:col-span-8 [&_p]:mb-4 [&_p:last-child]:mb-0"
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(content["home.mission"]) }}
+          />
+        </div>
+      </section>
+
+      {/* Divine Nine */}
+      <section className="py-16 md:py-24">
+        <div className="container">
+          <SectionHeading
+            eyebrow="The Divine Nine"
+            title="Nine organizations. One council."
+            lede="Each chapter brings its own traditions and programs. Together they are the NPHC of Solano County."
+            action={
+              <Button asChild variant="outline">
+                <Link href="/organizations">
+                  Meet the chapters <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            }
+          />
+          <ul className="grid grid-cols-3 gap-3 sm:grid-cols-5 lg:grid-cols-9">
+            {organizations.map((org) => {
+              const brand = getDivineNineBrand(org.name);
+              return (
+                <li key={org.id}>
+                  <Link
+                    href="/organizations"
+                    className="group flex flex-col items-center gap-3 rounded-md border border-border bg-card p-4 transition-colors hover:border-gold"
+                    title={org.name}
+                  >
+                    <span className="h-1 w-full rounded-full" style={{ background: brand?.colors[0] ?? "hsl(var(--brand-gold))" }} aria-hidden />
+                    <Image src={org.logo} alt={org.name} width={120} height={120} className="h-16 w-16 object-contain" />
+                    <span className="text-center font-headline text-sm font-bold leading-tight">{brand?.letters ?? org.name}</span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </section>
+
+      {/* News */}
+      {latestNews.length > 0 && (
+        <section className="border-t border-border py-16 md:py-24">
+          <div className="container">
+            <SectionHeading
+              eyebrow="News"
+              title="The latest from the council"
+              action={
+                <Button asChild variant="outline">
+                  <Link href="/news">
+                    All news <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              }
+            />
+            <div className="grid gap-8 md:grid-cols-3">
+              {latestNews.map((item) => (
+                <article key={item.id} className="flex flex-col border-t-2 border-ink pt-5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">{item.date}</p>
+                  <h3 className="mt-3 font-headline text-xl font-bold leading-snug">
+                    <Link href={`/news/${item.id}`} className="hover:underline underline-offset-4">
+                      {item.title}
+                    </Link>
+                  </h3>
+                  <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-muted-foreground">{item.description}</p>
+                  <Link href={`/news/${item.id}`} className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-gold hover:underline underline-offset-4">
+                    Read more <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                </article>
               ))}
             </div>
-          <div className="text-center mt-12">
-            <Button asChild className="transition-all duration-300 ease-in-out hover:scale-105 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl">
-              <Link href="/organizations">Meet The Chapters <ArrowRight className="ml-2 h-4 w-4" /></Link>
-            </Button>
           </div>
+        </section>
+      )}
+
+      {/* Support */}
+      <section className="bg-gold-soft py-16 md:py-24">
+        <div className="container">
+          <SectionHeading
+            align="center"
+            eyebrow="Get involved"
+            title="Stay connected. Support the work."
+            lede="Join the list for event announcements and scholarship deadlines, or give to the programs that serve Solano County."
+          />
+          <div className="mx-auto grid max-w-3xl gap-4 sm:grid-cols-2">
+            <Link href="/mailing-list" className="group flex items-start gap-4 rounded-lg border border-border bg-card p-6 transition-colors hover:border-gold">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-ink text-gold">
+                <Mail className="h-5 w-5" />
+              </span>
+              <span>
+                <span className="block font-headline text-lg font-bold">Join the mailing list</span>
+                <span className="mt-1 block text-sm text-muted-foreground">Events, news, and scholarship opportunities. A few emails a month.</span>
+              </span>
+            </Link>
+            <a
+              href={donateHref}
+              target={settings.donationUrl ? "_blank" : undefined}
+              rel={settings.donationUrl ? "noopener noreferrer" : undefined}
+              className="group flex items-start gap-4 rounded-lg border border-border bg-card p-6 transition-colors hover:border-gold"
+            >
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-ink text-gold">
+                <Heart className="h-5 w-5" />
+              </span>
+              <span>
+                <span className="block font-headline text-lg font-bold">Make a gift</span>
+                <span className="mt-1 block text-sm text-muted-foreground">Fund scholarships, youth programs, and community outreach.</span>
+              </span>
+            </a>
+          </div>
+          <p className="mt-8 flex items-center justify-center gap-2 text-center text-sm text-muted-foreground">
+            <MapPin className="h-4 w-4 text-gold" />
+            Serving Vallejo, Fairfield, Vacaville, Benicia, Suisun City, Dixon, and Rio Vista.
+          </p>
         </div>
       </section>
-
-      {/* CTA Section */}
-      <section className="py-16 md:py-24 bg-gradient-to-br from-purple-600 via-blue-600 to-teal-500 relative overflow-hidden">
-        {/* Animated background elements */}
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 via-transparent to-teal-500/20" />
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-yellow-400/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-pink-500/10 rounded-full blur-3xl animate-pulse animation-delay-1000" />
-        
-        <div className="container relative z-10">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-headline font-bold mb-2 text-white">Stay Connected & Support Our Mission</h2>
-            <div className="mx-auto mb-4 h-1 w-24 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600" />
-            <p className="text-white/90 text-lg max-w-2xl mx-auto">
-              Join our community and help us continue making a positive impact in Solano County.
-            </p>
-          </div>
-          
-          {/* Hidden for live deployment - available on development branch */}
-          {/* <div className="grid gap-8 md:grid-cols-2 max-w-4xl mx-auto">
-            <Card className="relative overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-3 border-0 bg-white/95 backdrop-blur-sm">
-              <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/20 via-blue-500/20 to-indigo-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-full opacity-10 group-hover:opacity-20 transition-opacity duration-300" />
-              <CardHeader className="relative z-10">
-                <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full text-white shadow-lg group-hover:shadow-cyan-500/25 transition-shadow duration-300">
-                  <Mail className="h-8 w-8" />
-                </div>
-                <CardTitle className="text-2xl font-headline text-center bg-gradient-to-r from-cyan-600 to-blue-700 bg-clip-text text-transparent">Join Our Mailing List</CardTitle>
-                <CardDescription className="text-center text-base text-gray-600">
-                  Stay updated with the latest events, news, and community initiatives from NPHC Solano County.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="relative z-10 text-center">
-                <ul className="text-sm text-gray-600 space-y-2 mb-6">
-                  <li className="flex items-center justify-center gap-2">
-                    <span className="text-cyan-500 font-bold">✓</span> Event announcements and updates
-                  </li>
-                  <li className="flex items-center justify-center gap-2">
-                    <span className="text-cyan-500 font-bold">✓</span> Community news and achievements
-                  </li>
-                  <li className="flex items-center justify-center gap-2">
-                    <span className="text-cyan-500 font-bold">✓</span> Scholarship opportunities
-                  </li>
-                  <li className="flex items-center justify-center gap-2">
-                    <span className="text-cyan-500 font-bold">✓</span> Volunteer opportunities
-                  </li>
-                </ul>
-              </CardContent>
-              <CardFooter className="relative z-10 flex justify-center">
-                <Button asChild className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 transition-all duration-300 ease-in-out hover:scale-105 shadow-lg hover:shadow-cyan-500/25 text-white font-semibold">
-                  <Link href="/mailing-list">
-                    <Mail className="mr-2 h-4 w-4" />
-                    Subscribe Now
-                  </Link>
-                </Button>
-              </CardFooter>
-            </Card>
-
-            <Card className="relative overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-3 border-0 bg-white/95 backdrop-blur-sm">
-              <div className="absolute inset-0 bg-gradient-to-br from-pink-400/20 via-red-500/20 to-orange-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="absolute -top-20 -left-20 w-40 h-40 bg-gradient-to-br from-pink-400 to-red-600 rounded-full opacity-10 group-hover:opacity-20 transition-opacity duration-300" />
-              <CardHeader className="relative z-10">
-                <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-pink-500 to-red-600 rounded-full text-white shadow-lg group-hover:shadow-pink-500/25 transition-shadow duration-300">
-                  <Heart className="h-8 w-8" />
-                </div>
-                <CardTitle className="text-2xl font-headline text-center bg-gradient-to-r from-pink-600 to-red-700 bg-clip-text text-transparent">Support Our Community</CardTitle>
-                <CardDescription className="text-center text-base text-gray-600">
-                  Your generous donations help us continue our mission of service, scholarship, and unity.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="relative z-10 text-center">
-                <ul className="text-sm text-gray-600 space-y-2 mb-6">
-                  <li className="flex items-center justify-center gap-2">
-                    <span className="text-pink-500 font-bold">✓</span> Fund youth mentorship programs
-                  </li>
-                  <li className="flex items-center justify-center gap-2">
-                    <span className="text-pink-500 font-bold">✓</span> Support educational scholarships
-                  </li>
-                  <li className="flex items-center justify-center gap-2">
-                    <span className="text-pink-500 font-bold">✓</span> Enable community outreach events
-                  </li>
-                  <li className="flex items-center justify-center gap-2">
-                    <span className="text-pink-500 font-bold">✓</span> Strengthen our local chapters
-                  </li>
-                </ul>
-              </CardContent>
-              <CardFooter className="relative z-10 flex justify-center">
-                <Button asChild className="w-full bg-gradient-to-r from-pink-500 to-red-600 hover:from-pink-600 hover:to-red-700 transition-all duration-300 ease-in-out hover:scale-105 shadow-lg hover:shadow-pink-500/25 text-white font-semibold">
-                  <Link href="/donations">
-                    <Heart className="mr-2 h-4 w-4" />
-                    Donate Today
-                  </Link>
-                </Button>
-              </CardFooter>
-            </Card>
-          </div> */}
-
-          {/* Bottom text */}
-          <div className="text-center mt-12">
-            <p className="text-sm text-white/80 max-w-xl mx-auto">
-              Together, we can continue building a stronger, more unified community throughout Solano County.
-            </p>
-          </div>
-        </div>
-      </section>
-
     </div>
   );
 }

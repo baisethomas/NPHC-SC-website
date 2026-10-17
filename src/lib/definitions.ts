@@ -19,6 +19,10 @@ export interface Event {
   externalLink?: string;
   maxAttendees?: number;
   currentAttendees?: number;
+  /** Short name of the Divine Nine organization hosting the event, if any. */
+  hostOrganization?: string;
+  /** Admin flag: feature this event in the homepage countdown. */
+  featured?: boolean;
 }
 
 export interface EventRSVP {
