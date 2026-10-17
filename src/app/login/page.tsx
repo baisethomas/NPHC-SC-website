@@ -75,9 +75,10 @@ export default function LoginPage() {
             sizes="50vw"
           />
         </div>
-        <div className="absolute inset-0 bg-black/60 z-10" />
+        <div className="absolute inset-0 bg-ink/75 z-10" />
         
         <div className="relative z-20 max-w-lg text-center">
+          <p className="eyebrow mb-4">Member portal</p>
           <h1 className="text-4xl lg:text-5xl font-headline font-bold mb-4 tracking-tight">NPHC of Solano County</h1>
           <p className="text-lg text-white/90">
             Fostering brotherhood and sisterhood, scholarship, and service within the Solano County community.
@@ -85,7 +86,7 @@ export default function LoginPage() {
         </div>
         
         {/* Subtle accent line at the bottom */}
-        <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gradient-to-r from-yellow-400 to-yellow-600 z-20" />
+        <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gold z-20" />
       </div>
 
       {/* Right side panel with form */}
@@ -109,12 +110,12 @@ export default function LoginPage() {
         <div className="mx-auto w-full max-w-sm mt-12 lg:mt-0">
           <Card className="border-0 shadow-none bg-transparent lg:shadow-xl lg:border lg:bg-white lg:rounded-2xl lg:p-2">
             <CardHeader className="space-y-4 lg:mb-2 items-center text-center pb-6">
-              <div className="lg:hidden mx-auto h-1 w-16 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 mb-2 mt-4" />
+              <div className="lg:hidden mx-auto h-1 w-16 rounded-full bg-gold mb-2 mt-4" />
               <div className="space-y-2">
                 <CardTitle className="text-3xl lg:text-3xl font-headline font-semibold text-slate-900 tracking-tight">
                   {mode === 'sign-in' ? 'Welcome back' : 'Join our community'}
                 </CardTitle>
-                <div className="hidden lg:block mx-auto h-1 w-16 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 mt-3 mb-3" />
+                <div className="hidden lg:block mx-auto h-1 w-16 rounded-full bg-gold mt-3 mb-3" />
                 <CardDescription className="text-base text-slate-500">
                   {mode === 'sign-in'
                     ? 'Sign in to your account'
