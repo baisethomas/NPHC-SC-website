@@ -63,6 +63,12 @@ export function splitDate(event: Pick<Event, 'date' | 'time'>): { month: string;
   };
 }
 
+/** Safe filename stem for downloads. */
+export function slugifyFilename(title: string): string {
+  const stem = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  return stem || 'event';
+}
+
 function icsEscape(value: string): string {
   return value.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
 }

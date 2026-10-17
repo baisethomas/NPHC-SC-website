@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { PageHero } from "@/components/site/page-hero";
 
 const formSchema = z.object({
   firstName: z.string().min(1, {
@@ -81,14 +82,14 @@ export default function MailingListPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div>
+      <PageHero
+        eyebrow="Mailing list"
+        title="Hear about it first."
+        lede="Event announcements, scholarship deadlines, and council news. A few emails a month, and you can leave any time."
+      />
+      <div className="container py-16 md:py-24">
       <div className="max-w-2xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-4">Join Our Mailing List</h1>
-          <p className="text-lg text-muted-foreground">
-            Stay updated with the latest news, events, and announcements from NPHC Solano County.
-          </p>
-        </div>
 
         <Card>
           <CardHeader>
@@ -178,6 +179,7 @@ export default function MailingListPage() {
             You can unsubscribe at any time by clicking the link in our emails.
           </p>
         </div>
+      </div>
       </div>
     </div>
   );

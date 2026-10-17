@@ -112,6 +112,10 @@ const MEMBERS_NAV: NavGroup[] = [
     label: "Council",
     items: [{ href: "/members/requests", label: "Requests", icon: Send }],
   },
+  {
+    label: "Account",
+    items: [{ href: "/members/profile", label: "My Profile", icon: UserCircle }],
+  },
 ];
 
 function isItemActive(pathname: string, item: NavItem) {

@@ -1,55 +1,56 @@
 import { Mail, MapPin, Phone } from "lucide-react";
-
 import { getSiteSettings } from "@/lib/site-settings";
+import { PageHero } from "@/components/site/page-hero";
 import { ContactForm } from "./contact-form";
 
-export default async function ContactPage() {
-  const settings = await getSiteSettings();
+export default async function ContactPage({ searchParams }: { searchParams: Promise<{ subject?: string }> }) {
+  const [settings, { subject }] = await Promise.all([getSiteSettings(), searchParams]);
+  const presetSubject = typeof subject === "string" ? subject.slice(0, 200) : "";
 
   return (
     <div>
-      <section className="bg-muted py-20">
-        <div className="container text-center">
-          <h1 className="text-4xl md:text-5xl font-headline font-bold">Contact Us</h1>
-          <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
-            We&apos;d love to hear from you. Whether you have a question, a suggestion, or a partnership inquiry, please reach out.
-          </p>
-        </div>
-      </section>
+      <PageHero
+        eyebrow="Contact"
+        title="Reach the council."
+        lede="Questions, partnership ideas, membership interest, or a note for the executive board. Messages go straight to the council inbox."
+      />
 
       <section className="py-16 md:py-24">
-        <div className="container grid md:grid-cols-3 gap-16">
-          <div className="md:col-span-2">
-            <ContactForm />
+        <div className="container grid gap-12 lg:grid-cols-12">
+          <div className="lg:col-span-7">
+            <ContactForm presetSubject={presetSubject} />
           </div>
-          <div className="space-y-8">
-            <h3 className="font-headline text-2xl font-bold">Contact Information</h3>
-            <div className="space-y-4 text-muted-foreground">
-              <div className="flex items-center space-x-3">
-                <Mail className="h-5 w-5 text-primary"/>
-                <a href={`mailto:${settings.contactEmail}`} className="hover:text-primary">
+          <aside className="lg:col-span-4 lg:col-start-9">
+            <p className="eyebrow mb-4">Contact information</p>
+            <ul className="space-y-4 text-sm">
+              <li className="flex items-start gap-3">
+                <Mail className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
+                <a href={`mailto:${settings.contactEmail}`} className="break-all hover:underline underline-offset-4">
                   {settings.contactEmail}
                 </a>
-              </div>
+              </li>
               {settings.contactPhone && (
-                <div className="flex items-center space-x-3">
-                  <Phone className="h-5 w-5 text-primary"/>
-                  <a
-                    href={`tel:${settings.contactPhone.replace(/[^+\d]/g, "")}`}
-                    className="hover:text-primary"
-                  >
+                <li className="flex items-start gap-3">
+                  <Phone className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
+                  <a href={`tel:${settings.contactPhone.replace(/[^+\d]/g, "")}`} className="hover:underline underline-offset-4">
                     {settings.contactPhone}
                   </a>
-                </div>
+                </li>
               )}
               {settings.mailingAddress && (
-                <div className="flex items-start space-x-3">
-                  <MapPin className="h-5 w-5 text-primary mt-0.5 shrink-0"/>
+                <li className="flex items-start gap-3">
+                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
                   <p className="whitespace-pre-line">{settings.mailingAddress}</p>
-                </div>
+                </li>
               )}
-            </div>
-          </div>
+            </ul>
+            {settings.meetingCadence && (
+              <div className="mt-8 rounded-lg border border-border bg-card p-5">
+                <p className="eyebrow mb-2">Council meetings</p>
+                <p className="text-sm leading-relaxed">{settings.meetingCadence}</p>
+              </div>
+            )}
+          </aside>
         </div>
       </section>
     </div>

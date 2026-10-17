@@ -91,6 +91,9 @@ export interface MemberProfile {
   organization: string;
   chapter?: string;
   avatarUrl?: string;
+  phone?: string;
+  /** Member-controlled: false hides the profile from the member directory. */
+  showInDirectory?: boolean;
   joinedAt?: string;
   membershipStatus?: 'pending' | 'approved' | 'suspended' | 'rejected';
   isActive?: boolean;

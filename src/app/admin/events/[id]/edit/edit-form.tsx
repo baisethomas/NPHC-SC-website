@@ -2,6 +2,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { DIVINE_NINE_SHORT_NAMES } from "@/lib/divine-nine-brand";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -47,6 +48,8 @@ const formSchema = z.object({
   eventType: z.enum(['internal', 'external', 'info_only']),
   status: z.enum(['draft', 'published']),
   rsvpEnabled: z.boolean(),
+  hostOrganization: z.string().optional(),
+  featured: z.boolean(),
   externalLink: z.string().url().optional().or(z.literal("")),
   maxAttendees: z.number().optional(),
   image: z
@@ -85,6 +88,8 @@ export function EditEventForm({ event }: { event: Event }) {
       eventType: event.eventType ?? "internal",
       status: event.status === "draft" ? "draft" : "published",
       rsvpEnabled: event.rsvpEnabled ?? false,
+      hostOrganization: event.hostOrganization ?? "",
+      featured: event.featured ?? false,
       externalLink: event.externalLink ?? "",
       maxAttendees: event.maxAttendees,
       image: undefined,
@@ -110,6 +115,8 @@ export function EditEventForm({ event }: { event: Event }) {
       formData.append("eventType", values.eventType);
       formData.append("status", values.status);
       formData.append("rsvpEnabled", String(values.rsvpEnabled));
+      formData.append("hostOrganization", values.hostOrganization ?? "");
+      formData.append("featured", String(values.featured));
       if (values.externalLink) {
         formData.append("externalLink", values.externalLink);
       }
@@ -309,6 +316,43 @@ export function EditEventForm({ event }: { event: Event }) {
                     <FormLabel>Enable RSVP</FormLabel>
                     <p className="text-sm text-muted-foreground">
                       Allow people to RSVP for this event
+                    </p>
+                  </div>
+                </FormItem>
+              )} />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-6">
+              <FormField control={form.control} name="hostOrganization" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Hosting organization (optional)</FormLabel>
+                  <Select onValueChange={(v) => field.onChange(v === "__none" ? "" : v)} value={field.value || "__none"}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="NPHC Solano (council-wide)" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="__none">NPHC Solano (council-wide)</SelectItem>
+                      {DIVINE_NINE_SHORT_NAMES.map((name) => (
+                        <SelectItem key={name} value={name}>{name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-sm text-muted-foreground">Shown as a tag on the event and used for the filter chips on the events page.</p>
+                  <FormMessage />
+                </FormItem>
+              )} />
+
+              <FormField control={form.control} name="featured" render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormControl>
+                    <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Feature on homepage</FormLabel>
+                    <p className="text-sm text-muted-foreground">
+                      Shows this event in the homepage countdown instead of the soonest one.
                     </p>
                   </div>
                 </FormItem>

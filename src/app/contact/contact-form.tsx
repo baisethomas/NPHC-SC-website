@@ -38,7 +38,7 @@ const formSchema = z.object({
   }),
 });
 
-export function ContactForm() {
+export function ContactForm({ presetSubject = "" }: { presetSubject?: string }) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -47,7 +47,7 @@ export function ContactForm() {
     defaultValues: {
       name: "",
       email: "",
-      subject: "",
+      subject: presetSubject,
       message: "",
     },
   });
@@ -83,8 +83,8 @@ export function ContactForm() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="font-headline text-2xl">Send us a Message</CardTitle>
-        <CardDescription>Fill out the form below and we&apos;ll be in touch.</CardDescription>
+        <CardTitle className="font-headline text-2xl">Send a message</CardTitle>
+        <CardDescription>We read every message and reply within a few days.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>

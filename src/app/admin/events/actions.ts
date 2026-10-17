@@ -21,6 +21,8 @@ const eventSchema = z.object({
   rsvpEnabled: z.boolean(),
   externalLink: z.string().url().optional().or(z.literal("")),
   maxAttendees: z.number().optional(),
+  hostOrganization: z.string().trim().max(80).optional().or(z.literal("")),
+  featured: z.boolean().optional(),
 });
 
 export async function createEvent(values: z.infer<typeof eventSchema>) {
@@ -37,7 +39,7 @@ export async function createEvent(values: z.infer<typeof eventSchema>) {
     return { error: 'Invalid fields!' };
   }
 
-  const { title, date, time, location, description, image, eventType, status, rsvpEnabled, externalLink, maxAttendees } = validatedFields.data;
+  const { title, date, time, location, description, image, eventType, status, rsvpEnabled, externalLink, maxAttendees, hostOrganization, featured } = validatedFields.data;
   
   // Validate external link requirement
   if (eventType === 'external' && !externalLink) {
@@ -65,6 +67,8 @@ export async function createEvent(values: z.infer<typeof eventSchema>) {
     currentAttendees: 0,
     ...(externalLink && { externalLink }),
     ...(maxAttendees && { maxAttendees }),
+    ...(hostOrganization && { hostOrganization }),
+    ...(featured && { featured: true }),
   };
 
   try {
@@ -103,6 +107,8 @@ const updateEventSchema = z.object({
   rsvpEnabled: z.boolean(),
   externalLink: z.string().url().optional().or(z.literal("")),
   maxAttendees: z.number().int().positive().optional(),
+  hostOrganization: z.string().trim().max(80).optional().or(z.literal("")),
+  featured: z.boolean(),
 });
 
 export async function updateEvent(
@@ -132,13 +138,15 @@ export async function updateEvent(
     rsvpEnabled: formData.get('rsvpEnabled') === 'true',
     externalLink: (formData.get('externalLink') as string | null) ?? '',
     maxAttendees: maxAttendeesRaw ? Number(maxAttendeesRaw) : undefined,
+    hostOrganization: (formData.get('hostOrganization') as string | null) ?? '',
+    featured: formData.get('featured') === 'true',
   });
 
   if (!validatedFields.success) {
     return { error: 'Invalid fields!' };
   }
 
-  const { title, date, time, location, description, eventType, status, rsvpEnabled, externalLink, maxAttendees } = validatedFields.data;
+  const { title, date, time, location, description, eventType, status, rsvpEnabled, externalLink, maxAttendees, hostOrganization, featured } = validatedFields.data;
 
   if (eventType === 'external' && !externalLink) {
     return { error: 'External link is required for external events.' };
@@ -160,6 +168,8 @@ export async function updateEvent(
       updatedAt: new Date().toISOString(),
       externalLink: externalLink || FieldValue.delete(),
       maxAttendees: maxAttendees ?? FieldValue.delete(),
+      hostOrganization: hostOrganization || FieldValue.delete(),
+      featured: featured ? true : FieldValue.delete(),
     };
 
     const imageFile = formData.get('image');

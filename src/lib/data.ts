@@ -521,7 +521,7 @@ export async function getDirectoryMembers(): Promise<{ members: import('./defini
         id: doc.id,
         ...doc.data()
       }) as import('./definitions').MemberProfile)
-      .filter(member => member.membershipStatus === 'approved' && member.isActive === true);
+      .filter(member => member.membershipStatus === 'approved' && member.isActive === true && member.showInDirectory !== false);
     
     return { members };
   } catch (error) {

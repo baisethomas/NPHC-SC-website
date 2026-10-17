@@ -30,6 +30,7 @@ import { uploadFile } from "@/lib/storage";
 import { createEvent } from "@/app/admin/events/actions";
 import { LocationAutocomplete } from "@/components/location-autocomplete";
 import { EventPreview } from "@/components/ui/content-preview";
+import { DIVINE_NINE_SHORT_NAMES } from "@/lib/divine-nine-brand";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
@@ -47,6 +48,8 @@ const formSchema = z.object({
   rsvpEnabled: z.boolean(),
   externalLink: z.string().url().optional().or(z.literal("")),
   maxAttendees: z.number().optional(),
+  hostOrganization: z.string().optional(),
+  featured: z.boolean(),
   image: z
     .any()
     .refine((files) => files?.length == 1, "Image is required.")
@@ -81,6 +84,8 @@ export default function NewEventPage() {
       rsvpEnabled: true,
       externalLink: "",
       maxAttendees: undefined,
+      hostOrganization: "",
+      featured: false,
       image: undefined,
     },
   });
@@ -114,6 +119,8 @@ export default function NewEventPage() {
         rsvpEnabled: values.rsvpEnabled,
         externalLink: values.externalLink || undefined,
         maxAttendees: values.maxAttendees,
+        hostOrganization: values.hostOrganization || "",
+        featured: values.featured,
       });
 
       if (result.error) {
@@ -296,6 +303,43 @@ export default function NewEventPage() {
                     <FormLabel>Enable RSVP</FormLabel>
                     <p className="text-sm text-muted-foreground">
                       Allow people to RSVP for this event
+                    </p>
+                  </div>
+                </FormItem>
+              )} />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-6">
+              <FormField control={form.control} name="hostOrganization" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Hosting organization (optional)</FormLabel>
+                  <Select onValueChange={(v) => field.onChange(v === "__none" ? "" : v)} value={field.value || "__none"}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="NPHC Solano (council-wide)" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="__none">NPHC Solano (council-wide)</SelectItem>
+                      {DIVINE_NINE_SHORT_NAMES.map((name) => (
+                        <SelectItem key={name} value={name}>{name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-sm text-muted-foreground">Shown as a tag on the event and used for the filter chips on the events page.</p>
+                  <FormMessage />
+                </FormItem>
+              )} />
+
+              <FormField control={form.control} name="featured" render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormControl>
+                    <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Feature on homepage</FormLabel>
+                    <p className="text-sm text-muted-foreground">
+                      Shows this event in the homepage countdown instead of the soonest one.
                     </p>
                   </div>
                 </FormItem>

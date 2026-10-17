@@ -1,201 +1,131 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import Link from "next/link";
+import { ArrowRight, ArrowUpRight, GraduationCap, HandHeart, Heart, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Heart, Users, GraduationCap, Calendar, DollarSign, HandHeart } from "lucide-react";
 import { getSiteSettings } from "@/lib/site-settings";
+import { PageHero } from "@/components/site/page-hero";
+import { SectionHeading } from "@/components/site/section-heading";
+
+const USES = [
+  { icon: GraduationCap, title: "Scholarships", text: "Awards for Solano County seniors heading to college, and support for Divine Nine undergraduates." },
+  { icon: Users, title: "Youth programs", text: "Mentoring, leadership workshops, and college readiness run by the chapters." },
+  { icon: HandHeart, title: "Community outreach", text: "Food drives, health fairs, voter registration, and the events that bring the county together." },
+];
 
 export default async function DonationsPage() {
-  const { donationUrl } = await getSiteSettings();
+  const { donationUrl, contactEmail } = await getSiteSettings();
 
   return (
-    <div className="flex flex-col">
-      {/* Vibrant Hero Section */}
-      <section className="py-16 md:py-24 bg-gradient-to-br from-orange-400 via-pink-500 to-red-500 relative overflow-hidden">
-        {/* Animated background elements */}
-        <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 via-transparent to-red-500/20" />
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-yellow-400/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-0 left-1/4 w-80 h-80 bg-pink-400/10 rounded-full blur-3xl animate-pulse animation-delay-1000" />
-        
-        <div className="container relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="flex items-center justify-center w-20 h-20 mx-auto mb-6 bg-white/20 rounded-full text-white shadow-lg backdrop-blur-sm">
-              <Heart className="h-10 w-10" />
-            </div>
-            <h1 className="text-4xl md:text-5xl font-headline font-bold mb-4 text-white">Support Our Community</h1>
-            <div className="mx-auto mb-6 h-1 w-24 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600" />
-            <p className="text-lg text-white/90 max-w-2xl mx-auto">
-              Your generous donations help us continue our mission of unity, scholarship, and community service 
-              throughout Solano County. Every contribution makes a lasting impact in our community.
-            </p>
-          </div>
+    <div>
+      <PageHero
+        eyebrow="Support the council"
+        title="Give to the work in Solano County."
+        lede="Every gift stays local. It funds scholarships, youth programs, and the community events the nine chapters put on together."
+      >
+        {donationUrl ? (
+          <Button asChild size="lg" className="bg-gold text-ink hover:bg-gold/90">
+            <a href={donationUrl} target="_blank" rel="noopener noreferrer">
+              <Heart className="h-4 w-4" /> Donate online <ArrowUpRight className="h-4 w-4" />
+            </a>
+          </Button>
+        ) : (
+          <Button asChild size="lg" className="bg-gold text-ink hover:bg-gold/90">
+            <a href={`mailto:${contactEmail}?subject=Donation`}>
+              <Heart className="h-4 w-4" /> Ask how to give
+            </a>
+          </Button>
+        )}
+        <Button asChild size="lg" variant="outline" className="border-ivory/30 bg-transparent text-ivory hover:bg-ivory/10 hover:text-ivory">
+          <Link href="/contact?subject=Sponsorship">Sponsor an event</Link>
+        </Button>
+      </PageHero>
+
+      <section className="py-16 md:py-24">
+        <div className="container">
+          <SectionHeading eyebrow="Where it goes" title="Three things your gift pays for" />
+          <ul className="grid gap-6 md:grid-cols-3">
+            {USES.map((u) => {
+              const Icon = u.icon;
+              return (
+                <li key={u.title} className="rounded-lg border border-border bg-card p-6">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-md bg-ink text-gold">
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  <h3 className="mt-5 font-headline text-xl font-bold">{u.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{u.text}</p>
+                </li>
+              );
+            })}
+          </ul>
         </div>
       </section>
 
-      <div className="container mx-auto px-4 py-16">
-        <div className="max-w-4xl mx-auto">
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <Card className="text-center">
-            <CardContent className="pt-6">
-              <Users className="h-12 w-12 mx-auto mb-4 text-yellow-600" />
-              <h3 className="text-xl font-semibold mb-2">Community Programs</h3>
-              <p className="text-muted-foreground">
-                Support youth mentorship, leadership development, and community outreach initiatives.
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card className="text-center">
-            <CardContent className="pt-6">
-              <GraduationCap className="h-12 w-12 mx-auto mb-4 text-yellow-600" />
-              <h3 className="text-xl font-semibold mb-2">Scholarships</h3>
-              <p className="text-muted-foreground">
-                Help fund educational scholarships for deserving students in our community.
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card className="text-center">
-            <CardContent className="pt-6">
-              <Calendar className="h-12 w-12 mx-auto mb-4 text-yellow-600" />
-              <h3 className="text-xl font-semibold mb-2">Events & Activities</h3>
-              <p className="text-muted-foreground">
-                Enable us to host meaningful events that bring our community together.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <DollarSign className="h-5 w-5" />
-                Make a Donation
-              </CardTitle>
-              <CardDescription>
-                Choose a donation amount that works for you. Every contribution makes a difference.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-2 gap-3">
-                {["$25", "$50", "$100", "$250"].map((amount) =>
-                  donationUrl ? (
-                    <Button key={amount} variant="outline" className="h-16 text-lg" asChild>
-                      <a href={donationUrl} target="_blank" rel="noopener noreferrer">
-                        {amount}
-                      </a>
-                    </Button>
-                  ) : (
-                    <Button key={amount} variant="outline" className="h-16 text-lg" disabled>
-                      {amount}
-                    </Button>
-                  )
-                )}
-              </div>
-
-              <div className="space-y-3">
-                {donationUrl ? (
-                  <Button
-                    className="w-full h-12 text-lg bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700"
-                    asChild
-                  >
-                    <a href={donationUrl} target="_blank" rel="noopener noreferrer">
-                      <Heart className="mr-2 h-5 w-5" />
-                      Donate Now
-                    </a>
-                  </Button>
-                ) : (
-                  <Button
-                    className="w-full h-12 text-lg bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700"
-                    disabled
-                  >
-                    <Heart className="mr-2 h-5 w-5" />
-                    Donate Now
-                  </Button>
-                )}
-                <Button variant="outline" className="w-full" disabled={!donationUrl} asChild={Boolean(donationUrl)}>
-                  {donationUrl ? (
-                    <a href={donationUrl} target="_blank" rel="noopener noreferrer">
-                      Set Up Monthly Giving
-                    </a>
-                  ) : (
-                    <span>Set Up Monthly Giving</span>
-                  )}
-                </Button>
-                {!donationUrl && (
-                  <p className="text-center text-sm text-muted-foreground">
-                    Online donations coming soon.
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <HandHeart className="h-5 w-5" />
-                Other Ways to Help
-              </CardTitle>
-              <CardDescription>
-                There are many ways to support our mission beyond monetary donations.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-3">
-                <div className="flex items-start gap-3">
-                  <Badge variant="secondary" className="mt-1">Volunteer</Badge>
-                  <div>
-                    <h4 className="font-medium">Join Our Team</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Volunteer at events, mentor youth, or help with administrative tasks.
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-3">
-                  <Badge variant="secondary" className="mt-1">Sponsor</Badge>
-                  <div>
-                    <h4 className="font-medium">Event Sponsorship</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Partner with us to sponsor specific events or programs.
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-3">
-                  <Badge variant="secondary" className="mt-1">Share</Badge>
-                  <div>
-                    <h4 className="font-medium">Spread the Word</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Follow us on social media and share our mission with others.
-                    </p>
-                  </div>
-                </div>
-              </div>
-              
-              <Button variant="outline" className="w-full mt-4">
-                Learn About Volunteering
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-
-        <Card className="mt-8">
-          <CardHeader>
-            <CardTitle>Tax Information</CardTitle>
-          </CardHeader>
-          <CardContent>
+      <section className="border-t border-border bg-card py-16 md:py-24">
+        <div className="container grid gap-12 lg:grid-cols-12">
+          <div className="lg:col-span-5">
+            <SectionHeading eyebrow="Give" title={donationUrl ? "Donate securely online" : "Online giving is coming"} className="mb-4" />
             <p className="text-muted-foreground">
-              NPHC Solano County is a 501(c)(3) nonprofit organization. Your donation may be tax-deductible 
-              to the extent allowed by law. Please consult your tax advisor for specific guidance. 
-              A receipt will be provided for all donations.
+              {donationUrl
+                ? "Donations are processed by our hosted giving partner. You will receive a receipt by email."
+                : "We are setting up online giving. In the meantime, email the council and we will arrange a gift by check or transfer."}
             </p>
-          </CardContent>
-        </Card>
+            <div className="mt-6 flex flex-wrap gap-2">
+              {donationUrl ? (
+                <Button asChild size="lg" className="bg-gold text-ink hover:bg-gold/90">
+                  <a href={donationUrl} target="_blank" rel="noopener noreferrer">
+                    <Heart className="h-4 w-4" /> Donate now <ArrowUpRight className="h-4 w-4" />
+                  </a>
+                </Button>
+              ) : (
+                <Button asChild size="lg" className="bg-gold text-ink hover:bg-gold/90">
+                  <a href={`mailto:${contactEmail}?subject=Donation`}>
+                    <Heart className="h-4 w-4" /> Email about giving
+                  </a>
+                </Button>
+              )}
+            </div>
+            <p className="mt-6 text-xs leading-relaxed text-muted-foreground">
+              NPHC of Solano County is a nonprofit organization. Gifts may be tax-deductible to the extent allowed by law; please consult your tax advisor. A receipt is provided for every gift.
+            </p>
+          </div>
+          <div className="lg:col-span-6 lg:col-start-7">
+            <p className="eyebrow mb-4">Other ways to help</p>
+            <ul className="divide-y divide-border border-y border-border">
+              <li className="flex items-start justify-between gap-4 py-4">
+                <div>
+                  <p className="font-semibold">Sponsor an event</p>
+                  <p className="mt-0.5 text-sm text-muted-foreground">Put your business behind a scholarship gala, picnic, or health fair.</p>
+                </div>
+                <Link href="/contact?subject=Sponsorship" className="shrink-0 text-sm font-semibold text-gold hover:underline underline-offset-4">
+                  Ask us
+                </Link>
+              </li>
+              <li className="flex items-start justify-between gap-4 py-4">
+                <div>
+                  <p className="font-semibold">Volunteer your time</p>
+                  <p className="mt-0.5 text-sm text-muted-foreground">Chapters always need hands at events and mentors for students.</p>
+                </div>
+                <Link href="/get-involved" className="shrink-0 text-sm font-semibold text-gold hover:underline underline-offset-4">
+                  Get involved
+                </Link>
+              </li>
+              <li className="flex items-start justify-between gap-4 py-4">
+                <div>
+                  <p className="font-semibold">Spread the word</p>
+                  <p className="mt-0.5 text-sm text-muted-foreground">Follow the council and share our events with your network.</p>
+                </div>
+                <Link href="/mailing-list" className="shrink-0 text-sm font-semibold text-gold hover:underline underline-offset-4">
+                  Join the list
+                </Link>
+              </li>
+            </ul>
+            <Button asChild variant="link" className="mt-4 h-auto p-0 font-semibold">
+              <Link href="/scholarships">
+                See our scholarships <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
         </div>
-      </div>
+      </section>
     </div>
   );
-} 
+}

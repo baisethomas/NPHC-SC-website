@@ -1,135 +1,152 @@
-import { getEventBySlug } from '@/lib/data';
-import { notFound } from 'next/navigation';
 import Image from 'next/image';
-import { Button } from '@/components/ui/button';
-import { Calendar, Clock, MapPin, ExternalLink, Info } from 'lucide-react';
-import { RSVPButton } from '@/components/rsvp-button';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { ArrowLeft, ArrowUpRight, CalendarPlus, Clock, Download, Info, MapPin } from 'lucide-react';
+import { getEventBySlug } from '@/lib/data';
 import { sanitizeHtml } from '@/lib/sanitizer';
+import { googleCalendarUrl, isUpcoming, parseEventDate, splitDate } from '@/lib/events';
+import { getDivineNineBrand } from '@/lib/divine-nine-brand';
+import { Button } from '@/components/ui/button';
+import { RSVPButton } from '@/components/rsvp-button';
+import { Countdown } from '@/components/site/countdown';
 
 export default async function EventDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  let decodedSlug = slug;
   try {
-    const { slug } = await params;
-    // Safely decode URL-encoded slug (handles cases where & becomes %26, etc.)
-    let decodedSlug = slug;
-    try {
-      decodedSlug = decodeURIComponent(slug);
-    } catch (e) {
-      // If decoding fails, use original slug
-      decodedSlug = slug;
-    }
-    
-    console.log(`[EventDetailPage] Looking up event with slug: ${slug}, decoded: ${decodedSlug}`);
-    const event = await getEventBySlug(decodedSlug);
+    decodedSlug = decodeURIComponent(slug);
+  } catch {
+    decodedSlug = slug;
+  }
 
-    if (!event) {
-      console.warn(`Event not found for slug: ${slug}`);
-      notFound();
-    }
+  const event = await getEventBySlug(decodedSlug);
+  if (!event || !event.title) notFound();
 
-    // Validate required fields
-    if (!event.title || !event.image) {
-      console.error(`Event missing required fields. Title: ${event.title}, Image: ${event.image}`);
-      throw new Error('Event data is incomplete');
-    }
+  const eventWithIds = { ...event, id: event.id || event.slug || slug, slug: event.slug || event.id || slug };
+  const when = parseEventDate(eventWithIds);
+  const { weekday } = splitDate(eventWithIds);
+  const upcoming = isUpcoming(eventWithIds);
+  const brand = getDivineNineBrand(eventWithIds.hostOrganization);
+  const googleUrl = googleCalendarUrl(eventWithIds);
+  const isHtml = eventWithIds.description?.includes('<') && eventWithIds.description?.includes('>');
 
-    // Ensure event has id and slug (create a new object to avoid mutation)
-    const eventWithIds = {
-      ...event,
-      id: event.id || event.slug || slug,
-      slug: event.slug || event.id || slug,
-    };
-
-    return (
-      <div className="container py-16 md:py-24">
-        <div className="grid md:grid-cols-2 gap-12 items-start">
-          <div>
-            <Image
-              src={eventWithIds.image || '/placeholder-event.jpg'}
-              alt={eventWithIds.title || 'Event'}
-              width={800}
-              height={600}
-              className="rounded-lg shadow-lg object-contain w-full aspect-[4/3] bg-muted"
-              data-ai-hint={eventWithIds.image_hint || 'event image'}
-            />
-          </div>
-          <div className="space-y-6">
-            <h1 className="text-4xl font-headline font-bold">{eventWithIds.title}</h1>
-            
-            <div className="space-y-4 text-lg">
-              {eventWithIds.date && (
-                <div className="flex items-center text-muted-foreground">
-                  <Calendar className="mr-3 h-5 w-5 text-primary" />
-                  <span>{eventWithIds.date}</span>
+  return (
+    <div>
+      <section className="bg-ink text-ivory">
+        <div className="container py-12 md:py-16">
+          <Link href="/events" className="inline-flex items-center gap-1.5 text-sm text-ivory/70 hover:text-gold">
+            <ArrowLeft className="h-4 w-4" /> All events
+          </Link>
+          <div className="mt-6 grid gap-8 md:grid-cols-12 md:items-end">
+            <div className="md:col-span-8">
+              <p className="eyebrow mb-3">
+                {upcoming ? 'Upcoming event' : 'Past event'}
+                {brand ? ` · Hosted by ${brand.shortName}` : ''}
+              </p>
+              <h1 className="font-headline text-4xl font-bold leading-[1.1] [text-wrap:balance] md:text-5xl">{eventWithIds.title}</h1>
+              <dl className="mt-6 grid gap-2 text-ivory/80">
+                <div className="flex items-center gap-2.5">
+                  <Clock className="h-4 w-4 shrink-0 text-gold" />
+                  <dd>
+                    {weekday && `${weekday}, `}
+                    {eventWithIds.date}
+                    {eventWithIds.time ? ` · ${eventWithIds.time}` : ''}
+                  </dd>
                 </div>
-              )}
-              {eventWithIds.time && (
-                <div className="flex items-center text-muted-foreground">
-                  <Clock className="mr-3 h-5 w-5 text-primary" />
-                  <span>{eventWithIds.time}</span>
-                </div>
-              )}
-              {eventWithIds.location && (
-                <div className="flex items-center text-muted-foreground">
-                  <MapPin className="mr-3 h-5 w-5 text-primary" />
-                  <span>{eventWithIds.location}</span>
-                </div>
-              )}
+                {eventWithIds.location && (
+                  <div className="flex items-center gap-2.5">
+                    <MapPin className="h-4 w-4 shrink-0 text-gold" />
+                    <dd>{eventWithIds.location}</dd>
+                  </div>
+                )}
+              </dl>
             </div>
-            
-            <div className="text-foreground/80 leading-relaxed">
-              {eventWithIds.description && eventWithIds.description.includes('<') && eventWithIds.description.includes('>') ? (
-                <div 
-                  className="prose prose-lg max-w-none"
-                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(eventWithIds.description) }}
-                />
+            {upcoming && when && (
+              <div className="md:col-span-4 md:justify-self-end">
+                <Countdown targetIso={when.toISOString()} tone="inverse" />
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="h-1 w-full" style={{ background: brand?.colors[0] ?? 'hsl(var(--brand-gold))' }} />
+      </section>
+
+      <section className="py-12 md:py-16">
+        <div className="container grid gap-12 lg:grid-cols-12">
+          <div className="lg:col-span-7">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-secondary">
+              <Image src={eventWithIds.image} alt={eventWithIds.title} fill className="object-cover" sizes="(min-width: 1024px) 58vw, 100vw" priority />
+            </div>
+            <div className="prose prose-lg mt-8 max-w-none text-foreground/85">
+              {isHtml ? (
+                <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(eventWithIds.description) }} />
               ) : eventWithIds.description ? (
                 <p>{eventWithIds.description}</p>
               ) : (
-                <p className="text-muted-foreground italic">No description available.</p>
-              )}
-            </div>
-            
-            <div className="mt-6">
-              {eventWithIds.eventType === 'internal' && eventWithIds.rsvpEnabled && eventWithIds.id ? (
-                <RSVPButton event={eventWithIds} />
-              ) : eventWithIds.eventType === 'external' && eventWithIds.externalLink ? (
-                <Button asChild size="lg" className="w-full">
-                  <a href={eventWithIds.externalLink} target="_blank" rel="noopener noreferrer">
-                    <ExternalLink className="h-4 w-4 mr-2" />
-                    Register on External Site
-                  </a>
-                </Button>
-              ) : eventWithIds.eventType === 'external' && eventWithIds.rsvpLink ? (
-                <Button asChild size="lg" className="w-full">
-                  <a href={eventWithIds.rsvpLink} target="_blank" rel="noopener noreferrer">
-                    <ExternalLink className="h-4 w-4 mr-2" />
-                    Learn More
-                  </a>
-                </Button>
-              ) : (
-                <Button size="lg" variant="outline" className="w-full">
-                  <Info className="h-4 w-4 mr-2" />
-                  More Information Coming Soon
-                </Button>
+                <p className="italic text-muted-foreground">Details are on the way.</p>
               )}
             </div>
           </div>
+
+          <aside className="lg:col-span-5">
+            <div className="space-y-6 rounded-lg border border-border bg-card p-6 lg:sticky lg:top-24">
+              <div>
+                <p className="eyebrow mb-3">{upcoming ? 'Join us' : 'This event has passed'}</p>
+                {eventWithIds.eventType === 'internal' && eventWithIds.rsvpEnabled && upcoming ? (
+                  <RSVPButton event={eventWithIds} />
+                ) : eventWithIds.eventType === 'external' && (eventWithIds.externalLink || eventWithIds.rsvpLink) && upcoming ? (
+                  <Button asChild size="lg" className="w-full bg-gold text-ink hover:bg-gold/90">
+                    <a href={eventWithIds.externalLink || eventWithIds.rsvpLink} target="_blank" rel="noopener noreferrer">
+                      Register <ArrowUpRight className="h-4 w-4" />
+                    </a>
+                  </Button>
+                ) : upcoming ? (
+                  <p className="flex items-start gap-2 text-sm text-muted-foreground">
+                    <Info className="mt-0.5 h-4 w-4 shrink-0 text-gold" /> No registration needed. Just show up.
+                  </p>
+                ) : (
+                  <p className="text-sm text-muted-foreground">Thanks to everyone who came out. See what is coming next on the events page.</p>
+                )}
+              </div>
+
+              {upcoming && (googleUrl || when) && (
+                <div className="border-t border-border pt-5">
+                  <p className="mb-3 text-sm font-semibold">Add to your calendar</p>
+                  <div className="flex flex-wrap gap-2">
+                    {googleUrl && (
+                      <Button asChild variant="outline" size="sm">
+                        <a href={googleUrl} target="_blank" rel="noopener noreferrer">
+                          <CalendarPlus className="h-4 w-4" /> Google Calendar
+                        </a>
+                      </Button>
+                    )}
+                    {when && (
+                      <Button asChild variant="outline" size="sm">
+                        <a href={`/events/${encodeURIComponent(eventWithIds.slug)}/calendar.ics`} download>
+                          <Download className="h-4 w-4" /> Apple / Outlook (.ics)
+                        </a>
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {brand && (
+                <div className="border-t border-border pt-5">
+                  <p className="mb-2 text-sm font-semibold">Hosted by</p>
+                  <p className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+                    <span className="h-2.5 w-2.5 rounded-full" style={{ background: brand.colors[0] }} aria-hidden />
+                    {brand.shortName}
+                  </p>
+                  <Link href="/organizations" className="mt-2 block text-sm font-semibold text-gold hover:underline underline-offset-4">
+                    About the chapter
+                  </Link>
+                </div>
+              )}
+            </div>
+          </aside>
         </div>
-      </div>
-    );
-  } catch (error) {
-    const resolvedParams = await params;
-    console.error(`Error loading event page for slug: ${resolvedParams.slug}`, error);
-    // Return a user-friendly error page instead of throwing
-    return (
-      <div className="container py-16 md:py-24">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Error Loading Event</h1>
-          <p className="text-muted-foreground">
-            We encountered an error while loading this event. Please try again later.
-          </p>
-        </div>
-      </div>
-    );
-  }
+      </section>
+    </div>
+  );
 }

@@ -16,7 +16,7 @@ export interface SiteContentBlockDef {
   label: string;
   description: string;
   type: SiteContentBlockType;
-  page: 'Homepage' | 'About';
+  page: 'Homepage' | 'About' | 'Scholarships';
 }
 
 export const SITE_CONTENT_KEYS = [
@@ -30,6 +30,7 @@ export const SITE_CONTENT_KEYS = [
   'about.objectives.intro',
   'about.essay.tradition',
   'about.essay.commitment',
+  'scholarships.intro',
 ] as const;
 
 export type SiteContentKey = (typeof SITE_CONTENT_KEYS)[number];
@@ -109,6 +110,13 @@ export const SITE_CONTENT_BLOCKS: readonly SiteContentBlockDef[] = [
     type: 'richtext',
     page: 'About',
   },
+  {
+    key: 'scholarships.intro',
+    label: 'Council Scholarship',
+    description: 'Eligibility, award amount, deadline, and how to apply. Shown on the Scholarships page.',
+    type: 'richtext',
+    page: 'Scholarships',
+  },
 ] as const;
 
 // Today's hardcoded copy, extracted verbatim from src/app/page.tsx and
@@ -133,6 +141,8 @@ export const DEFAULT_SITE_CONTENT: Record<SiteContentKey, string> = {
     '<p>Each of the nine NPHC organizations evolved during a period when African Americans were being denied essential rights and privileges. Racial isolation and social barriers created a need for African Americans to align themselves with others sharing common goals and ideals.</p><p>These Greek-lettered organizations became a haven and an outlet to foster brotherhood and sisterhood in the pursuit of social change. Today, in Solano County and across the nation, that need remains. The primary purpose of our member organizations is community awareness and action through educational, economic, and cultural service activities.</p>',
   'about.essay.commitment':
     '<p>Greek membership extends far beyond the collegiate experience—it is a lifetime commitment. Members are expected to align with a graduate/alumni chapter after college, taking an active part in matters concerning and affecting the community in which they live.</p><p>Here in Solano County, NPHC promotes this lifelong interaction through forums, meetings, and cooperative programming, ensuring a lasting impact on our community.</p>',
+  'scholarships.intro':
+    '<p>The NPHC of Solano County awards scholarships each spring to graduating high school seniors who live in or attend school in Solano County and plan to enroll in a two- or four-year college, university, or accredited trade program.</p><p>Applications typically open in February and close in April. Awards are presented at the council\'s annual scholarship program. Details for the current cycle, including the application form and deadline, are announced on this page and through the mailing list.</p>',
 };
 
 interface SiteContentDoc {
