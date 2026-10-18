@@ -1,4 +1,5 @@
 
+import { toMemberProfile } from './member-profile';
 import { adminDb } from './firebase-admin';
 import type { Event, Announcement, BoardMember, Organization, Program, DivineNineDoc } from './definitions';
 import { getDivineNineOrganizations, slugify } from './definitions';
@@ -517,10 +518,7 @@ export async function getDirectoryMembers(): Promise<{ members: import('./defini
     const snapshot = await membersRef.orderBy('displayName').get();
     
     const members = snapshot.docs
-      .map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }) as import('./definitions').MemberProfile)
+      .map(doc => toMemberProfile(doc.id, doc.data()))
       .filter(member => member.membershipStatus === 'approved' && member.isActive === true && member.showInDirectory !== false);
     
     return { members };
