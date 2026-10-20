@@ -21,7 +21,9 @@ Tiers, what each owns, and the routing rules are defined in `AGENTS.md` → Dele
 
 | Tier | Model |
 |---|---|
-| Orchestrate | **Host-selected; prefer <!-- FILL-ME: strongest model -->** |
-| Operate, high risk | **<!-- FILL-ME: strongest model -->** |
-| Operate, routine | **<!-- FILL-ME: mid-tier model -->** |
-| Git & docs | **<!-- FILL-ME: fastest model -->** |
+| Orchestrate | **Host-selected; prefer GPT-6 Astra (`gpt-6-astra`)** |
+| Operate, high risk | **GPT-6 Astra (`gpt-6-astra`)** |
+| Operate, routine | **GPT-6.1 Sol (`gpt-6.1-sol`)** |
+| Git & docs | **GPT-6 Luna (`gpt-6-luna`)** |
+
+These recommendations use the models available on this host as of 2026-10-19 and the [official OpenAI model guidance](https://developers.openai.com/api/docs/models): Astra for complex reasoning and coding, Sol for balanced capability and cost, and Luna for bounded, cost-sensitive work. Recheck availability when changing hosts. This table does not switch the current orchestrator or authorize delegation; the approval, fallback, escalation, and review rules in `AGENTS.md` still apply.
