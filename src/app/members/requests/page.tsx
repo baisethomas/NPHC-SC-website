@@ -178,7 +178,7 @@ export default function RequestsPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="type">Type</Label>
-                  <Select value={formData.type} onValueChange={(value) => handleInputChange('type', value)}>
+                  <Select name="type" required value={formData.type} onValueChange={(value) => handleInputChange('type', value)}>
                     <SelectTrigger id="type">
                       <SelectValue placeholder="Select a type" />
                     </SelectTrigger>

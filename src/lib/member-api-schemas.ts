@@ -88,7 +88,8 @@ export const requestCreateSchema = z
     type: safeText(100),
     description: safeText(10_000),
     priority: safeText(50),
-    requestedDate: z.string().datetime().optional(),
+    // Accepts a full timestamp or the YYYY-MM-DD a native date input produces.
+    requestedDate: z.union([z.iso.datetime(), z.iso.date()]).optional(),
     budget: z.number().nonnegative().max(1_000_000).optional(),
     additionalInfo: z.record(z.string(), z.unknown()).optional(),
   })

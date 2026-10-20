@@ -62,7 +62,9 @@ export async function POST(request: NextRequest) {
 
     const parsedRequest = requestCreateSchema.safeParse(await request.json());
     if (!parsedRequest.success) {
-      return NextResponse.json({ error: 'Invalid request payload' }, { status: 400 });
+      const issue = parsedRequest.error.issues[0];
+      const field = issue?.path.join('.') || 'request';
+      return NextResponse.json({ error: `Invalid request payload: ${field} ${issue?.message ?? 'is invalid'}` }, { status: 400 });
     }
     if (!auth.user.email) {
       return NextResponse.json({ error: 'Account email is required' }, { status: 400 });
