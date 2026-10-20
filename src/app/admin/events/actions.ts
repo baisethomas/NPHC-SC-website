@@ -9,6 +9,24 @@ import { PERMISSIONS } from '@/lib/roles';
 import { z } from 'zod';
 import { slugify, type Event } from '@/lib/definitions';
 
+/**
+ * The homepage spotlight shows one featured event. When an event is marked
+ * featured, clear the flag on every other event in the same batch so the
+ * spotlight never has to pick between several.
+ */
+async function clearOtherFeatured(exceptId: string): Promise<void> {
+  if (!adminDb) return;
+  const snapshot = await adminDb.collection("events").where("featured", "==", true).get();
+  const batch = adminDb.batch();
+  let count = 0;
+  snapshot.forEach((doc) => {
+    if (doc.id === exceptId) return;
+    batch.update(doc.ref, { featured: FieldValue.delete(), updatedAt: new Date().toISOString() });
+    count += 1;
+  });
+  if (count > 0) await batch.commit();
+}
+
 const eventSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters."),
   date: z.string().min(2, "Date is required."),
@@ -73,6 +91,7 @@ export async function createEvent(values: z.infer<typeof eventSchema>) {
 
   try {
     await adminDb.collection("events").doc(slug).create(newEvent);
+    if (featured) await clearOtherFeatured(slug);
 
     revalidatePath('/events');
     revalidatePath('/admin/events');
@@ -178,6 +197,7 @@ export async function updateEvent(
     }
 
     await adminDb.collection("events").doc(id).update(updates);
+    if (featured) await clearOtherFeatured(id);
 
     revalidatePath('/events');
     revalidatePath('/admin/events');
