@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { getAnnouncementBySlug } from '@/lib/data';
 import { sanitizeHtml } from '@/lib/sanitizer';
 
@@ -15,34 +15,40 @@ export default async function AnnouncementDetailPage({ params }: { params: Promi
 
   return (
     <article>
-      <section className="bg-ink text-ivory">
-        <div className="container py-12 md:py-16">
-          <Link href="/news" className="inline-flex items-center gap-1.5 text-sm text-ivory/70 hover:text-gold">
+      <header className="border-b border-border">
+        <div className="container py-10 md:py-14">
+          <Link href="/news" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-4 w-4" /> All news
           </Link>
-          <div className="mt-6 max-w-3xl">
-            <p className="eyebrow mb-3">{announcement.date}</p>
-            <h1 className="font-headline text-4xl font-bold leading-[1.1] [text-wrap:balance] md:text-5xl">{announcement.title}</h1>
+          <div className="mx-auto mt-8 max-w-3xl">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{announcement.date}</p>
+            <h1 className="mt-3 font-headline text-4xl font-bold leading-[1.08] [text-wrap:balance] md:text-5xl">{announcement.title}</h1>
+            <div className="gold-rule mt-6" />
           </div>
         </div>
-        <div className="h-1 w-full bg-gold" />
-      </section>
+      </header>
 
-      <section className="py-12 md:py-16">
+      {announcement.imageUrl && (
+        <div className="container pt-10">
+          <div className="relative mx-auto aspect-[16/9] max-w-4xl overflow-hidden rounded-lg bg-secondary">
+            <Image src={announcement.imageUrl} alt={announcement.title} fill className="object-cover" sizes="(min-width: 1024px) 896px, 100vw" priority />
+          </div>
+        </div>
+      )}
+
+      <section className="py-10 md:py-14">
         <div className="container">
-          <div className="mx-auto max-w-3xl">
-            {announcement.imageUrl && (
-              <div className="relative mb-10 aspect-[16/9] overflow-hidden rounded-lg bg-secondary">
-                <Image src={announcement.imageUrl} alt={announcement.title} fill className="object-cover" sizes="(min-width: 768px) 768px, 100vw" priority />
-              </div>
+          <div className="prose prose-lg mx-auto max-w-3xl text-foreground/85 prose-headings:font-headline">
+            {isHtml ? (
+              <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(announcement.description) }} />
+            ) : (
+              paragraphs.map((p, i) => <p key={i}>{p}</p>)
             )}
-            <div className="prose prose-lg max-w-none text-foreground/85">
-              {isHtml ? (
-                <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(announcement.description) }} />
-              ) : (
-                paragraphs.map((p, i) => <p key={i}>{p}</p>)
-              )}
-            </div>
+          </div>
+          <div className="mx-auto mt-12 max-w-3xl border-t border-border pt-6">
+            <Link href="/news" className="inline-flex items-center gap-1 text-sm font-semibold hover:underline underline-offset-4">
+              More from the council <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
         </div>
       </section>
