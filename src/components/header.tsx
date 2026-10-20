@@ -4,7 +4,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { Menu, Heart, UserCircle, ShieldCheck } from "lucide-react";
+import { Menu, Heart, UserCircle, ShieldCheck, LogOut } from "lucide-react";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
@@ -36,6 +38,14 @@ export function Header({ donateHref = "/donations" }: { donateHref?: string }) {
   const PortalIcon = isStaff ? ShieldCheck : UserCircle;
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
+
+  // A signed-in user who is not yet approved cannot reach either portal shell,
+  // which are the only other places with a sign-out control. Give them one here.
+  const awaitingApproval = !loading && !!user && !portalHref;
+  const handleSignOut = async () => {
+    setIsOpen(false);
+    await signOut(auth);
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
@@ -73,6 +83,11 @@ export function Header({ donateHref = "/donations" }: { donateHref?: string }) {
                 <PortalIcon className="h-4 w-4" />
                 {portalLabel}
               </Link>
+            </Button>
+          ) : awaitingApproval ? (
+            <Button variant="ghost" size="sm" onClick={handleSignOut} title="Your membership is awaiting approval">
+              <LogOut className="h-4 w-4" />
+              Sign out
             </Button>
           ) : (
             !loading && (
@@ -138,6 +153,11 @@ export function Header({ donateHref = "/donations" }: { donateHref?: string }) {
                       <PortalIcon className="h-4 w-4" />
                       {portalLabel}
                     </Link>
+                  </Button>
+                ) : awaitingApproval ? (
+                  <Button variant="outline" onClick={handleSignOut}>
+                    <LogOut className="h-4 w-4" />
+                    Sign out
                   </Button>
                 ) : (
                   <Button asChild variant="outline">
