@@ -5,10 +5,20 @@ import { getEvents, getAnnouncements } from "@/lib/data";
 import { getMembers } from "./members/actions";
 import { getContactSubmissions } from "./inbox/actions";
 import { requestService } from "@/lib/firestore-admin";
+import { requirePermissionSession } from "@/lib/server-auth";
+import { PERMISSIONS } from "@/lib/roles";
 import type { Request as MemberRequest } from "@/types/members";
 import { AdminPageHeader, AdminPanel } from "@/components/admin/admin-page-header";
 
+/**
+ * Pending member requests for the dashboard. Guarded server-side like the
+ * other dashboard helpers: this Server Component renders before the client
+ * ProtectedRoute can act, so an unguarded read would put request titles and
+ * submitter contact details in the payload for anyone who requests /admin.
+ */
 async function getPendingRequests(): Promise<MemberRequest[]> {
+  const auth = await requirePermissionSession(PERMISSIONS.APPROVE_MEMBERS);
+  if (!auth.ok) return [];
   try {
     const page = await requestService.getAll({ status: "pending", limit: 50 });
     return page.items;
