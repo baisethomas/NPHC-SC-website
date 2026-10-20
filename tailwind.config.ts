@@ -22,7 +22,7 @@ export default {
     extend: {
       fontFamily: {
         body: ['var(--font-body)', 'sans-serif'],
-        headline: ['var(--font-headline)', 'serif'],
+        headline: ['var(--font-headline)', 'Impact', 'sans-serif'],
         code: ['monospace'],
       },
       colors: {

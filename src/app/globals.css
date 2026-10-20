@@ -99,7 +99,11 @@ body {
 
 @layer components {
   .eyebrow {
-    @apply text-xs font-semibold uppercase tracking-[0.14em] text-gold;
+    @apply font-headline text-[13px] font-bold uppercase tracking-[0.2em] text-gold;
+  }
+  .font-headline {
+    letter-spacing: 0.01em;
+    font-weight: 700;
   }
   .gold-rule {
     @apply h-1 w-16 rounded-full bg-gold;

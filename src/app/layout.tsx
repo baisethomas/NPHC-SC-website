@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display } from 'next/font/google';
+import { Instrument_Sans, Big_Shoulders } from 'next/font/google';
 import { SiteChrome } from "@/components/site-chrome";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
@@ -9,15 +9,19 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import { Analytics } from "@vercel/analytics/next";
 
-const fontBody = Inter({ 
+// Body: a humanist grotesque with a little warmth, so copy does not read as
+// the default system-sans of every generated site.
+const fontBody = Instrument_Sans({
   subsets: ['latin'],
   variable: '--font-body',
   display: 'swap',
 });
 
-const fontHeadline = Playfair_Display({
+// Headlines: a tall condensed grotesque. Civic, collegiate, and loud at
+// display sizes, without the "AI site" serif.
+const fontHeadline = Big_Shoulders({
   subsets: ['latin'],
-  weight: '700',
+  weight: ['600', '700', '800'],
   variable: '--font-headline',
   display: 'swap',
 });
