@@ -99,15 +99,30 @@ body {
 
 @layer components {
   .eyebrow {
-    @apply font-headline text-xs font-bold uppercase tracking-[0.16em] text-gold;
+    @apply font-body text-xs font-semibold uppercase tracking-[0.14em] text-gold;
   }
-  .font-headline {
-    letter-spacing: -0.015em;
-    font-weight: 700;
+}
+
+@layer utilities {
+  /* Newsreader weight map. `html` prefix outranks Tailwind's font-bold so the
+     serif stays light: 400 at display sizes, 500 for section and card titles.
+     Optical sizing is automatic (font-optical-sizing: auto). */
+  html .font-headline {
+    font-weight: 500;
+    letter-spacing: -0.005em;
   }
-  .font-greek {
-    letter-spacing: 0.04em;
-    font-weight: 700;
+  html .font-headline.text-5xl,
+  html .font-headline.text-6xl,
+  html .font-headline.text-7xl,
+  html .font-headline.md\:text-6xl,
+  html .font-headline.lg\:text-7xl,
+  html .font-headline.text-\[2\.75rem\] {
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+  html .font-greek {
+    font-weight: 600;
+    letter-spacing: 0.03em;
   }
   .gold-rule {
     @apply h-1 w-16 rounded-full bg-gold;
