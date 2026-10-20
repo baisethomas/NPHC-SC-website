@@ -62,7 +62,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex min-h-screen bg-background">
       {/* Left side panel with image */}
       <div className="hidden lg:flex lg:w-1/2 relative flex-col items-center justify-center p-12 text-white overflow-hidden">
         <div className="absolute inset-0">
@@ -90,7 +90,7 @@ export default function LoginPage() {
       </div>
 
       {/* Right side panel with form */}
-      <div className="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-8 bg-slate-50 min-h-screen lg:min-h-0 relative">
+      <div className="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-8 bg-background min-h-screen lg:min-h-0 relative">
         <div className="absolute top-8 left-8 lg:left-8">
           <Button variant="ghost" asChild className="hidden lg:flex items-center text-muted-foreground hover:text-foreground">
             <Link href="/">
@@ -108,7 +108,7 @@ export default function LoginPage() {
         </div>
 
         <div className="mx-auto w-full max-w-sm mt-12 lg:mt-0">
-          <Card className="border-0 shadow-none bg-transparent lg:shadow-xl lg:border lg:bg-white lg:rounded-2xl lg:p-2">
+          <Card className="border-0 shadow-none bg-transparent lg:shadow-xl lg:border lg:bg-card lg:rounded-lg lg:p-2">
             <CardHeader className="space-y-4 lg:mb-2 items-center text-center pb-6">
               <div className="lg:hidden mx-auto h-1 w-16 rounded-full bg-gold mb-2 mt-4" />
               <div className="space-y-2">
@@ -187,7 +187,7 @@ export default function LoginPage() {
                 </div>
                 <Button 
                   type="submit" 
-                  className="w-full h-12 lg:h-10 text-base lg:text-sm bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-sm transition-all mt-6" 
+                  className="w-full h-12 lg:h-10 text-base lg:text-sm bg-gold hover:bg-gold/90 text-ink font-semibold rounded-lg shadow-sm transition-all mt-6"
                   disabled={isLoading}
                 >
                   {isLoading ? (

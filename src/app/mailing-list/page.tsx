@@ -6,7 +6,6 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { subscribeToMailingList } from "./actions";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -35,6 +34,12 @@ const formSchema = z.object({
     message: "You must agree to receive communications to subscribe.",
   }),
 });
+
+const WHAT_YOU_GET = [
+  { title: "Event announcements", text: "Council and chapter events across Solano County, with enough notice to plan." },
+  { title: "Scholarship deadlines", text: "When applications open and close, so no student misses the window." },
+  { title: "Council news", text: "Leadership updates, program launches, and ways to get involved." },
+];
 
 export default function MailingListPage() {
   const { toast } = useToast();
@@ -88,19 +93,31 @@ export default function MailingListPage() {
         title="Hear about it first."
         lede="Event announcements, scholarship deadlines, and council news. A few emails a month, and you can leave any time."
       />
-      <div className="container py-16 md:py-24">
-      <div className="max-w-2xl mx-auto">
+      <div className="container grid gap-12 py-16 md:py-24 lg:grid-cols-12 lg:gap-16">
+        <div className="lg:col-span-5">
+          <h2 className="font-headline text-3xl font-bold leading-tight [text-wrap:balance] md:text-4xl">What you will get</h2>
+          <ol className="mt-6 divide-y divide-border border-y border-border">
+            {WHAT_YOU_GET.map((item, i) => (
+              <li key={item.title} className="grid grid-cols-[3rem_1fr] gap-4 py-5">
+                <span className="font-headline text-2xl font-bold tabular-nums text-gold">0{i + 1}</span>
+                <div>
+                  <p className="font-headline text-lg font-bold leading-snug">{item.title}</p>
+                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{item.text}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+          <p className="mt-6 text-sm leading-relaxed text-muted-foreground">
+            We respect your privacy. Your information is only used to send updates about NPHC Solano County, and every email has an unsubscribe link.
+          </p>
+        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Subscribe to Updates</CardTitle>
-            <CardDescription>
-              Get notified about upcoming events, community initiatives, and important announcements.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+        <div className="lg:col-span-6 lg:col-start-7">
+          <div className="rounded-lg border border-border bg-card p-6 md:p-8">
+            <p className="eyebrow mb-2">Subscribe</p>
+            <h2 className="font-headline text-2xl font-bold">Join the mailing list</h2>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="mt-6 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
@@ -165,21 +182,13 @@ export default function MailingListPage() {
                   )}
                 />
 
-                <Button type="submit" className="w-full" disabled={isSubmitting}>
-                  {isSubmitting ? "Subscribing..." : "Subscribe to Mailing List"}
+                <Button type="submit" size="lg" className="w-full bg-gold text-ink hover:bg-gold/90" disabled={isSubmitting}>
+                  {isSubmitting ? "Subscribing..." : "Subscribe"}
                 </Button>
               </form>
             </Form>
-          </CardContent>
-        </Card>
-
-        <div className="mt-8 text-center text-sm text-muted-foreground">
-          <p>
-            We respect your privacy. Your information will only be used to send you updates about NPHC Solano County activities.
-            You can unsubscribe at any time by clicking the link in our emails.
-          </p>
+          </div>
         </div>
-      </div>
       </div>
     </div>
   );
