@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, CheckCircle2, Terminal } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { getBoardMembers } from "@/lib/data";
@@ -27,7 +26,7 @@ const OFFICER_ORDER = ["president", "vice president", "secretary", "treasurer"];
 
 export default async function AboutPage() {
   const [content, settings, { boardMembers, error }] = await Promise.all([
-    getSiteContent(["about.history", "about.history.image", "about.objectives.intro", "about.essay.tradition", "about.essay.commitment"]),
+    getSiteContent(["about.history", "about.history.image", "about.objectives.intro", "about.essay.tradition", "about.essay.commitment", "home.president.message"]),
     getSiteSettings(),
     getBoardMembers(),
   ]);
@@ -37,6 +36,7 @@ export default async function AboutPage() {
     const ib = OFFICER_ORDER.findIndex((t) => b.title.toLowerCase().includes(t));
     return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
   });
+  const president = boardMembers.find((m) => m.title.toLowerCase() === "president");
 
   return (
     <div>
@@ -120,6 +120,30 @@ export default async function AboutPage() {
         </div>
       </section>
 
+      {/* From the president */}
+      <section id="president" className="scroll-mt-24 border-b border-border bg-card py-16 md:py-24">
+        <div className="container grid gap-10 md:grid-cols-12">
+          <div className="md:col-span-4">
+            <p className="eyebrow mb-3">From the president</p>
+            {president && (
+              <div className="flex items-center gap-4">
+                <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full bg-secondary">
+                  <Image src={president.image} alt={president.name} fill className="object-cover" sizes="64px" />
+                </div>
+                <div>
+                  <p className="font-headline text-lg font-bold leading-tight">{president.name}</p>
+                  <p className="text-sm text-muted-foreground">{president.title}</p>
+                </div>
+              </div>
+            )}
+          </div>
+          <div
+            className="text-lg leading-relaxed text-foreground/85 md:col-span-8 [&_p]:mb-5 [&_p:last-child]:mb-0"
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(content["home.president.message"]) }}
+          />
+        </div>
+      </section>
+
       {/* Executive board */}
       <section className="py-16 md:py-24">
         <div className="container">
@@ -135,12 +159,16 @@ export default async function AboutPage() {
               {sortedBoard.map((member) => {
                 const brand = getDivineNineBrand(member.organization);
                 return (
-                  <li key={member.id} className="rounded-lg border border-border bg-card p-6">
-                    <Avatar className="h-24 w-24">
-                      <AvatarImage src={member.image} alt={member.name} className="object-cover" />
-                      <AvatarFallback className="bg-ink font-headline text-xl text-gold">{member.initials}</AvatarFallback>
-                    </Avatar>
-                    <p className="mt-5 font-headline text-xl font-bold leading-tight">{member.name}</p>
+                  <li key={member.id}>
+                    <div className="relative aspect-[4/5] overflow-hidden rounded-lg bg-secondary">
+                      {member.image ? (
+                        <Image src={member.image} alt={member.name} fill className="object-cover object-top" sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw" />
+                      ) : (
+                        <div className="flex h-full items-center justify-center bg-ink font-headline text-4xl text-gold">{member.initials}</div>
+                      )}
+                      <span className="absolute inset-x-0 bottom-0 h-1" style={{ background: brand?.colors[0] ?? "hsl(var(--brand-gold))" }} aria-hidden />
+                    </div>
+                    <p className="mt-4 font-headline text-xl font-bold leading-tight">{member.name}</p>
                     <p className="mt-1 text-sm font-semibold text-gold">{member.title}</p>
                     {member.organization && (
                       <p className="mt-3 inline-flex items-center gap-2 text-sm text-muted-foreground">

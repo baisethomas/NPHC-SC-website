@@ -127,3 +127,23 @@ export function getDivineNineBrand(name: string | undefined | null): DivineNineB
 
 /** The short names, in founding order, for filter chips and select options. */
 export const DIVINE_NINE_SHORT_NAMES = DIVINE_NINE_BRANDS.map((b) => b.shortName);
+
+function channel(hex: string, offset: number): number {
+  const v = parseInt(hex.slice(offset, offset + 2), 16) / 255;
+  return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+}
+
+/** WCAG relative luminance of a `#rrggbb` color, 0 (black) to 1 (white). */
+export function relativeLuminance(hex: string): number {
+  const h = hex.replace('#', '');
+  if (h.length !== 6) return 0;
+  return 0.2126 * channel(h, 0) + 0.7152 * channel(h, 2) + 0.0722 * channel(h, 4);
+}
+
+/**
+ * Which of the council's two text colors reads on a solid organization color.
+ * Pink and gold grounds take ink; crimson, royal blue, purple, and brown take ivory.
+ */
+export function textOn(hex: string): 'ink' | 'ivory' {
+  return relativeLuminance(hex) > 0.3 ? 'ink' : 'ivory';
+}
