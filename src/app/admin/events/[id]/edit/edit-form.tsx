@@ -1,5 +1,6 @@
-
 "use client";
+
+import { useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DIVINE_NINE_SHORT_NAMES } from "@/lib/divine-nine-brand";
@@ -78,6 +79,7 @@ export function EditEventForm({ event }: { event: Event }) {
   const { toast } = useToast();
   const router = useRouter();
 
+  const [dateOpen, setDateOpen] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -180,7 +182,7 @@ export function EditEventForm({ event }: { event: Event }) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Date</FormLabel>
-                    <Popover>
+                    <Popover open={dateOpen} onOpenChange={setDateOpen}>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
@@ -203,9 +205,9 @@ export function EditEventForm({ event }: { event: Event }) {
                         <Calendar
                           mode="single"
                           selected={field.value}
-                          onSelect={field.onChange}
+                          onSelect={(day) => { field.onChange(day); setDateOpen(false); }}
                           disabled={(date) => date < new Date("1900-01-01")}
-                          initialFocus
+                          autoFocus
                         />
                       </PopoverContent>
                     </Popover>

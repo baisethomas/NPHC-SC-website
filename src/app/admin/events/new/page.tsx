@@ -1,5 +1,6 @@
-
 "use client";
+
+import { useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -73,6 +74,7 @@ export default function NewEventPage() {
   const { toast } = useToast();
   const router = useRouter();
 
+  const [dateOpen, setDateOpen] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -178,7 +180,7 @@ export default function NewEventPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Date</FormLabel>
-                    <Popover>
+                    <Popover open={dateOpen} onOpenChange={setDateOpen}>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
@@ -201,11 +203,11 @@ export default function NewEventPage() {
                         <Calendar
                           mode="single"
                           selected={field.value}
-                          onSelect={field.onChange}
+                          onSelect={(day) => { field.onChange(day); setDateOpen(false); }}
                           disabled={(date) =>
                             date < new Date("1900-01-01")
                           }
-                          initialFocus
+                          autoFocus
                         />
                       </PopoverContent>
                     </Popover>
