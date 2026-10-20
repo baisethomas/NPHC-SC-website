@@ -12,6 +12,7 @@ import {
   FileText,
   GraduationCap,
   Inbox,
+  ClipboardList,
   Mail,
   Settings,
   ShieldCheck,
@@ -39,6 +40,7 @@ export const ADMIN_NAV_GROUPS: AdminNavGroup[] = [
     label: "People",
     items: [
       { href: "/admin/members", label: "Members", icon: Users },
+      { href: "/admin/requests", label: "Requests", icon: ClipboardList },
       { href: "/admin/mailing-list", label: "Mailing list", icon: Mail },
       { href: "/admin/inbox", label: "Inbox", icon: Inbox },
     ],

@@ -4,14 +4,27 @@ import { Button } from "@/components/ui/button";
 import { getEvents, getAnnouncements } from "@/lib/data";
 import { getMembers } from "./members/actions";
 import { getContactSubmissions } from "./inbox/actions";
+import { requestService } from "@/lib/firestore-admin";
+import type { Request as MemberRequest } from "@/types/members";
 import { AdminPageHeader, AdminPanel } from "@/components/admin/admin-page-header";
 
+async function getPendingRequests(): Promise<MemberRequest[]> {
+  try {
+    const page = await requestService.getAll({ status: "pending", limit: 50 });
+    return page.items;
+  } catch (error) {
+    console.error("Failed to load pending requests:", error);
+    return [];
+  }
+}
+
 export default async function AdminDashboardPage() {
-  const [events, { announcements }, { members }, { submissions }] = await Promise.all([
+  const [events, { announcements }, { members }, { submissions }, pendingRequests] = await Promise.all([
     getEvents(true),
     getAnnouncements(true),
     getMembers(),
     getContactSubmissions(),
+    getPendingRequests(),
   ]);
 
   const pendingMembers = members.filter((m) => m.membershipStatus === "pending");
@@ -32,6 +45,13 @@ export default async function AdminDashboardPage() {
       title: m.displayName || m.email,
       detail: "New member waiting for approval",
       href: "/admin/members",
+      cta: "Review",
+    })),
+    ...pendingRequests.slice(0, 5).map((r) => ({
+      key: `request-${r.id}`,
+      title: r.title,
+      detail: `${r.type.replace(/_/g, " ")} request from ${r.submittedByName || r.submittedByEmail}${r.priority === "high" ? " · High priority" : ""}`,
+      href: "/admin/requests",
       cta: "Review",
     })),
     ...newSubmissions.slice(0, 5).map((s) => ({
@@ -55,6 +75,7 @@ export default async function AdminDashboardPage() {
 
   const counts = [
     { label: "Pending members", value: pendingMembers.length, href: "/admin/members", attention: pendingMembers.length > 0 },
+    { label: "Open requests", value: pendingRequests.length, href: "/admin/requests", attention: pendingRequests.length > 0 },
     { label: "Unread inbox", value: newSubmissions.length, href: "/admin/inbox", attention: newSubmissions.length > 0 },
     { label: "Upcoming events", value: upcomingEvents.length, href: "/admin/events", attention: false },
     { label: "Drafts", value: draftEvents.length + draftAnnouncements.length, href: "/admin/announcements", attention: false },
@@ -92,7 +113,7 @@ export default async function AdminDashboardPage() {
         }
       />
 
-      <dl className="grid grid-cols-2 divide-x divide-border rounded-lg border border-border bg-card md:grid-cols-4">
+      <dl className="grid grid-cols-2 divide-x divide-border rounded-lg border border-border bg-card md:grid-cols-5">
         {counts.map((c) => (
           <Link key={c.label} href={c.href} className="group px-5 py-4 transition-colors hover:bg-secondary/50">
             <dd className="flex items-center gap-2 font-headline text-3xl font-bold leading-none tabular-nums">
@@ -113,7 +134,7 @@ export default async function AdminDashboardPage() {
           description={attention.length === 0 ? "Nothing waiting on you." : `${attention.length} item${attention.length === 1 ? "" : "s"}`}
         >
           {attention.length === 0 ? (
-            <p className="py-6 text-sm text-muted-foreground">No pending approvals, unread messages, or open RSVP lists.</p>
+            <p className="py-6 text-sm text-muted-foreground">No pending approvals, open requests, unread messages, or open RSVP lists.</p>
           ) : (
             <ul className="divide-y divide-border">
               {attention.map((item) => (
