@@ -49,7 +49,11 @@ export function MemberHome({
   const { count: unreadCount } = useUnreadMessageCount();
 
   const displayName = profile?.displayName || user?.displayName || user?.email?.split("@")[0] || "Member";
-  const firstName = displayName.split(" ")[0];
+  // A profile created from an email address has no real name yet; greet with
+  // the local part, title-cased, rather than the whole address.
+  const nameSource = displayName.includes("@") ? displayName.split("@")[0].replace(/[._-]+/g, " ") : displayName;
+  const rawFirst = nameSource.trim().split(/\s+/)[0] || "Member";
+  const firstName = rawFirst.charAt(0).toUpperCase() + rawFirst.slice(1);
   const brand = getDivineNineBrand(profile?.organization);
   const initials = displayName
     .split(" ")

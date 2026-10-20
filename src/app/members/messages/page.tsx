@@ -24,7 +24,7 @@ function categoryTone(category: Message["category"]) {
 function MessageRow({ message }: { message: Message }) {
   const unread = !message.readBy.length;
   return (
-    <li className={cn("grid gap-3 py-5 sm:grid-cols-[1fr_auto] sm:gap-6", unread && "bg-gold-soft/40 -mx-4 px-4 sm:-mx-6 sm:px-6")}>
+    <li className={cn("grid gap-3 py-5 sm:grid-cols-[1fr_auto] sm:gap-6", unread && "rounded-md bg-gold-soft/40 px-4 sm:px-6")}>
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
           <PortalTag tone={categoryTone(message.category)}>{CATEGORY_LABEL[message.category]}</PortalTag>
