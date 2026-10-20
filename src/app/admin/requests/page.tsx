@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -16,10 +16,12 @@ import {
 } from '@/components/ui/dialog';
 import { AdminPageHeader, AdminPanel, AdminCount, AdminEmpty } from '@/components/admin/admin-page-header';
 import { StatusBadge } from '@/components/admin/status-badge';
-import { useRequests, useRequestMutations } from '@/hooks/useMembers';
+import { useRequestMutations } from '@/hooks/useMembers';
+import { useApi } from '@/hooks/useApi';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import type { Request as MemberRequest } from '@/types/members';
+import { formatDateValue } from '@/lib/dates';
+import type { ApiResponse, PaginatedResponse, Request as MemberRequest } from '@/types/members';
 import { Check, Eye, Loader2, Terminal, X } from 'lucide-react';
 
 type Filter = 'pending' | 'under_review' | 'approved' | 'denied' | 'all';
@@ -46,12 +48,13 @@ function humanize(value: string | undefined): string {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
-function formatDate(iso?: string, opts: Intl.DateTimeFormatOptions = { dateStyle: 'medium' }): string {
-  if (!iso) return '—';
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return iso;
-  return date.toLocaleString('en-US', opts);
-}
+// Date-only "needed by" values must not shift a day in Pacific time.
+const formatDate = formatDateValue;
+
+// The API clamps each page to 50. Follow the cursor so the queue is complete;
+// the cap only guards against a runaway loop.
+const PAGE_SIZE = 50;
+const MAX_PAGES = 20;
 
 function formatBudget(budget?: number): string {
   if (budget === undefined || budget === null) return '—';
@@ -60,13 +63,48 @@ function formatBudget(budget?: number): string {
 
 export default function AdminRequestsPage() {
   const { toast } = useToast();
-  const { data, loading, error, refetch } = useRequests({ limit: 100 });
+  const { makeRequest } = useApi();
   const { updateStatus, loading: updating } = useRequestMutations();
+  const [requests, setRequests] = useState<MemberRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [truncated, setTruncated] = useState(false);
   const [filter, setFilter] = useState<Filter>('pending');
   const [reviewing, setReviewing] = useState<MemberRequest | null>(null);
   const [notes, setNotes] = useState('');
 
-  const requests = useMemo(() => data?.items ?? [], [data]);
+  const refetch = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const all: MemberRequest[] = [];
+      let cursor: string | undefined;
+      let pages = 0;
+      let more = true;
+      while (more && pages < MAX_PAGES) {
+        const params = new URLSearchParams({ limit: String(PAGE_SIZE) });
+        if (cursor) params.set('cursor', cursor);
+        const res = await makeRequest<ApiResponse<PaginatedResponse<MemberRequest>>>(`/members/requests?${params}`);
+        const page = res.data;
+        all.push(...(page?.items ?? []));
+        cursor = page?.nextCursor;
+        more = Boolean(page?.hasMore && cursor);
+        pages += 1;
+      }
+      setRequests(all);
+      setTruncated(more);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not load requests');
+    } finally {
+      setLoading(false);
+    }
+    // makeRequest is recreated per render by useApi; the auth user is what matters.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    void refetch();
+  }, [refetch]);
   const counts = useMemo(() => {
     const c: Record<string, number> = { pending: 0, under_review: 0, approved: 0, denied: 0 };
     for (const r of requests) c[r.status] = (c[r.status] ?? 0) + 1;
@@ -105,6 +143,7 @@ export default function AdminRequestsPage() {
             <AdminCount attention={counts.pending > 0}>{counts.pending} pending</AdminCount>
             <AdminCount>{counts.under_review} under review</AdminCount>
             <AdminCount>{requests.length} total</AdminCount>
+            {truncated && <AdminCount attention>Showing the newest {requests.length}; older requests exist</AdminCount>}
           </>
         }
       />
