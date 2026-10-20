@@ -1,5 +1,6 @@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Terminal } from 'lucide-react';
+import { AdminPageHeader } from '@/components/admin/admin-page-header';
 import { getContentBlocks } from './actions';
 import { ContentBlockList } from './content-block-list';
 
@@ -10,12 +11,10 @@ export default async function AdminContentPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-headline text-2xl font-bold text-slate-900">Page Content</h1>
-        <p className="mt-1 text-sm text-slate-500">
-          Edit the copy and images on the Homepage and About page. Changes go live immediately.
-        </p>
-      </div>
+      <AdminPageHeader
+        title="Page content"
+        description="The copy and images on the homepage and About page. Changes go live as soon as you save."
+      />
 
       {'error' in result ? (
         <Alert variant="destructive" className="max-w-2xl">

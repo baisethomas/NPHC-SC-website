@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
+import { AdminPageHeader, AdminPanel, AdminCount } from '@/components/admin/admin-page-header';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -392,25 +392,17 @@ export default function AdminMembersPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="font-headline text-2xl font-bold text-slate-900">Members</h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Review sign-ups, manage membership status, and assign roles.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Badge variant="secondary">{members.length} Total</Badge>
-          <Badge
-            variant="secondary"
-            className={cn(pendingCount > 0 && 'bg-amber-100 text-amber-800 hover:bg-amber-100')}
-          >
-            {pendingCount} Pending
-          </Badge>
-        </div>
-      </div>
-      <Card className="border-slate-200 shadow-none">
-      <CardContent className="pt-6">
+      <AdminPageHeader
+        title="Members"
+        description="Review sign-ups, manage membership status, and assign roles."
+        meta={
+          <>
+            <AdminCount>{members.length} total</AdminCount>
+            <AdminCount attention={pendingCount > 0}>{pendingCount} pending</AdminCount>
+          </>
+        }
+      />
+      <AdminPanel>
         {loadError && (
           <Alert variant="destructive" className="mb-4">
             <Terminal className="h-4 w-4" />
@@ -525,7 +517,7 @@ export default function AdminMembersPage() {
             </div>
           </>
         )}
-      </CardContent>
+      </AdminPanel>
 
       {/* Edit Profile Dialog */}
       <Dialog
@@ -662,7 +654,6 @@ export default function AdminMembersPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      </Card>
     </div>
   );
 }

@@ -5,7 +5,8 @@ import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { updateDivineNineOrganization } from "../../../actions";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
@@ -84,15 +85,15 @@ export function EditDivineNineForm({ organization }: { organization: DivineNineD
   }
 
   return (
+    <div className="space-y-6">
+      <AdminPageHeader
+        backHref="/admin/organizations"
+        backLabel="Organizations"
+        title="Edit national organization"
+        description={`${organization.name}. Shown on the homepage tiles and the Programs page.`}
+      />
     <Card>
-      <CardHeader>
-        <CardTitle>Edit Divine Nine Organization</CardTitle>
-        <CardDescription>
-          Update the national listing for &quot;{organization.name}&quot; shown on the homepage and
-          Programs page.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+      <CardContent className="pt-6">
         <form onSubmit={onSubmit} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="name">Organization Name</Label>
@@ -188,5 +189,6 @@ export function EditDivineNineForm({ organization }: { organization: DivineNineD
         </form>
       </CardContent>
     </Card>
+    </div>
   );
 }

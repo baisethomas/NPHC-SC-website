@@ -15,7 +15,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -152,12 +153,15 @@ export default function NewEventPage() {
   }
 
   return (
+    <div className="space-y-6">
+      <AdminPageHeader
+        backHref="/admin/events"
+        backLabel="Events"
+        title="Add event"
+        description="Goes on the public calendar. Mark it featured to put it in the homepage spotlight."
+      />
     <Card>
-      <CardHeader>
-        <CardTitle>Create New Event</CardTitle>
-        <CardDescription>Fill out the form below to add a new event to the website.</CardDescription>
-      </CardHeader>
-      <CardContent>
+      <CardContent className="pt-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField control={form.control} name="title" render={({ field }) => (
@@ -407,5 +411,6 @@ export default function NewEventPage() {
         </Form>
       </CardContent>
     </Card>
+    </div>
   );
 }

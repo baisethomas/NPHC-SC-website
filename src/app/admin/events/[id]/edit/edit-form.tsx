@@ -17,7 +17,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -159,12 +160,10 @@ export function EditEventForm({ event }: { event: Event }) {
   }
 
   return (
+    <div className="space-y-6">
+      <AdminPageHeader backHref="/admin/events" backLabel="Events" title="Edit event" description={event.title} />
     <Card>
-      <CardHeader>
-        <CardTitle>Edit Event</CardTitle>
-        <CardDescription>Update the details for &quot;{event.title}&quot;.</CardDescription>
-      </CardHeader>
-      <CardContent>
+      <CardContent className="pt-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField control={form.control} name="title" render={({ field }) => (
@@ -420,5 +419,6 @@ export function EditEventForm({ event }: { event: Event }) {
         </Form>
       </CardContent>
     </Card>
+    </div>
   );
 }

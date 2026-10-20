@@ -4,7 +4,8 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { createBoardMemberWithImage } from "../actions";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
@@ -109,12 +110,15 @@ export default function NewBoardMemberPage() {
   }
 
   return (
+    <div className="space-y-6">
+      <AdminPageHeader
+        backHref="/admin/board"
+        backLabel="Board members"
+        title="Add board member"
+        description="An officer shown on the About page. Use a portrait with the face near the top; it is cropped 4:5."
+      />
     <Card>
-      <CardHeader>
-        <CardTitle>Add New Board Member</CardTitle>
-        <CardDescription>Fill out the form below to add a new board member.</CardDescription>
-      </CardHeader>
-      <CardContent>
+      <CardContent className="pt-6">
         <form onSubmit={onSubmit} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="name">Full Name</Label>
@@ -203,5 +207,6 @@ export default function NewBoardMemberPage() {
         </form>
       </CardContent>
     </Card>
+    </div>
   );
 }

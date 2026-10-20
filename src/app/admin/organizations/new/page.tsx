@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { createOrganization } from "../actions";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
@@ -82,12 +83,15 @@ export default function NewOrganizationPage() {
   }
 
   return (
+    <div className="space-y-6">
+      <AdminPageHeader
+        backHref="/admin/organizations"
+        backLabel="Organizations"
+        title="Add chapter"
+        description="A local chapter listed on the Chapters page."
+      />
     <Card>
-      <CardHeader>
-        <CardTitle>Add New Organization</CardTitle>
-        <CardDescription>Fill out the form below to add a new organization.</CardDescription>
-      </CardHeader>
-      <CardContent>
+      <CardContent className="pt-6">
         <form onSubmit={onSubmit} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="name">Organization Name</Label>
@@ -199,5 +203,6 @@ export default function NewOrganizationPage() {
         </form>
       </CardContent>
     </Card>
+    </div>
   );
 }

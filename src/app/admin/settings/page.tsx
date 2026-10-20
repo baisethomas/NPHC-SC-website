@@ -8,7 +8,7 @@ import { z } from "zod";
 import { getSiteSettingsForAdmin, updateSiteSettings } from "./actions";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import {
   Form,
   FormControl,
@@ -144,13 +144,10 @@ export default function SiteSettingsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-headline text-2xl font-bold text-slate-900">Site Settings</h1>
-        <p className="mt-1 text-sm text-slate-500">
-          Manage the contact details, social links, and donation link shown on the
-          public website. Leave a field blank to hide it.
-        </p>
-      </div>
+      <AdminPageHeader
+        title="Settings"
+        description="Contact details, social links, stats, and the donation link shown on the public website. Leave a field blank to hide it."
+      />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <SettingsSection
@@ -412,14 +409,12 @@ function SettingsSection({
   children: React.ReactNode;
 }) {
   return (
-    <Card className="border-slate-200 shadow-none">
-      <CardContent className="grid gap-6 p-6 md:grid-cols-[240px_1fr]">
-        <div>
-          <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
-          <p className="mt-1 text-sm text-slate-500">{description}</p>
-        </div>
-        <div className="space-y-4">{children}</div>
-      </CardContent>
-    </Card>
+    <section className="grid gap-6 border-b border-border py-8 first:pt-0 md:grid-cols-[240px_1fr]">
+      <div>
+        <h3 className="font-headline text-lg font-bold leading-tight">{title}</h3>
+        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+      </div>
+      <div className="max-w-xl space-y-4">{children}</div>
+    </section>
   );
 }

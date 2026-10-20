@@ -2,12 +2,12 @@
 
 import { ReactNode } from "react";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { PortalShell } from "@/components/portal/portal-shell";
+import { AdminShell } from "@/components/admin/admin-shell";
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <ProtectedRoute allowedRoles={['admin']}>
-      <PortalShell variant="admin">{children}</PortalShell>
+      <AdminShell>{children}</AdminShell>
     </ProtectedRoute>
   );
 }

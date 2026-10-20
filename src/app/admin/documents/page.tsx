@@ -3,7 +3,8 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { AdminPageHeader, AdminPanel } from "@/components/admin/admin-page-header";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -221,12 +222,11 @@ export default function AdminDocumentsPage() {
   }
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <div>
-          <CardTitle>Document Management</CardTitle>
-          <CardDescription>Upload and manage documents for members to access.</CardDescription>
-        </div>
+    <div className="space-y-6">
+      <AdminPageHeader
+        title="Documents"
+        description="Files members can download from the portal: minutes, bylaws, forms, and reports."
+        action={
         <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
           <DialogTrigger asChild>
             <Button>
@@ -387,9 +387,10 @@ export default function AdminDocumentsPage() {
             </Form>
           </DialogContent>
         </Dialog>
-      </CardHeader>
-      
-      <CardContent>
+        }
+      />
+
+      <AdminPanel>
         {/* Search and Filter Controls */}
         <div className="mb-6 space-y-4">
           <div className="flex flex-col md:flex-row gap-4">
@@ -501,7 +502,7 @@ export default function AdminDocumentsPage() {
             </div>
           )}
         </div>
-      </CardContent>
+      </AdminPanel>
 
       {/* Edit Document Dialog */}
       <Dialog open={!!editingDocument} onOpenChange={(open) => { if (!open) setEditingDocument(null); }}>
@@ -637,6 +638,6 @@ export default function AdminDocumentsPage() {
           </Form>
         </DialogContent>
       </Dialog>
-    </Card>
+    </div>
   );
 }
