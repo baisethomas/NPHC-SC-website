@@ -12,7 +12,8 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { DIVINE_NINE_SHORT_NAMES } from '@/lib/divine-nine-brand';
-import { updateOwnProfile, type OwnProfileInput } from './actions';
+import { updateOwnProfile } from './actions';
+import type { OwnProfileInput } from './schema';
 
 const NONE = '__none';
 
