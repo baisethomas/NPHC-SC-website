@@ -22,6 +22,7 @@ Review and hardening. All planned pages are built and visually verified; remaini
 - `/admin/requests` with review dialog (approve / deny / under review through the existing `approve_members`-guarded status route) and an open-requests count on the dashboard.
 - Fixes: date picker rebuilt (`src/components/ui/calendar.tsx`), request form date/type validation, profile zod schema moved out of the `"use server"` module, portal greeting from email-shaped display names.
 - Ratchet installed (this file, `DECISIONS.md`, skills, stop and lint hooks).
+- Second-round Codex findings fixed: dashboard pending-requests read is permission-guarded; admin requests queue follows the API cursor past 50; date-only deadlines format as calendar dates (`src/lib/dates.ts`, tested); status transitions log their real action; pending members can sign out from the header; featured events are unique via a batch write.
 
 ## Working on
 
@@ -29,7 +30,8 @@ Review and hardening. All planned pages are built and visually verified; remaini
 
 ## Next
 
-1. Close the open bot review findings on PR #28, in this order: active-membership check on `src/app/members/page.tsx` (use `requireActiveMemberSession`), event time parsing in `src/lib/events.ts` to use `America/Los_Angeles` instead of server-local time, replace the hardcoded members collection name in `src/lib/member-profile.ts` with the collection constant, featured-event uniqueness in `src/app/admin/events/actions.ts`, RFC 5545 escaping test for `buildIcs`, add `/scholarships` and `/gallery` to the revalidation lists in the content and settings actions.
+1. Close the remaining bot review findings on PR #28 (the second-round Codex findings are done; see Completed): active-membership check on `src/app/members/page.tsx` (use `requireActiveMemberSession`), event time parsing in `src/lib/events.ts` to use `America/Los_Angeles` instead of server-local time, replace the hardcoded members collection name in `src/lib/member-profile.ts` with the collection constant, RFC 5545 escaping test for `buildIcs`, add `/scholarships` and `/gallery` to the revalidation lists in the content and settings actions.
+1a. Upstream to the Ratchet repo, not here: Ternary's two findings on the installed skill scripts (`test-install.sh` should fail rather than SKIP when the source is the repo's own `.agents`; `rrr.sh` should reject fix paths inside the Git directory).
 2. Triage the dependency audit that fails the Verify CI job (advisories for next, sharp, tailwindcss, tiptap, postcss, nanoid) against `DEPENDENCY_POLICY.md`; upgrade where possible rather than adding exceptions.
 3. Remove the unused admin nav branch from `src/components/portal/portal-shell.tsx` now that admin has `AdminShell`.
 4. Owner: approve or deny a real request end to end and check the member sees the note; check the Vercel preview on a phone.
@@ -37,7 +39,6 @@ Review and hardening. All planned pages are built and visually verified; remaini
 ## Blocked
 
 - Email notifications for requests: blocked on the owner choosing an email provider. Do not add email sending until they name one.
-- Codex model routing table in `CODEX.md`: owner said Codex will fill it in.
 
 ## Important context
 
@@ -58,7 +59,7 @@ Review and hardening. All planned pages are built and visually verified; remaini
 ## Open risks / assumptions
 
 - Event date/time handling assumes server-local time; on a UTC host countdowns and `.ics` times are off by the Pacific offset until item 1 above lands.
-- `pickSpotlightEvent` picks arbitrarily if more than one event is flagged featured.
+- Events written before the featured-uniqueness fix could still carry more than one `featured: true`; the next save of any featured event clears the others.
 - Big Shoulders and Bricolage were tried and rejected for headlines; do not revisit without the owner asking.
 
 ## Integration note
