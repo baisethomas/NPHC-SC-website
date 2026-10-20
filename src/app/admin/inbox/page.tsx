@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { AdminPageHeader, AdminPanel, AdminCount } from '@/components/admin/admin-page-header';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
@@ -152,17 +152,13 @@ export default function AdminInboxPage() {
   );
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <div>
-          <CardTitle>Inbox</CardTitle>
-          <CardDescription>Messages submitted through the public contact form.</CardDescription>
-        </div>
-        <Badge variant={newCount > 0 ? 'default' : 'secondary'}>
-          {newCount} New
-        </Badge>
-      </CardHeader>
-      <CardContent>
+    <div className="space-y-6">
+      <AdminPageHeader
+        title="Inbox"
+        description="Messages sent through the public contact form."
+        meta={<AdminCount attention={newCount > 0}>{newCount} new</AdminCount>}
+      />
+      <AdminPanel>
         {loadError && (
           <Alert variant="destructive" className="mb-4">
             <Terminal className="h-4 w-4" />
@@ -252,7 +248,7 @@ export default function AdminInboxPage() {
             </div>
           </>
         )}
-      </CardContent>
+      </AdminPanel>
 
       {/* Message Detail Dialog */}
       <Dialog
@@ -327,6 +323,6 @@ export default function AdminInboxPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </Card>
+    </div>
   );
 }

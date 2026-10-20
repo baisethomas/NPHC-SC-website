@@ -7,8 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Upload, X } from "lucide-react";
+import { Upload, X } from "lucide-react";
 import Link from "next/link";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { createProgramWithImage } from "../actions";
 import { getDivineNineOrganizations } from "@/lib/definitions";
 import { useToast } from "@/hooks/use-toast";
@@ -92,20 +93,13 @@ export default function NewProgramPage() {
 
   return (
     <div>
-      <div className="flex items-center gap-4 mb-8">
-        <Button asChild variant="outline" size="sm">
-          <Link href="/admin/programs">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Programs
-          </Link>
-        </Button>
-        <div>
-          <h1 className="text-3xl font-bold font-headline">Add New Program</h1>
-          <p className="text-muted-foreground mt-2">
-            Create a new program or initiative for an organization.
-          </p>
-        </div>
-      </div>
+      <AdminPageHeader
+        className="mb-8"
+        backHref="/admin/programs"
+        backLabel="Programs"
+        title="Add program"
+        description="A program or initiative run by one of the chapters."
+      />
 
       <Card className="max-w-2xl">
         <CardHeader>

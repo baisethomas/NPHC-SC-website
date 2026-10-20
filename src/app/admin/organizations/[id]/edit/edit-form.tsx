@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { updateOrganization } from "../../actions";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
@@ -85,14 +86,15 @@ export function EditOrganizationForm({ organization }: { organization: Organizat
   }
 
   return (
+    <div className="space-y-6">
+      <AdminPageHeader
+        backHref="/admin/organizations"
+        backLabel="Organizations"
+        title="Edit chapter"
+        description={[organization.name, organization.chapter].filter(Boolean).join(" · ")}
+      />
     <Card>
-      <CardHeader>
-        <CardTitle>Edit Organization</CardTitle>
-        <CardDescription>
-          Update the details for &quot;{organization.name} - {organization.chapter}&quot;.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+      <CardContent className="pt-6">
         <form onSubmit={onSubmit} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="name">Organization Name</Label>
@@ -221,5 +223,6 @@ export function EditOrganizationForm({ organization }: { organization: Organizat
         </form>
       </CardContent>
     </Card>
+    </div>
   );
 }

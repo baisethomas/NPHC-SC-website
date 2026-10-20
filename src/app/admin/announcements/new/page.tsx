@@ -15,7 +15,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { createAnnouncement } from "../actions";
@@ -89,12 +90,15 @@ export default function NewAnnouncementPage() {
   }
 
   return (
+    <div className="space-y-6">
+      <AdminPageHeader
+        backHref="/admin/announcements"
+        backLabel="Announcements"
+        title="Post announcement"
+        description="A news item for the public site. Save as a draft or schedule it for later."
+      />
     <Card>
-      <CardHeader>
-        <CardTitle>Create New Announcement</CardTitle>
-        <CardDescription>Fill out the form below to add a new announcement to the website.</CardDescription>
-      </CardHeader>
-      <CardContent>
+      <CardContent className="pt-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField control={form.control} name="title" render={({ field }) => (
@@ -186,5 +190,6 @@ export default function NewAnnouncementPage() {
         </Form>
       </CardContent>
     </Card>
+    </div>
   );
 }

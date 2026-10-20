@@ -1,49 +1,44 @@
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { getEvents } from "@/lib/data";
-import { EventCalendar } from "@/components/event-calendar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { EventCard } from "@/components/event-card";
+import { upcomingEvents, pastEvents, pickSpotlightEvent } from "@/lib/events";
+import { Button } from "@/components/ui/button";
+import { PageHero } from "@/components/site/page-hero";
+import { EventBanner } from "@/components/site/event-banner";
+import { EventsBrowser } from "@/components/site/events-browser";
 
 export default async function EventsPage() {
   const events = await getEvents();
+  const upcoming = upcomingEvents(events);
+  const past = pastEvents(events);
+  const spotlight = pickSpotlightEvent(events);
+  const rest = upcoming.filter((e) => e.id !== spotlight?.id);
 
   return (
     <div>
-      <section className="bg-muted py-20">
-        <div className="container text-center">
-          <h1 className="text-4xl md:text-5xl font-headline font-bold">Upcoming Events</h1>
-          <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
-            Stay connected and join us for our upcoming community events, workshops, and celebrations.
-          </p>
-        </div>
-      </section>
+      <PageHero
+        eyebrow="Calendar"
+        title="Events"
+        lede="Council events, chapter programs, and community gatherings across Solano County. Filter by the organization hosting, or switch to the calendar view."
+      >
+        <Button asChild variant="outline" className="border-ivory/30 bg-transparent text-ivory hover:bg-ivory/10 hover:text-ivory">
+          <Link href="/mailing-list">
+            Get event announcements <ArrowRight className="h-4 w-4" />
+          </Link>
+        </Button>
+      </PageHero>
 
-      <section className="py-16 md:py-24">
+      {spotlight && (
+        <section className="pt-10 md:pt-14">
+          <div className="container">
+            <EventBanner event={spotlight} />
+          </div>
+        </section>
+      )}
+
+      <section className="py-12 md:py-16">
         <div className="container">
-          <Tabs defaultValue="list" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-8">
-              <TabsTrigger value="list">Event List</TabsTrigger>
-              <TabsTrigger value="calendar">Calendar View</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="list" className="space-y-0">
-              {events.length === 0 ? (
-                <div className="text-center py-12">
-                  <p className="text-muted-foreground text-lg">No events scheduled at this time.</p>
-                  <p className="text-muted-foreground mt-2">Check back soon for upcoming events!</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {events.map((event) => (
-                    <EventCard key={event.slug || event.id} event={event} />
-                  ))}
-                </div>
-              )}
-            </TabsContent>
-            
-            <TabsContent value="calendar" className="space-y-0">
-              <EventCalendar events={events} />
-            </TabsContent>
-          </Tabs>
+          <EventsBrowser upcoming={rest} past={past} />
         </div>
       </section>
     </div>

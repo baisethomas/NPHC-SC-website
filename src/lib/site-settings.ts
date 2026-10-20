@@ -15,6 +15,15 @@ export type SiteSettings = {
   twitterUrl: string;
   donationUrl: string;
   footerText: string;
+  /** Short line shown in the footer, e.g. "General body meets the second Thursday monthly." */
+  meetingCadence: string;
+  /** Year the council was chartered; shown in the footer and stats bar. */
+  yearChartered: string;
+  /** Impact numbers that drive the public stats bar. Blank hides the stat. */
+  statChapters: string;
+  statScholarships: string;
+  statServiceHours: string;
+  statMembers: string;
 };
 
 export const SITE_SETTINGS_COLLECTION = 'siteSettings';
@@ -29,6 +38,12 @@ const DEFAULT_SITE_SETTINGS: SiteSettings = {
   twitterUrl: '',
   donationUrl: '',
   footerText: '',
+  meetingCadence: '',
+  yearChartered: '',
+  statChapters: '',
+  statScholarships: '',
+  statServiceHours: '',
+  statMembers: '',
 };
 
 function asTrimmedString(value: unknown): string {
@@ -65,6 +80,12 @@ export const getSiteSettings = cache(async (): Promise<SiteSettings> => {
       twitterUrl: asTrimmedString(data.twitterUrl),
       donationUrl: asTrimmedString(data.donationUrl),
       footerText: asTrimmedString(data.footerText),
+      meetingCadence: asTrimmedString(data.meetingCadence),
+      yearChartered: asTrimmedString(data.yearChartered),
+      statChapters: asTrimmedString(data.statChapters),
+      statScholarships: asTrimmedString(data.statScholarships),
+      statServiceHours: asTrimmedString(data.statServiceHours),
+      statMembers: asTrimmedString(data.statMembers),
     };
   } catch (e: unknown) {
     const error = e instanceof Error ? e : new Error(String(e));

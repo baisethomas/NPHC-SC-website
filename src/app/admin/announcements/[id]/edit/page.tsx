@@ -14,7 +14,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -121,12 +122,15 @@ export default function EditAnnouncementPage() {
   if (loading) return <div>Loading...</div>;
 
   return (
+    <div className="space-y-6">
+      <AdminPageHeader
+        backHref="/admin/announcements"
+        backLabel="Announcements"
+        title="Edit announcement"
+        description="Changes publish as soon as you save."
+      />
     <Card>
-      <CardHeader>
-        <CardTitle>Edit Announcement</CardTitle>
-        <CardDescription>Update the details for this announcement.</CardDescription>
-      </CardHeader>
-      <CardContent>
+      <CardContent className="pt-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField control={form.control} name="title" render={({ field }) => (
@@ -223,5 +227,6 @@ export default function EditAnnouncementPage() {
         </Form>
       </CardContent>
     </Card>
+    </div>
   );
-} 
+}

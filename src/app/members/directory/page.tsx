@@ -1,95 +1,35 @@
-import { getDirectoryMembers } from "@/lib/data";
-import { requireActiveMemberSession } from '@/lib/server-auth';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Mail, Building2, UserCircle } from "lucide-react";
+import { getDirectoryMembers } from '@/lib/data';
+import { requireActiveMemberSession } from '@/lib/server-auth';
+import { Button } from '@/components/ui/button';
+import { PortalEmpty, PortalPageHeader } from '@/components/portal/page-header';
+import { DirectoryBrowser } from './directory-browser';
 
 export default async function MemberDirectoryPage() {
   const auth = await requireActiveMemberSession();
-  if (!auth.ok) {
-    redirect('/login');
-  }
+  if (!auth.ok) redirect('/login');
 
   const { members, error } = await getDirectoryMembers();
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-10">
-      <div>
-        <h1 className="text-3xl font-bold font-headline tracking-tight text-gray-900">Member Directory</h1>
-        <p className="text-muted-foreground mt-2">Connect with other officers and members of the NPHC of Solano County.</p>
-      </div>
+    <div className="space-y-8">
+      <PortalPageHeader
+        title="Member directory"
+        description="Officers and members of the NPHC of Solano County. Visible to signed-in members only."
+        action={
+          <Button asChild variant="outline" size="sm">
+            <Link href="/members/profile">Update my listing</Link>
+          </Button>
+        }
+      />
 
       {error ? (
-        <Card className="border-red-200 bg-red-50">
-          <CardContent className="pt-6">
-            <p className="text-red-700">Error loading directory: {error}</p>
-          </CardContent>
-        </Card>
+        <p className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">Error loading directory: {error}</p>
       ) : members.length === 0 ? (
-        <Card className="border-dashed shadow-none border-2">
-          <CardContent className="pt-16 pb-16 text-center flex flex-col justify-center items-center">
-            <div className="w-16 h-16 rounded-full bg-violet-100 flex items-center justify-center mb-4">
-              <UserCircle className="w-8 h-8 text-violet-600" />
-            </div>
-            <h3 className="text-xl font-semibold mb-2 text-gray-900">Directory is empty</h3>
-            <p className="text-muted-foreground max-w-sm mx-auto">
-              No members have been populated in the database.
-            </p>
-          </CardContent>
-        </Card>
+        <PortalEmpty title="The directory is empty" description="Approved members will appear here once their profiles are set up." />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {members.map((member) => (
-            <Card key={member.id} className="overflow-hidden hover:shadow-md transition-all duration-300 border-gray-200">
-              <CardHeader className="pb-4 items-center text-center bg-gradient-to-b from-gray-50 to-white border-b border-gray-100">
-                <div className="w-20 h-20 mb-3 rounded-full shadow-sm flex items-center justify-center bg-violet-100 text-violet-700 overflow-hidden shrink-0 border border-violet-200 relative">
-                  {member.avatarUrl?.startsWith('https://') ? (
-                    // https-only: a member-set URL must not downgrade transport
-                    // or reach non-web schemes.
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={member.avatarUrl}
-                      alt={member.displayName ?? 'Member'}
-                      className="absolute inset-0 w-full h-full object-cover"
-                    />
-                  ) : (
-                    <span className="text-2xl font-bold font-headline tracking-wide">
-                      {(member.displayName ?? '?').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || '?'}
-                    </span>
-                  )}
-                </div>
-                <CardTitle className="text-lg font-semibold text-gray-900">{member.displayName}</CardTitle>
-                <div className="mt-1.5">
-                  <Badge variant="secondary" className="font-medium text-xs bg-yellow-100 text-yellow-800 hover:bg-yellow-200 transition-colors border-none">
-                    {member.role || 'Member'}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-5 space-y-4">
-                <div className="flex flex-col gap-3 text-sm text-gray-700">
-                  {member.organization && (
-                    <div className="flex items-start gap-2">
-                      <Building2 className="w-4 h-4 mt-0.5 text-gray-400 shrink-0" />
-                      <div>
-                        <span className="block font-medium text-gray-900 leading-tight">{member.organization}</span>
-                        {member.chapter && <span className="text-xs text-gray-500 mt-0.5 block">{member.chapter}</span>}
-                      </div>
-                    </div>
-                  )}
-                  {member.email && (
-                    <div className="flex items-center gap-2 pt-2 border-t border-gray-50">
-                      <Mail className="w-4 h-4 text-violet-400 shrink-0" />
-                      <a href={`mailto:${member.email}`} className="text-blue-600 hover:text-blue-800 hover:underline truncate font-medium transition-colors">
-                        {member.email}
-                      </a>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <DirectoryBrowser members={members} />
       )}
     </div>
   );

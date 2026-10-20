@@ -32,7 +32,7 @@ export interface ContentBlockView {
   label: string;
   description: string;
   type: SiteContentBlockType;
-  page: 'Homepage' | 'About';
+  page: 'Homepage' | 'About' | 'Scholarships';
   value: string;
   isDefault: boolean;
   updatedAt: string | null;

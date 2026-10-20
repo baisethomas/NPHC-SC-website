@@ -31,6 +31,7 @@ import { updateContentBlock, uploadContentImage, type ContentBlockView } from '.
 const PAGE_GROUPS: ReadonlyArray<{ page: ContentBlockView['page']; href: string }> = [
   { page: 'Homepage', href: '/' },
   { page: 'About', href: '/about' },
+  { page: 'Scholarships', href: '/scholarships' },
 ];
 
 function stripHtml(html: string): string {

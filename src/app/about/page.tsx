@@ -1,182 +1,185 @@
 import Image from "next/image";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getBoardMembers } from "@/lib/data";
-import type { BoardMember } from "@/lib/definitions";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { CheckCircle, Terminal, Target, Users, BookOpen } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, CheckCircle2, Terminal } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { getBoardMembers } from "@/lib/data";
 import { getSiteContent } from "@/lib/site-content";
+import { getSiteSettings } from "@/lib/site-settings";
 import { sanitizeHtml } from "@/lib/sanitizer";
+import { getDivineNineBrand } from "@/lib/divine-nine-brand";
+import { PageHero } from "@/components/site/page-hero";
+import { SectionHeading } from "@/components/site/section-heading";
+import { StatsBar, statsFromSettings } from "@/components/site/stats-bar";
+
+const OBJECTIVES = [
+  "Assist in establishing and facilitating local councils on campuses and within communities.",
+  "Serve as the communication link between constituent fraternities and sororities.",
+  "Conduct periodic workshops and training sessions for local council officers.",
+  "Host a NPHC National Convention/Undergraduate Leadership Conference.",
+  "Work cooperatively with and contribute to other community groups and national organizations.",
+  "Provide unity and economic empowerment through and by member organizations.",
+  "Perform coordinating functions as set forth within the NPHC Constitution and Bylaws.",
+];
+
+const OFFICER_ORDER = ["president", "vice president", "secretary", "treasurer"];
 
 export default async function AboutPage() {
-  const content = await getSiteContent([
-    'about.history',
-    'about.history.image',
-    'about.objectives.intro',
-    'about.essay.tradition',
-    'about.essay.commitment',
+  const [content, settings, { boardMembers, error }] = await Promise.all([
+    getSiteContent(["about.history", "about.history.image", "about.objectives.intro", "about.essay.tradition", "about.essay.commitment", "home.president.message"]),
+    getSiteSettings(),
+    getBoardMembers(),
   ]);
-  const { boardMembers, error } = await getBoardMembers();
-  const typedBoardMembers: BoardMember[] = boardMembers;
 
-  const objectives = [
-    "Assist in establishing and facilitating local councils on campuses and within communities.",
-    "Serve as the communication link between constituent fraternities and sororities.",
-    "Conduct periodic workshops and training sessions for local council officers.",
-    "Host a NPHC National Convention/Undergraduate Leadership Conference.",
-    "Work cooperatively with and contribute to other community groups and national organizations.",
-    "Provide unity and economic empowerment through and by member organizations.",
-    "Perform coordinating functions as set forth within the NPHC Constitution and Bylaws.",
-  ];
+  const sortedBoard = [...boardMembers].sort((a, b) => {
+    const ia = OFFICER_ORDER.findIndex((t) => a.title.toLowerCase().includes(t));
+    const ib = OFFICER_ORDER.findIndex((t) => b.title.toLowerCase().includes(t));
+    return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+  });
+  const president = boardMembers.find((m) => m.title.toLowerCase() === "president");
 
   return (
     <div>
-      <section className="bg-muted py-20">
-        <div className="container text-center">
-          <h1 className="text-4xl md:text-5xl font-headline font-bold">About NPHC Solano</h1>
-          <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
-            Learn about our dedication to scholarship, service, and unity across Solano County.
-          </p>
-        </div>
-      </section>
+      <PageHero
+        eyebrow="About the council"
+        title="Nine legacies, working as one in Solano County."
+        lede="The NPHC of Solano County coordinates the local chapters of the nine historically Black Greek-letter organizations: shared service, shared scholarship, and a shared voice."
+      >
+        <Button asChild className="bg-gold text-ink hover:bg-gold/90">
+          <Link href="/organizations">
+            Meet the chapters <ArrowRight className="h-4 w-4" />
+          </Link>
+        </Button>
+        <Button asChild variant="outline" className="border-ivory/30 bg-transparent text-ivory hover:bg-ivory/10 hover:text-ivory">
+          <Link href="/get-involved">Get involved</Link>
+        </Button>
+      </PageHero>
 
+      <StatsBar stats={statsFromSettings(settings)} />
+
+      {/* History */}
       <section className="py-16 md:py-24">
-        <div className="container grid md:grid-cols-5 gap-12">
-          <div className="md:col-span-3">
-            <h2 className="text-3xl font-headline font-bold mb-4">Our Rich History</h2>
+        <div className="container grid gap-12 md:grid-cols-12">
+          <div className="md:col-span-7">
+            <SectionHeading eyebrow="Our history" title="Rooted in 1930. Serving Solano today." className="mb-6" />
             <div
-              className="text-muted-foreground leading-relaxed space-y-6"
-              dangerouslySetInnerHTML={{ __html: sanitizeHtml(content['about.history']) }}
+              className="space-y-5 text-lg leading-relaxed text-foreground/85 [&_p]:mb-0"
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(content["about.history"]) }}
             />
           </div>
-          <div className="md:col-span-2">
-            <Image src={content['about.history.image']} alt="Historical photo of NPHC members" width={600} height={400} className="rounded-lg shadow-md" data-ai-hint="group photo" />
-          </div>
-        </div>
-      </section>
-
-      {/* Vibrant Mission & Objectives Section */}
-      <section className="py-16 md:py-24 bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-600 relative overflow-hidden">
-        {/* Animated background elements */}
-        <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 via-transparent to-blue-600/20" />
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-pink-400/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-0 left-1/4 w-80 h-80 bg-yellow-400/10 rounded-full blur-3xl animate-pulse animation-delay-1000" />
-        
-        <div className="container relative z-10">
-          <div className="max-w-4xl mx-auto text-center mb-12">
-            <div className="flex items-center justify-center w-20 h-20 mx-auto mb-6 bg-white/20 rounded-full text-white shadow-lg backdrop-blur-sm">
-              <Target className="h-10 w-10" />
+          <div className="md:col-span-5">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-secondary md:sticky md:top-24">
+              <Image src={content["about.history.image"]} alt="NPHC of Solano County members" fill className="object-cover" sizes="(min-width: 768px) 40vw, 100vw" />
             </div>
-            <h2 className="text-3xl md:text-4xl font-headline font-bold mb-4 text-white">Our Mission & Objectives</h2>
-            <div className="mx-auto mb-6 h-1 w-24 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600" />
-            <div
-              className="text-white/90 text-lg leading-relaxed max-w-3xl mx-auto space-y-4"
-              dangerouslySetInnerHTML={{ __html: sanitizeHtml(content['about.objectives.intro']) }}
-            />
-          </div>
-          
-          <div className="max-w-4xl mx-auto">
-            <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-2xl">
-              <CardContent className="p-8">
-                <Accordion type="single" collapsible className="w-full space-y-4">
-                  <AccordionItem value="item-1" className="border border-violet-100/50 rounded-xl px-6 py-2 bg-gradient-to-r from-violet-50/50 to-indigo-50/50 hover:from-violet-50 hover:to-indigo-50 transition-all duration-300">
-                    <AccordionTrigger className="font-semibold text-lg text-violet-800 hover:text-violet-900 hover:no-underline">
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-violet-500 to-indigo-600 rounded-full text-white">
-                          <BookOpen className="h-4 w-4" />
-                        </div>
-                        Why Our Tradition Must Continue
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="text-gray-700 space-y-4 pt-4 ml-11">
-                      <div
-                        className="leading-relaxed space-y-4"
-                        dangerouslySetInnerHTML={{ __html: sanitizeHtml(content['about.essay.tradition']) }}
-                      />
-                    </AccordionContent>
-                  </AccordionItem>
-                  
-                  <AccordionItem value="item-2" className="border border-blue-100/50 rounded-xl px-6 py-2 bg-gradient-to-r from-blue-50/50 to-cyan-50/50 hover:from-blue-50 hover:to-cyan-50 transition-all duration-300">
-                    <AccordionTrigger className="font-semibold text-lg text-blue-800 hover:text-blue-900 hover:no-underline">
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-blue-500 to-cyan-600 rounded-full text-white">
-                          <Users className="h-4 w-4" />
-                        </div>
-                        A Lifetime Commitment
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="text-gray-700 space-y-4 pt-4 ml-11">
-                      <div
-                        className="leading-relaxed space-y-4"
-                        dangerouslySetInnerHTML={{ __html: sanitizeHtml(content['about.essay.commitment']) }}
-                      />
-                    </AccordionContent>
-                  </AccordionItem>
-                  
-                   <AccordionItem value="item-3" className="border border-emerald-100/50 rounded-xl px-6 py-2 bg-gradient-to-r from-emerald-50/50 to-teal-50/50 hover:from-emerald-50 hover:to-teal-50 transition-all duration-300">
-                    <AccordionTrigger className="font-semibold text-lg text-emerald-800 hover:text-emerald-900 hover:no-underline">
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full text-white">
-                          <Target className="h-4 w-4" />
-                        </div>
-                        Core Objectives
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="text-gray-700 space-y-4 pt-4 ml-11">
-                      <ul className="space-y-3">
-                        {objectives.map((objective, index) => (
-                          <li key={index} className="flex items-start group">
-                            <div className="flex items-center justify-center w-5 h-5 mr-3 mt-1 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full shrink-0 group-hover:scale-110 transition-transform duration-200">
-                              <CheckCircle className="h-3 w-3 text-white" />
-                            </div>
-                            <span className="leading-relaxed group-hover:text-emerald-800 transition-colors duration-200">{objective}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </section>
 
+      {/* Mission & objectives */}
+      <section className="bg-ink py-16 text-ivory md:py-24">
+        <div className="container grid gap-12 lg:grid-cols-12">
+          <div className="lg:col-span-5">
+            <SectionHeading tone="inverse" eyebrow="Mission and objectives" title="What the council is for." className="mb-6" />
+            <div
+              className="space-y-4 text-lg leading-relaxed text-ivory/75 [&_p]:mb-0"
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(content["about.objectives.intro"]) }}
+            />
+          </div>
+          <div className="lg:col-span-7">
+            <ol className="divide-y divide-ivory/10 border-y border-ivory/10">
+              {OBJECTIVES.map((o) => (
+                <li key={o} className="flex items-start gap-4 py-4">
+                  <CheckCircle2 className="mt-1 h-5 w-5 shrink-0 text-gold" />
+                  <span className="leading-relaxed text-ivory/90">{o}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      {/* Essays */}
+      <section className="border-b border-border py-16 md:py-24">
+        <div className="container grid gap-12 md:grid-cols-2">
+          <article>
+            <p className="eyebrow mb-3">Why our tradition must continue</p>
+            <div className="gold-rule mb-6" />
+            <div
+              className="space-y-4 leading-relaxed text-foreground/85 [&_p]:mb-0"
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(content["about.essay.tradition"]) }}
+            />
+          </article>
+          <article>
+            <p className="eyebrow mb-3">A lifetime commitment</p>
+            <div className="gold-rule mb-6" />
+            <div
+              className="space-y-4 leading-relaxed text-foreground/85 [&_p]:mb-0"
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(content["about.essay.commitment"]) }}
+            />
+          </article>
+        </div>
+      </section>
+
+      {/* From the president */}
+      <section id="president" className="scroll-mt-24 border-b border-border bg-card py-16 md:py-24">
+        <div className="container grid gap-10 md:grid-cols-12">
+          <div className="md:col-span-4">
+            <p className="eyebrow mb-3">From the president</p>
+            {president && (
+              <div className="flex items-center gap-4">
+                <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full bg-secondary">
+                  <Image src={president.image} alt={president.name} fill className="object-cover" sizes="64px" />
+                </div>
+                <div>
+                  <p className="font-headline text-lg font-bold leading-tight">{president.name}</p>
+                  <p className="text-sm text-muted-foreground">{president.title}</p>
+                </div>
+              </div>
+            )}
+          </div>
+          <div
+            className="text-lg leading-relaxed text-foreground/85 md:col-span-8 [&_p]:mb-5 [&_p:last-child]:mb-0"
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(content["home.president.message"]) }}
+          />
+        </div>
+      </section>
+
+      {/* Executive board */}
       <section className="py-16 md:py-24">
         <div className="container">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-headline font-bold">Executive Board</h2>
-            <p className="text-muted-foreground mt-2">Meet the leaders guiding our council.</p>
-          </div>
+          <SectionHeading eyebrow="Executive board" title="The leaders guiding the council" lede="Each officer also represents their own chapter. Together they form the council's executive board." />
           {error ? (
-             <Alert variant="destructive" className="max-w-2xl mx-auto">
-                <Terminal className="h-4 w-4" />
-                <AlertTitle>Error Loading Board Members</AlertTitle>
-                <AlertDescription>
-                    {error}
-                </AlertDescription>
+            <Alert variant="destructive" className="mx-auto max-w-2xl">
+              <Terminal className="h-4 w-4" />
+              <AlertTitle>Error loading board members</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
             </Alert>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {typedBoardMembers.map((member) => (
-                <Card key={member.id} className="text-center">
-                  <CardHeader className="items-center">
-                    <Avatar className="w-50 h-50 mb-4">
-                      <AvatarImage src={member.image} alt={member.name} data-ai-hint={member.hint} />
-                      <AvatarFallback className="text-2xl">{member.initials}</AvatarFallback>
-                    </Avatar>
-                    <CardTitle className="font-headline text-xl">{member.name}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-primary/70 font-medium">{member.title}</p>
-                    {(member as BoardMember & { organization?: string }).organization ? (
-                      <p className="text-muted-foreground text-sm mt-2 font-medium">{(member as BoardMember & { organization?: string }).organization}</p>
-                    ) : null}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {sortedBoard.map((member) => {
+                const brand = getDivineNineBrand(member.organization);
+                return (
+                  <li key={member.id}>
+                    <div className="relative aspect-[4/5] overflow-hidden rounded-lg bg-secondary">
+                      {member.image ? (
+                        <Image src={member.image} alt={member.name} fill className="object-cover object-top" sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw" />
+                      ) : (
+                        <div className="flex h-full items-center justify-center bg-ink font-headline text-4xl text-gold">{member.initials}</div>
+                      )}
+                      <span className="absolute inset-x-0 bottom-0 h-1" style={{ background: brand?.colors[0] ?? "hsl(var(--brand-gold))" }} aria-hidden />
+                    </div>
+                    <p className="mt-4 font-headline text-xl font-bold leading-tight">{member.name}</p>
+                    <p className="mt-1 text-sm font-semibold text-gold">{member.title}</p>
+                    {member.organization && (
+                      <p className="mt-3 inline-flex items-center gap-2 text-sm text-muted-foreground">
+                        <span className="h-2 w-2 rounded-full" style={{ background: brand?.colors[0] ?? "hsl(var(--brand-gold))" }} aria-hidden />
+                        {brand?.shortName ?? member.organization}
+                      </p>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
           )}
         </div>
       </section>

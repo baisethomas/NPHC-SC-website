@@ -1,7 +1,9 @@
-
 "use client";
 
+import { useState } from "react";
+
 import { zodResolver } from "@hookform/resolvers/zod";
+import { DIVINE_NINE_SHORT_NAMES } from "@/lib/divine-nine-brand";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -16,7 +18,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -47,6 +50,8 @@ const formSchema = z.object({
   eventType: z.enum(['internal', 'external', 'info_only']),
   status: z.enum(['draft', 'published']),
   rsvpEnabled: z.boolean(),
+  hostOrganization: z.string().optional(),
+  featured: z.boolean(),
   externalLink: z.string().url().optional().or(z.literal("")),
   maxAttendees: z.number().optional(),
   image: z
@@ -74,6 +79,7 @@ export function EditEventForm({ event }: { event: Event }) {
   const { toast } = useToast();
   const router = useRouter();
 
+  const [dateOpen, setDateOpen] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -85,6 +91,8 @@ export function EditEventForm({ event }: { event: Event }) {
       eventType: event.eventType ?? "internal",
       status: event.status === "draft" ? "draft" : "published",
       rsvpEnabled: event.rsvpEnabled ?? false,
+      hostOrganization: event.hostOrganization ?? "",
+      featured: event.featured ?? false,
       externalLink: event.externalLink ?? "",
       maxAttendees: event.maxAttendees,
       image: undefined,
@@ -110,6 +118,8 @@ export function EditEventForm({ event }: { event: Event }) {
       formData.append("eventType", values.eventType);
       formData.append("status", values.status);
       formData.append("rsvpEnabled", String(values.rsvpEnabled));
+      formData.append("hostOrganization", values.hostOrganization ?? "");
+      formData.append("featured", String(values.featured));
       if (values.externalLink) {
         formData.append("externalLink", values.externalLink);
       }
@@ -152,12 +162,10 @@ export function EditEventForm({ event }: { event: Event }) {
   }
 
   return (
+    <div className="space-y-6">
+      <AdminPageHeader backHref="/admin/events" backLabel="Events" title="Edit event" description={event.title} />
     <Card>
-      <CardHeader>
-        <CardTitle>Edit Event</CardTitle>
-        <CardDescription>Update the details for &quot;{event.title}&quot;.</CardDescription>
-      </CardHeader>
-      <CardContent>
+      <CardContent className="pt-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField control={form.control} name="title" render={({ field }) => (
@@ -174,7 +182,7 @@ export function EditEventForm({ event }: { event: Event }) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Date</FormLabel>
-                    <Popover>
+                    <Popover open={dateOpen} onOpenChange={setDateOpen}>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
@@ -197,9 +205,9 @@ export function EditEventForm({ event }: { event: Event }) {
                         <Calendar
                           mode="single"
                           selected={field.value}
-                          onSelect={field.onChange}
+                          onSelect={(day) => { field.onChange(day); setDateOpen(false); }}
                           disabled={(date) => date < new Date("1900-01-01")}
-                          initialFocus
+                          autoFocus
                         />
                       </PopoverContent>
                     </Popover>
@@ -315,6 +323,43 @@ export function EditEventForm({ event }: { event: Event }) {
               )} />
             </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-6">
+              <FormField control={form.control} name="hostOrganization" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Hosting organization (optional)</FormLabel>
+                  <Select onValueChange={(v) => field.onChange(v === "__none" ? "" : v)} value={field.value || "__none"}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="NPHC Solano (council-wide)" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="__none">NPHC Solano (council-wide)</SelectItem>
+                      {DIVINE_NINE_SHORT_NAMES.map((name) => (
+                        <SelectItem key={name} value={name}>{name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-sm text-muted-foreground">Shown as a tag on the event and used for the filter chips on the events page.</p>
+                  <FormMessage />
+                </FormItem>
+              )} />
+
+              <FormField control={form.control} name="featured" render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormControl>
+                    <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Feature on homepage</FormLabel>
+                    <p className="text-sm text-muted-foreground">
+                      Shows this event in the homepage countdown instead of the soonest one.
+                    </p>
+                  </div>
+                </FormItem>
+              )} />
+            </div>
+
             {form.watch("eventType") === "external" && (
               <FormField control={form.control} name="externalLink" render={({ field }) => (
                 <FormItem>
@@ -376,5 +421,6 @@ export function EditEventForm({ event }: { event: Event }) {
         </Form>
       </CardContent>
     </Card>
+    </div>
   );
 }

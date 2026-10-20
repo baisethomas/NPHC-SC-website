@@ -5,7 +5,8 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { updateBoardMemberWithImage } from "../../actions";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
@@ -138,12 +139,10 @@ export function EditBoardMemberForm({ member }: { member: BoardMember }) {
   }
 
   return (
+    <div className="space-y-6">
+      <AdminPageHeader backHref="/admin/board" backLabel="Board members" title="Edit board member" description={member.name} />
     <Card>
-      <CardHeader>
-        <CardTitle>Edit Board Member</CardTitle>
-        <CardDescription>Update the details for &quot;{member.name}&quot;.</CardDescription>
-      </CardHeader>
-      <CardContent>
+      <CardContent className="pt-6">
         <form onSubmit={onSubmit} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="name">Full Name</Label>
@@ -241,5 +240,6 @@ export function EditBoardMemberForm({ member }: { member: BoardMember }) {
         </form>
       </CardContent>
     </Card>
+    </div>
   );
 }

@@ -1,110 +1,33 @@
-# CLAUDE.md
+@AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+# CLAUDE.md — Claude Code Adapter
 
-## Project Overview
+`AGENTS.md` (imported above) is the canonical operating contract: the project documentation first, then the Ratchet rules for planning, verification, scope, project memory, decision autonomy, hard stops, reporting, and handoff. This file adds only what is specific to Claude Code.
 
-NPHC Solano Hub — the official website for the National Pan-Hellenic Council of Solano County. Built on Next.js 16 + Firebase with a custom role-based CMS being developed in phases.
+## Claude Code specifics
 
-## Commands
+- Use plan mode for nontrivial work when available.
+- Respect configured `.claude/` hooks and never bypass a failing stop/check hook merely to complete the task.
+- Read `.ratchet/STATE.md` and `.ratchet/DECISIONS.md` through the workflow defined in `AGENTS.md`.
+- Maintain project memory autonomously according to the low/medium/high impact thresholds in `AGENTS.md`.
+- Treat any conflict between this file and `AGENTS.md` as a configuration error. `AGENTS.md` wins; report the conflict.
 
-```bash
-npm run dev                 # Start dev server on port 9002
-npm run build               # Runs typecheck then next build
-npm run check               # Typecheck + lint
-npm test                    # Unit tests (excluding emulator rules tests)
-npm run test:rules          # Firestore/Storage rules tests through emulators
-npm run env:check           # Validate local environment without printing secrets
-npm run env:check:ci        # Validate the secret-free environment template
-npm run audit:dependencies  # Production dependency policy check
-```
+## Model routing
 
-`test:rules` uses `firebase emulators:exec` and needs Java 21. The configured emulator ports are Auth 9099, Firestore 8080, Storage 9199, Functions 5001, and UI 4000.
+Tiers, what each owns, and the routing rules are defined in `AGENTS.md` → Delegation and model tiers. This table only says which model fills each tier here. The owner picks the orchestrator's model (`/model`, or the `model` setting). Set a subagent's tier with the Agent tool's `model` parameter, or with `model:` in a `.claude/agents/*.md` definition.
 
-Firebase Cloud Functions (in `functions/`):
-```bash
-cd functions && npm run build
-firebase emulators:start
-firebase deploy --only firestore:rules,firestore:indexes,storage
-firebase deploy --only functions
-```
+| Tier | Model |
+|---|---|
+| Orchestrate | **Fable** (`fable`) |
+| Operate, high risk | **Opus** (`opus`) |
+| Operate, routine | **Sonnet** (`sonnet`) |
+| Git & docs | **Haiku** (`haiku`) |
 
-Admin utility scripts (run with `ts-node` or `npx tsx`):
-```bash
-npx tsx scripts/set-admin.ts       # Assign admin role to a user
-npx tsx scripts/migrate-roles.ts   # Migrate users collection → members collection
-```
+The value in backticks is the alias that `/model`, the `model` setting, and the Agent tool accept. Fable is not available on every plan or Claude Code version: where `fable` is not selectable, Opus orchestrates and takes the high-risk tier as well — state the substitution, as `AGENTS.md` requires.
 
-## Architecture
+## Repo-specific Claude notes
 
-### Tech Stack
-- **Framework**: Next.js 16 (App Router), React 19, TypeScript
-- **Backend**: Firebase — Auth, Firestore, Storage, Cloud Functions
-- **Styling**: Tailwind CSS v3, Radix UI primitives (via shadcn/ui), `cn()` utility from `src/lib/utils.ts`
-- **Forms**: react-hook-form + zod
-- **Rich text editor**: Tiptap
-- **AI**: Genkit with Google AI (Gemini 2.0 Flash) — configured in `src/ai/genkit.ts`
-- **Deployment**: Firebase App Hosting (`apphosting.yaml`)
-
-### Route Groups
-- **Public pages**: `/`, `/about`, `/events`, `/organizations`, `/news`, `/programs`, `/gallery`, `/contact`, `/donations`, `/mailing-list`
-- **Auth**: `/login`
-- **Members portal** (`/members/*`): Requires authenticated user. Guarded in `src/app/members/layout.tsx`.
-- **Admin panel** (`/admin/*`): Requires `super_admin` or `admin` role. Guarded in `src/app/admin/layout.tsx`.
-- **API routes** (`/api/*`): `src/app/api/members/` and `src/app/api/organizations/`
-
-### Authentication & Authorization
-
-**Client-side** — `src/contexts/AuthContext.tsx` wraps the entire app (see `src/app/layout.tsx`). It provides:
-- `user`: Firebase `User | null`
-- `roles: Role[]` — read from Firebase ID token custom claims
-- `hasPermission(permission: Permission): boolean`
-- `hasRole(role: Role): boolean`
-- `loading: boolean`
-
-**Server-side (API routes)** — Use `src/lib/authz-v2.ts`:
-```ts
-const result = await requirePermission(request, PERMISSIONS.MANAGE_EVENTS);
-if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status });
-// result.user is now typed as UserWithRoles
-```
-
-Available guards: `requireUser`, `requirePermission`, `requireAnyRole`, `requireAdmin`.
-
-**Firebase Admin SDK** — `src/lib/firebase-admin.ts` initializes from `FIREBASE_ADMIN_CREDENTIALS_JSON`, the `FIREBASE_ADMIN_CLIENT_EMAIL`/`FIREBASE_ADMIN_PRIVATE_KEY` pair, or Application Default Credentials/`GOOGLE_APPLICATION_CREDENTIALS`. It exports `adminDb`, `adminAuth`, and `verifyIdToken()`. Never expose Admin credentials to client code.
-
-### Role & Permission System
-
-Defined in `src/lib/roles.ts`. Roles (10 total): `super_admin`, `admin`, `content_editor`, `membership_manager`, `event_manager`, `treasurer`, `comms_manager`, `committee_lead`, `member`, `visitor`.
-
-Permissions (18 total): `manage_roles`, `manage_site_settings`, `edit_content`, `publish_announcements`, `manage_members`, `approve_members`, `manage_tiers`, `view_directory`, `manage_events`, `check_in_attendees`, `manage_payments`, `process_refunds`, `view_financial_reports`, `send_communications`, `manage_documents`, `manage_committees`, `view_analytics`, `view_audit_log`.
-
-Roles are stored as custom claims on Firebase Auth tokens: `{ roles: Role[] }`. Firestore security rules check `request.auth.token.roles`; the legacy `admin` claim exists only during migration. Member profile reads are owner-or-admin, and other protected portal content flows through server routes guarded by `authz-v2`.
-
-Cloud Functions in `functions/src/admin/user-management.ts` export `setUserRoles`, a callable function restricted to `super_admin`. It updates Firebase Auth custom claims and the Firestore `members` document together.
-
-### Data Layer
-
-**Production collections** (the real system — services in `src/lib/firestore-admin.ts` and helpers in `src/lib/data.ts`):
-- Member portal: `documents`, `meetings`, `messages`, `requests`, `activities`
-- Public content: `organizations`, `events`, `announcements`, `boardMembers`, `programs`
-- People & security: `members` (profile/status/roles, written by `setUserRoles` and `scripts/migrate-roles.ts`), `auditLogs` (role-change trail; client writes blocked in rules), `rateLimits`, `rsvps`
-
-**Aspirational collections** (planned, NOT built — see `CMS_ROADMAP.md`): `src/lib/cms-collections.ts` lists a designed future schema (`membershipTiers`, `cms_events`, `registrations`, `invoices`, `payments`, `donations`, `contentPages`, `committees`, `analyticsDaily`, …). Nothing imports that file and those collections have no types, UI, or data. Do not build against them without consulting the roadmap.
-
-### TypeScript Types
-
-`src/types/cms.ts` defines only `Member` and `MembershipStatus`. The working data model types for the portal (Document, Message, MeetingNote, Request, Activity, PaginatedResponse) live in `src/types/members.ts`; public content types (Event, Announcement, BoardMember, Organization, Program) live in `src/lib/definitions.ts`.
-
-### Environment Variables
-
-Required — see `.env.example`:
-- `NEXT_PUBLIC_FIREBASE_*` plus `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` — client configuration
-- `FIREBASE_ADMIN_CREDENTIALS_JSON`, `FIREBASE_ADMIN_CLIENT_EMAIL`/`FIREBASE_ADMIN_PRIVATE_KEY`, or `GOOGLE_APPLICATION_CREDENTIALS` — server-side Admin credentials
-- `NEXT_PUBLIC_ADMIN_EMAIL_ALLOWLIST` / `ADMIN_EMAIL_ALLOWLIST` — temporary migration compatibility, not RBAC authority
-
-### Testing, CI, and Deployment
-
-The Verify workflow uses Node 22 and Java 21, then runs the secret-free environment template check, TypeScript/lint, unit tests, Firebase rules emulator tests, the production dependency-policy audit, the Next.js build, and the Functions TypeScript build. High/critical audit exceptions are documented in `DEPENDENCY_POLICY.md`; do not add one without triage.
-
-The website deploys through Firebase App Hosting (`apphosting.yaml`). Firestore rules/indexes, Storage rules, and Cloud Functions deploy independently through Firebase CLI commands above.
+- The Ratchet plugin is enabled in this environment, so its destructive-command guard already runs on every Bash call. `.claude/settings.json` therefore wires only the stop gate and the lint-on-edit hook; do not add a second guard entry.
+- The guard also blocks any Bash command whose program name is a shell variable, `rm -rf`, `git commit -m "$(...)"`, and `gh --jq` expressions containing parentheses. Write commit messages to a file and use `git commit -F <file>`; put the Chrome binary path in a script or quote it literally.
+- Screenshots: no Playwright here. Use headless Chrome at `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome` with `--headless=new --screenshot --window-size=WxH`. It will not render narrower than about 500px, so treat a 390px capture as unreliable. The `claude-in-chrome` tools can drive the owner's logged-in browser for portal and admin pages.
+- The dev server is `npm run dev` on port 9002 (see `.claude/launch.json`). It shares the production Firebase project.

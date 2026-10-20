@@ -1,17 +1,55 @@
-
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
-import { LoaderCircle, ArrowLeft, MessageSquare, Pin, Bell, Calendar, AlertCircle } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { LoaderCircle, Pin } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Link from "next/link";
 import { Message } from "@/types/members";
+import { PortalEmpty, PortalPageHeader, PortalSectionTitle, PortalTag } from "@/components/portal/page-header";
+import { cn } from "@/lib/utils";
 
+const CATEGORY_LABEL: Record<Message["category"], string> = {
+  announcement: "Announcement",
+  reminder: "Reminder",
+  urgent: "Urgent",
+  general: "General",
+};
+
+function categoryTone(category: Message["category"]) {
+  return category === "urgent" ? "danger" : category === "reminder" ? "gold" : category === "announcement" ? "ink" : "muted";
+}
+
+function MessageRow({ message }: { message: Message }) {
+  const unread = !message.readBy.length;
+  return (
+    <li className={cn("grid gap-3 py-5 sm:grid-cols-[1fr_auto] sm:gap-6", unread && "rounded-md bg-gold-soft/40 px-4 sm:px-6")}>
+      <div className="min-w-0">
+        <div className="flex flex-wrap items-center gap-2">
+          <PortalTag tone={categoryTone(message.category)}>{CATEGORY_LABEL[message.category]}</PortalTag>
+          {message.priority === "high" && <PortalTag tone="danger">High priority</PortalTag>}
+          {message.pinned && (
+            <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-gold">
+              <Pin className="h-3 w-3" aria-hidden /> Pinned
+            </span>
+          )}
+          {unread && <span className="h-2 w-2 rounded-full bg-gold" aria-label="Unread" />}
+        </div>
+        <h3 className={cn("mt-2 font-headline text-xl leading-snug", unread ? "font-bold" : "font-semibold")}>{message.title}</h3>
+        <p className="mt-1 text-xs text-muted-foreground">
+          {message.senderName} · {message.senderRole} · {new Date(message.timestamp).toLocaleString()}
+        </p>
+        <p className="mt-3 max-w-prose text-sm leading-relaxed text-foreground/85">{message.content}</p>
+      </div>
+      <div className="flex items-start sm:justify-end">
+        <Button variant="outline" size="sm" disabled={!unread}>
+          {unread ? "Mark as read" : "Read"}
+        </Button>
+      </div>
+    </li>
+  );
+}
 
 export default function MessagesPage() {
   const { user, loading } = useAuth();
@@ -25,16 +63,16 @@ export default function MessagesPage() {
 
   if (loading) {
     return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <LoaderCircle className="h-8 w-8 animate-spin" />
+      <div className="flex h-[60vh] w-full items-center justify-center">
+        <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
   if (!user) {
     return (
-      <div className="flex h-screen w-full flex-col items-center justify-center gap-2 text-center">
-        <h1 className="text-2xl font-bold">Access Denied</h1>
+      <div className="flex h-[60vh] w-full flex-col items-center justify-center gap-2 text-center">
+        <h1 className="font-headline text-2xl font-bold">Access denied</h1>
         <p className="text-muted-foreground">You must be logged in to view messages.</p>
         <p className="text-muted-foreground">Redirecting to login...</p>
       </div>
@@ -119,217 +157,70 @@ export default function MessagesPage() {
     }
   ] satisfies Message[];
 
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'announcement': return <Bell className="h-4 w-4" />;
-      case 'reminder': return <Calendar className="h-4 w-4" />;
-      case 'urgent': return <AlertCircle className="h-4 w-4" />;
-      case 'general': return <MessageSquare className="h-4 w-4" />;
-      default: return <MessageSquare className="h-4 w-4" />;
-    }
-  };
-
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case 'announcement': return 'bg-blue-100 text-blue-800';
-      case 'reminder': return 'bg-yellow-100 text-yellow-800';
-      case 'urgent': return 'bg-red-100 text-red-800';
-      case 'general': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'bg-red-100 text-red-800';
-      case 'medium': return 'bg-yellow-100 text-yellow-800';
-      case 'low': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
   const pinnedMessages = messages.filter(msg => msg.pinned);
   const unreadCount = messages.filter(msg => !msg.readBy.length).length;
+  const categories = Object.keys(CATEGORY_LABEL) as Message["category"][];
 
   return (
-    <div>
-      <div className="mb-8">
-        <Button asChild variant="outline" className="mb-4">
-          <Link href="/members">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Members Portal
-          </Link>
-        </Button>
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-muted-foreground">Stay updated with internal communications and announcements.</p>
-          </div>
-            {unreadCount > 0 && (
-              <div className="text-right">
-                <Badge variant="destructive" className="text-sm">
-                  {unreadCount} Unread
-                </Badge>
-              </div>
-            )}
-          </div>
-        </div>
+    <div className="space-y-8">
+      <PortalPageHeader
+        title="Messages"
+        description="Internal communications from officers and committees."
+        action={unreadCount > 0 ? <PortalTag tone="gold">{unreadCount} unread</PortalTag> : undefined}
+      />
 
-        <Tabs defaultValue="all" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="all">All Messages</TabsTrigger>
-            <TabsTrigger value="announcement">Announcements</TabsTrigger>
-            <TabsTrigger value="reminder">Reminders</TabsTrigger>
-            <TabsTrigger value="urgent">Urgent</TabsTrigger>
-            <TabsTrigger value="general">General</TabsTrigger>
-          </TabsList>
-
-          {/* Pinned Messages */}
-          {pinnedMessages.length > 0 && (
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold flex items-center gap-2">
-                <Pin className="h-5 w-5 text-yellow-600" />
-                Pinned Messages
-              </h2>
-              {pinnedMessages.map((message) => (
-                <Card key={message.id} className="border-l-4 border-l-yellow-500 bg-yellow-50">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          {getCategoryIcon(message.category)}
-                          <CardTitle className={`text-lg ${!message.readBy.length ? 'font-bold' : ''}`}>
-                            {message.title}
-                          </CardTitle>
-                          {!message.readBy.length && (
-                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                          )}
-                        </div>
-                        <CardDescription className="flex items-center gap-4">
-                          <span>From: {message.senderName} ({message.senderRole})</span>
-                          <span>To: {message.targetAudience}</span>
-                        </CardDescription>
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <Badge className={getCategoryColor(message.category)}>
-                          {message.category.charAt(0).toUpperCase() + message.category.slice(1)}
-                        </Badge>
-                        <Badge className={getPriorityColor(message.priority)}>
-                          {message.priority.charAt(0).toUpperCase() + message.priority.slice(1)}
-                        </Badge>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-gray-700 mb-4">{message.content}</p>
-                    <div className="flex justify-between items-center text-xs text-muted-foreground">
-                      <span>{new Date(message.timestamp).toLocaleString()}</span>
-                      <Pin className="h-3 w-3 text-yellow-600" />
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-
-          {/* All Messages */}
-          <TabsContent value="all" className="space-y-4">
-            {messages.map((message) => (
-              <Card key={message.id} className={`transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${!message.readBy.length ? 'border-l-4 border-l-blue-500 bg-blue-50/30' : ''}`}>
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        {getCategoryIcon(message.category)}
-                        <CardTitle className={`text-lg ${!message.readBy.length ? 'font-bold' : ''}`}>
-                          {message.title}
-                        </CardTitle>
-                        {!message.readBy.length && (
-                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                        )}
-                      </div>
-                      <CardDescription className="flex items-center gap-4">
-                        <span>From: {message.senderName} ({message.senderRole})</span>
-                        <span>To: {message.targetAudience}</span>
-                      </CardDescription>
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <Badge className={getCategoryColor(message.category)}>
-                        {message.category.charAt(0).toUpperCase() + message.category.slice(1)}
-                      </Badge>
-                      <Badge className={getPriorityColor(message.priority)}>
-                        {message.priority.charAt(0).toUpperCase() + message.priority.slice(1)}
-                      </Badge>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-700 mb-4">{message.content}</p>
-                  <div className="flex justify-between items-center text-xs text-muted-foreground">
-                    <span>{new Date(message.timestamp).toLocaleString()}</span>
-                    <div className="flex gap-2">
-                      {message.pinned && <Pin className="h-3 w-3 text-yellow-600" />}
-                      <Button variant="outline" size="sm">
-                        Mark as Read
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+      {pinnedMessages.length > 0 && (
+        <section>
+          <PortalSectionTitle title="Pinned" count={pinnedMessages.length} />
+          <ul className="mt-4 divide-y divide-border border-y border-border">
+            {pinnedMessages.map((message) => (
+              <MessageRow key={message.id} message={message} />
             ))}
-          </TabsContent>
+          </ul>
+        </section>
+      )}
 
-          {/* Category-specific tabs */}
-          {['announcement', 'reminder', 'urgent', 'general'].map((category) => (
-            <TabsContent key={category} value={category} className="space-y-4">
-              {messages.filter(msg => msg.category === category).map((message) => (
-                <Card key={message.id} className={`transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${!message.readBy.length ? 'border-l-4 border-l-blue-500 bg-blue-50/30' : ''}`}>
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          {getCategoryIcon(message.category)}
-                          <CardTitle className={`text-lg ${!message.readBy.length ? 'font-bold' : ''}`}>
-                            {message.title}
-                          </CardTitle>
-                          {!message.readBy.length && (
-                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                          )}
-                        </div>
-                        <CardDescription className="flex items-center gap-4">
-                          <span>From: {message.senderName} ({message.senderRole})</span>
-                          <span>To: {message.targetAudience}</span>
-                        </CardDescription>
-                      </div>
-                      <Badge className={getPriorityColor(message.priority)}>
-                        {message.priority.charAt(0).toUpperCase() + message.priority.slice(1)}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-gray-700 mb-4">{message.content}</p>
-                    <div className="flex justify-between items-center text-xs text-muted-foreground">
-                      <span>{new Date(message.timestamp).toLocaleString()}</span>
-                      <div className="flex gap-2">
-                        {message.pinned && <Pin className="h-3 w-3 text-yellow-600" />}
-                        <Button variant="outline" size="sm">
-                          Mark as Read
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </TabsContent>
+      <Tabs defaultValue="all" className="space-y-6">
+        <TabsList className="h-auto w-full justify-start gap-1 overflow-x-auto bg-transparent p-0">
+          <TabsTrigger value="all" className="rounded-full border border-border px-3 py-1 text-xs data-[state=active]:border-ink data-[state=active]:bg-ink data-[state=active]:text-ivory">
+            All
+          </TabsTrigger>
+          {categories.map((c) => (
+            <TabsTrigger key={c} value={c} className="rounded-full border border-border px-3 py-1 text-xs data-[state=active]:border-ink data-[state=active]:bg-ink data-[state=active]:text-ivory">
+              {CATEGORY_LABEL[c]}
+            </TabsTrigger>
           ))}
-        </Tabs>
+        </TabsList>
 
-        <div className="mt-8 p-6 bg-green-50 border border-green-200 rounded-lg">
-          <h3 className="font-semibold text-green-800 mb-2">Message Center Information</h3>
-          <p className="text-green-700 text-sm">
-            Messages are organized by category and priority. Pinned messages contain important information that requires immediate attention. 
-            You will receive email notifications for urgent messages.
-          </p>
-        </div>
+        <TabsContent value="all">
+          <ul className="divide-y divide-border border-y border-border">
+            {messages.map((message) => (
+              <MessageRow key={message.id} message={message} />
+            ))}
+          </ul>
+        </TabsContent>
+
+        {categories.map((category) => {
+          const inCategory = messages.filter((msg) => msg.category === category);
+          return (
+            <TabsContent key={category} value={category}>
+              {inCategory.length === 0 ? (
+                <PortalEmpty title={`No ${CATEGORY_LABEL[category].toLowerCase()} messages`} />
+              ) : (
+                <ul className="divide-y divide-border border-y border-border">
+                  {inCategory.map((message) => (
+                    <MessageRow key={message.id} message={message} />
+                  ))}
+                </ul>
+              )}
+            </TabsContent>
+          );
+        })}
+      </Tabs>
+
+      <p className="border-t border-border pt-6 text-sm text-muted-foreground">
+        Pinned messages need your attention. You will also get an email for anything marked urgent.
+      </p>
     </div>
   );
 }

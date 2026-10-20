@@ -1,245 +1,172 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { type DivineNineOrganization } from "@/lib/definitions";
-import { getPrograms, getDivineNine } from "@/lib/data";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Terminal, Users, HandHeart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { ArrowRight, Terminal } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { getPrograms, getDivineNine } from "@/lib/data";
+import { getDivineNineBrand, textOn } from "@/lib/divine-nine-brand";
+import { PageHero } from "@/components/site/page-hero";
+import { cn } from "@/lib/utils";
+
+/** Maps program categories onto NPHC's five national focus areas. */
+const FOCUS_AREA: Record<string, string> = {
+  "Education": "Educational Advancement",
+  "Youth Development": "Educational Advancement",
+  "Leadership": "Leadership Development",
+  "Civic Engagement": "Civic Engagement",
+  "Community Service": "Community Service",
+  "Community Development": "Community Service",
+  "Health & Wellness": "Community Service",
+  "Economic Development": "Leadership Development",
+};
 
 export default async function ProgramsPage() {
-  const organizations: DivineNineOrganization[] = await getDivineNine();
-  const { programs, error } = await getPrograms();
+  const [organizations, { programs, error }] = await Promise.all([getDivineNine(), getPrograms()]);
+  const active = programs.filter((p) => p.status === "active" || !p.status);
 
-  // Filter only active programs
-  const activePrograms = programs.filter(program => program.status === 'active' || !program.status);
+  const byOrg = new Map<string, typeof active>();
+  for (const p of active) {
+    const brand = getDivineNineBrand(p.organizationName);
+    const key = brand?.key ?? p.organizationName;
+    byOrg.set(key, [...(byOrg.get(key) ?? []), p]);
+  }
 
-  // Group programs by organization
-  const programsByOrg = activePrograms.reduce((acc, program) => {
-    if (!acc[program.organizationName]) {
-      acc[program.organizationName] = [];
-    }
-    acc[program.organizationName].push(program);
-    return acc;
-  }, {} as Record<string, typeof activePrograms>);
-
-  const getCategoryColor = (category: string) => {
-    const colors = {
-      "Education": "bg-blue-100 text-blue-800",
-      "Youth Development": "bg-green-100 text-green-800",
-      "Health & Wellness": "bg-red-100 text-red-800",
-      "Civic Engagement": "bg-purple-100 text-purple-800",
-      "Leadership": "bg-yellow-100 text-yellow-800",
-      "Economic Development": "bg-indigo-100 text-indigo-800",
-      "Community Service": "bg-pink-100 text-pink-800",
-      "Community Development": "bg-gray-100 text-gray-800"
-    };
-    return colors[category as keyof typeof colors] || "bg-gray-100 text-gray-800";
-  };
+  const orgsWithPrograms = organizations
+    .map((org) => ({ org, brand: getDivineNineBrand(org.name), programs: byOrg.get(getDivineNineBrand(org.name)?.key ?? org.name) ?? [] }))
+    .filter((o) => o.programs.length > 0);
+  const orgsWithout = organizations.filter((org) => (byOrg.get(getDivineNineBrand(org.name)?.key ?? org.name) ?? []).length === 0);
 
   return (
-    <div className="flex flex-col">
-      {/* Hero Section */}
-      <section className="py-16 md:py-24 bg-background">
-        <div className="container">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-headline font-bold mb-4">Programs & Initiatives</h1>
-            <div className="mx-auto mb-6 h-1 w-24 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600" />
-            <p className="text-muted-foreground text-lg">
-              Discover the impactful programs and initiatives led by our Divine Nine organizations, 
-              each dedicated to serving our community through education, leadership development, 
-              and social action.
-            </p>
-          </div>
-        </div>
-      </section>
+    <div>
+      <PageHero
+        eyebrow="Programs and initiatives"
+        title="The work the chapters do all year."
+        lede="Each organization runs its own national programs locally. Together they cover NPHC's five focus areas: service, education, civic engagement, culture, and leadership."
+      >
+        <Button asChild className="bg-gold text-ink hover:bg-gold/90">
+          <Link href="/get-involved">
+            Volunteer with a program <ArrowRight className="h-4 w-4" />
+          </Link>
+        </Button>
+      </PageHero>
 
-      {/* Programs by Organization */}
-      <section className="py-16 md:py-24 bg-muted">
+      {/* Jump list: one chip per organization with programs, in its own color */}
+      {orgsWithPrograms.length > 1 && (
+        <nav className="border-b border-border bg-card" aria-label="Jump to organization">
+          <div className="container flex flex-wrap gap-2 py-4">
+            {orgsWithPrograms.map(({ org, brand }) => (
+              <a
+                key={org.id}
+                href={`#${brand?.key.replace(/\s+/g, "-") ?? org.id}`}
+                className={cn(
+                  "inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-semibold transition-transform hover:-translate-y-0.5",
+                  brand && textOn(brand.colors[0]) === "ink" ? "text-ink" : "text-ivory"
+                )}
+                style={{ background: brand?.colors[0] ?? "hsl(var(--brand-ink))" }}
+              >
+                {brand?.letters ?? org.name}
+              </a>
+            ))}
+          </div>
+        </nav>
+      )}
+
+      <section className="py-12 md:py-16">
         <div className="container">
           {error ? (
-            <Alert variant="destructive" className="max-w-xl mx-auto">
+            <Alert variant="destructive" className="mx-auto max-w-xl">
               <Terminal className="h-4 w-4" />
-              <AlertTitle>Error Loading Programs</AlertTitle>
-              <AlertDescription>
-                {error}
-              </AlertDescription>
+              <AlertTitle>Error loading programs</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
             </Alert>
-          ) : (
-            <div className="space-y-16">
-            {organizations.map((org, index) => {
-              const orgPrograms = programsByOrg[org.name as keyof typeof programsByOrg] || [];
-              
-              return (
-                <div key={index} className="space-y-8">
-                  {/* Organization Header */}
-                  <div className="flex items-center space-x-6">
-                    <div className="flex-shrink-0">
-                      <Image 
-                        src={org.logo} 
-                        alt={`${org.name} logo`} 
-                        width={80} 
-                        height={80} 
-                        className="object-contain"
-                        data-ai-hint={org.hint}
-                      />
-                    </div>
-                    <div>
-                      <h2 className="text-2xl md:text-3xl font-headline font-bold">{org.name}</h2>
-                    </div>
-                  </div>
-
-                  {/* Programs Grid */}
-                  {orgPrograms.length > 0 ? (
-                    <div className="grid gap-6 md:grid-cols-2">
-                      {orgPrograms.map((program, programIndex) => (
-                        <Card key={programIndex} className="transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1">
-                          {program.image && (
-                            <div className="relative h-48 w-full overflow-hidden rounded-t-lg">
-                              <Image
-                                src={program.image}
-                                alt={program.imageHint || `${program.name} program image`}
-                                fill
-                                className="object-cover"
-                              />
-                            </div>
-                          )}
-                          <CardHeader>
-                            <div className="flex items-start justify-between">
-                              <CardTitle className="text-xl font-headline">{program.name}</CardTitle>
-                              <Badge className={getCategoryColor(program.category)}>
-                                {program.category}
-                              </Badge>
-                            </div>
-                          </CardHeader>
-                          <CardContent>
-                            <CardDescription className="text-base leading-relaxed">
-                              {program.description}
-                            </CardDescription>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <p className="text-muted-foreground">
-                        Program information for {org.name} will be available soon.
-                      </p>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+          ) : orgsWithPrograms.length === 0 ? (
+            <div className="border-y border-border py-12">
+              <p className="font-headline text-2xl font-bold">Program listings are being added.</p>
+              <p className="mt-2 text-sm text-muted-foreground">Check back soon, or contact the council to learn about a chapter&apos;s programs.</p>
             </div>
+          ) : (
+            <div className="space-y-20">
+              {orgsWithPrograms.map(({ org, brand, programs: orgPrograms }) => {
+                const primary = brand?.colors[0] ?? "hsl(var(--brand-ink))";
+                const onInk = !brand || textOn(brand.colors[0]) === "ivory";
+                return (
+                  <section key={org.id} id={brand?.key.replace(/\s+/g, "-")} className="scroll-mt-24 grid gap-8 lg:grid-cols-12 lg:gap-12">
+                    {/* Organization panel in its own colors */}
+                    <div className="lg:col-span-4">
+                      <div
+                        className={cn("flex items-center gap-5 overflow-hidden rounded-lg p-6 lg:sticky lg:top-24 lg:flex-col lg:items-start", onInk ? "text-ivory" : "text-ink")}
+                        style={{ background: primary }}
+                      >
+                        <span className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-ivory p-2 shadow-sm lg:h-24 lg:w-24">
+                          <Image src={org.logo} alt={`${org.name} crest`} width={120} height={120} className="h-full w-full object-contain" />
+                        </span>
+                        <div className="min-w-0">
+                          {brand && <p className="font-greek text-3xl leading-none">{brand.letters}</p>}
+                          <h2 className="mt-1.5 font-headline text-xl font-bold leading-tight">{org.name}</h2>
+                          <p className={cn("mt-2 text-sm", onInk ? "text-ivory/75" : "text-ink/70")}>
+                            {orgPrograms.length} {orgPrograms.length === 1 ? "program" : "programs"} in Solano County
+                          </p>
+                        </div>
+                        {brand && <span className="absolute inset-x-0 bottom-0 h-1.5" style={{ background: brand.colors[1] }} aria-hidden />}
+                      </div>
+                    </div>
+
+                    {/* Programs as editorial rows */}
+                    <ol className="divide-y divide-border border-y border-border lg:col-span-8">
+                      {orgPrograms.map((program, i) => (
+                        <li key={program.id} className="grid gap-5 py-7 sm:grid-cols-[auto_1fr] sm:gap-7">
+                          {program.image ? (
+                            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-md bg-secondary sm:w-44 lg:w-52">
+                              <Image src={program.image} alt={program.imageHint || program.name} fill className="object-cover" sizes="(min-width: 1024px) 208px, (min-width: 640px) 176px, 100vw" />
+                            </div>
+                          ) : (
+                            <span className="font-headline text-3xl font-bold tabular-nums leading-none sm:w-12" style={{ color: primary }}>
+                              {String(i + 1).padStart(2, "0")}
+                            </span>
+                          )}
+                          <div className="min-w-0">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                              {FOCUS_AREA[program.category] ?? program.category}
+                            </p>
+                            <h3 className="mt-2 font-headline text-2xl font-bold leading-snug">{program.name}</h3>
+                            <p className="mt-3 max-w-prose leading-relaxed text-muted-foreground">{program.description}</p>
+                          </div>
+                        </li>
+                      ))}
+                    </ol>
+                  </section>
+                );
+              })}
+            </div>
+          )}
+
+          {orgsWithout.length > 0 && orgsWithPrograms.length > 0 && (
+            <p className="mt-16 border-t border-border pt-6 text-sm text-muted-foreground">
+              Program listings for {orgsWithout.map((o) => getDivineNineBrand(o.name)?.shortName ?? o.name).join(", ")} are coming soon.
+            </p>
           )}
         </div>
       </section>
 
-      {/* Vibrant CTA Section */}
-      <section className="py-16 md:py-24 bg-gradient-to-br from-green-500 via-emerald-600 to-teal-600 relative overflow-hidden">
-        {/* Animated background elements */}
-        <div className="absolute inset-0 bg-gradient-to-r from-green-500/20 via-transparent to-teal-500/20" />
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-green-400/10 rounded-full blur-3xl animate-pulse animation-delay-1000" />
-        
-        <div className="container relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-headline font-bold mb-4 text-white">Get Involved & Make an Impact</h2>
-            <div className="mx-auto mb-6 h-1 w-24 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600" />
-            <p className="text-white/90 text-lg mb-12 max-w-2xl mx-auto">
-              Ready to make a difference in your community? Join our programs, volunteer your time, or partner with us to create lasting change throughout Solano County.
+      <section className="bg-gold-soft py-14 md:py-20">
+        <div className="container grid items-center gap-8 md:grid-cols-12">
+          <div className="md:col-span-8">
+            <h2 className="font-headline text-3xl font-bold leading-tight [text-wrap:balance] md:text-4xl">
+              Have a program that needs hands, space, or a sponsor?
+            </h2>
+            <p className="mt-3 max-w-xl text-base leading-relaxed text-foreground/75 md:text-lg">
+              The council connects chapters, schools, churches, and local businesses. Tell us what you are working on.
             </p>
-            
-            <div className="grid gap-8 md:grid-cols-2 max-w-3xl mx-auto">
-              {/* Volunteer CTA */}
-              <Card className="relative overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-3 border-0 bg-white/95 backdrop-blur-sm">
-                <div className="absolute inset-0 bg-gradient-to-br from-green-400/20 via-emerald-500/20 to-teal-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br from-green-400 to-emerald-600 rounded-full opacity-10 group-hover:opacity-20 transition-opacity duration-300" />
-                <CardHeader className="relative z-10">
-                  <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full text-white shadow-lg group-hover:shadow-green-500/25 transition-shadow duration-300">
-                    <Users className="h-8 w-8" />
-                  </div>
-                  <CardTitle className="text-2xl font-headline text-center bg-gradient-to-r from-green-600 to-emerald-700 bg-clip-text text-transparent">Join Our Programs</CardTitle>
-                  <CardDescription className="text-center text-base text-gray-600">
-                    Participate in community initiatives and grow through meaningful volunteer opportunities.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="relative z-10 text-center">
-                  <ul className="text-sm text-gray-600 space-y-2 mb-6">
-                    <li className="flex items-center justify-center gap-2">
-                      <span className="text-green-500 font-bold">✓</span> Youth mentorship opportunities
-                    </li>
-                    <li className="flex items-center justify-center gap-2">
-                      <span className="text-green-500 font-bold">✓</span> Community service projects
-                    </li>
-                    <li className="flex items-center justify-center gap-2">
-                      <span className="text-green-500 font-bold">✓</span> Leadership development programs
-                    </li>
-                    <li className="flex items-center justify-center gap-2">
-                      <span className="text-green-500 font-bold">✓</span> Educational workshops
-                    </li>
-                  </ul>
-                </CardContent>
-                <CardFooter className="relative z-10 flex justify-center">
-                  <Button asChild className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 transition-all duration-300 ease-in-out hover:scale-105 shadow-lg hover:shadow-green-500/25 text-white font-semibold">
-                    <Link href="/contact">
-                      <Users className="mr-2 h-4 w-4" />
-                      Get Involved
-                    </Link>
-                  </Button>
-                </CardFooter>
-              </Card>
-
-              {/* Partnership CTA */}
-              <Card className="relative overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-2xl hover:-translate-y-3 border-0 bg-white/95 backdrop-blur-sm">
-                <div className="absolute inset-0 bg-gradient-to-br from-teal-400/20 via-blue-500/20 to-indigo-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="absolute -top-20 -left-20 w-40 h-40 bg-gradient-to-br from-teal-400 to-blue-600 rounded-full opacity-10 group-hover:opacity-20 transition-opacity duration-300" />
-                <CardHeader className="relative z-10">
-                  <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-teal-500 to-blue-600 rounded-full text-white shadow-lg group-hover:shadow-teal-500/25 transition-shadow duration-300">
-                    <HandHeart className="h-8 w-8" />
-                  </div>
-                  <CardTitle className="text-2xl font-headline text-center bg-gradient-to-r from-teal-600 to-blue-700 bg-clip-text text-transparent">Partner With Us</CardTitle>
-                  <CardDescription className="text-center text-base text-gray-600">
-                    Connect with our organizations to create collaborative programs and community partnerships.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="relative z-10 text-center">
-                  <ul className="text-sm text-gray-600 space-y-2 mb-6">
-                    <li className="flex items-center justify-center gap-2">
-                      <span className="text-teal-500 font-bold">✓</span> Program sponsorship opportunities
-                    </li>
-                    <li className="flex items-center justify-center gap-2">
-                      <span className="text-teal-500 font-bold">✓</span> Collaborative initiatives
-                    </li>
-                    <li className="flex items-center justify-center gap-2">
-                      <span className="text-teal-500 font-bold">✓</span> Corporate partnerships
-                    </li>
-                    <li className="flex items-center justify-center gap-2">
-                      <span className="text-teal-500 font-bold">✓</span> Resource sharing
-                    </li>
-                  </ul>
-                </CardContent>
-                <CardFooter className="relative z-10 flex justify-center">
-                  <Button asChild className="w-full bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 transition-all duration-300 ease-in-out hover:scale-105 shadow-lg hover:shadow-teal-500/25 text-white font-semibold">
-                    <Link href="/organizations">
-                      <HandHeart className="mr-2 h-4 w-4" />
-                      Meet Our Organizations
-                    </Link>
-                  </Button>
-                </CardFooter>
-              </Card>
-            </div>
-
-            {/* Bottom text */}
-            <div className="text-center mt-12">
-              <p className="text-sm text-white/80 max-w-xl mx-auto">
-                Together, we can strengthen our community through education, leadership, and service.
-              </p>
-            </div>
+          </div>
+          <div className="md:col-span-4 md:justify-self-end">
+            <Button asChild size="lg" className="bg-ink text-ivory hover:bg-ink/90">
+              <Link href="/contact?subject=Partnership">
+                Contact the council <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
     </div>
   );
-} 
+}

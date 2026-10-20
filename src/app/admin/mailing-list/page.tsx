@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { AdminPageHeader, AdminPanel, AdminCount } from '@/components/admin/admin-page-header';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
@@ -113,20 +113,24 @@ export default function AdminMailingListPage() {
   };
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <div>
-          <CardTitle>Mailing List</CardTitle>
-          <CardDescription>
-            {activeCount} active subscriber{activeCount === 1 ? '' : 's'} of {subscribers.length} total.
-          </CardDescription>
-        </div>
-        <Button variant="outline" onClick={handleExportCsv} disabled={loading || subscribers.length === 0}>
-          <Download className="mr-2 h-4 w-4" />
-          Export CSV
-        </Button>
-      </CardHeader>
-      <CardContent>
+    <div className="space-y-6">
+      <AdminPageHeader
+        title="Mailing list"
+        description="Everyone who signed up through the public form."
+        meta={
+          <>
+            <AdminCount>{activeCount} active</AdminCount>
+            <AdminCount>{subscribers.length} total</AdminCount>
+          </>
+        }
+        action={
+          <Button variant="outline" onClick={handleExportCsv} disabled={loading || subscribers.length === 0}>
+            <Download className="h-4 w-4" />
+            Export CSV
+          </Button>
+        }
+      />
+      <AdminPanel>
         {loadError && (
           <Alert variant="destructive" className="mb-4">
             <Terminal className="h-4 w-4" />
@@ -230,7 +234,7 @@ export default function AdminMailingListPage() {
             </div>
           </>
         )}
-      </CardContent>
+      </AdminPanel>
 
       {/* Unsubscribe Confirmation Dialog */}
       <AlertDialog
@@ -259,6 +263,6 @@ export default function AdminMailingListPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </Card>
+    </div>
   );
 }

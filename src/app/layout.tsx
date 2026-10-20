@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display } from 'next/font/google';
+import { Instrument_Sans, Newsreader, Source_Serif_4 } from 'next/font/google';
 import { SiteChrome } from "@/components/site-chrome";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
@@ -9,16 +9,31 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import { Analytics } from "@vercel/analytics/next";
 
-const fontBody = Inter({ 
+// Body: a humanist grotesque with a little warmth, so copy does not read as
+// the default system-sans of every generated site.
+const fontBody = Instrument_Sans({
   subsets: ['latin'],
   variable: '--font-body',
   display: 'swap',
 });
 
-const fontHeadline = Playfair_Display({
+// Headlines: Newsreader, an academic serif with optical sizes. Set light at
+// display sizes (close to Caslon's color) and medium for section and card
+// titles; see .font-headline in globals.css.
+const fontHeadline = Newsreader({
   subsets: ['latin'],
-  weight: '700',
+  axes: ['opsz'],
   variable: '--font-headline',
+  display: 'swap',
+});
+
+// Greek lettermarks (ΑΚΑ, ΩΨΦ…): next/font does not ship Newsreader's Greek
+// subset, so the letters get a serif that has one. Keeps them identical on
+// every device instead of falling back to whatever serif is installed.
+const fontGreek = Source_Serif_4({
+  subsets: ['greek', 'latin'],
+  weight: ['600', '700'],
+  variable: '--font-greek',
   display: 'swap',
 });
 
@@ -42,7 +57,8 @@ export default function RootLayout({
       <body className={cn(
         "font-body antialiased",
         fontBody.variable,
-        fontHeadline.variable
+        fontHeadline.variable,
+        fontGreek.variable
       )}>
         <AuthProvider>
           <SiteChrome header={<Header />} footer={<Footer />}>

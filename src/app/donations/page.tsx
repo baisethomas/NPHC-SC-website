@@ -1,201 +1,126 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import Link from "next/link";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Heart, Users, GraduationCap, Calendar, DollarSign, HandHeart } from "lucide-react";
 import { getSiteSettings } from "@/lib/site-settings";
+import { PageHero } from "@/components/site/page-hero";
+
+const USES = [
+  { title: "Scholarships", text: "Awards for Solano County seniors heading to college, and support for Divine Nine undergraduates." },
+  { title: "Youth programs", text: "Mentoring, leadership workshops, and college readiness run by the chapters." },
+  { title: "Community outreach", text: "Food drives, health fairs, voter registration, and the events that bring the county together." },
+];
+
+const OTHER_WAYS = [
+  { title: "Sponsor an event", text: "Put your business behind a scholarship gala, picnic, or health fair.", href: "/contact?subject=Sponsorship", label: "Ask us" },
+  { title: "Volunteer your time", text: "Chapters always need hands at events and mentors for students.", href: "/get-involved", label: "Get involved" },
+  { title: "Spread the word", text: "Follow the council and share our events with your network.", href: "/mailing-list", label: "Join the list" },
+];
 
 export default async function DonationsPage() {
-  const { donationUrl } = await getSiteSettings();
+  const { donationUrl, contactEmail } = await getSiteSettings();
+  const giveHref = donationUrl || `mailto:${contactEmail}?subject=Donation`;
+  const giveLabel = donationUrl ? "Donate online" : "Ask how to give";
 
   return (
-    <div className="flex flex-col">
-      {/* Vibrant Hero Section */}
-      <section className="py-16 md:py-24 bg-gradient-to-br from-orange-400 via-pink-500 to-red-500 relative overflow-hidden">
-        {/* Animated background elements */}
-        <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 via-transparent to-red-500/20" />
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-yellow-400/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-0 left-1/4 w-80 h-80 bg-pink-400/10 rounded-full blur-3xl animate-pulse animation-delay-1000" />
-        
-        <div className="container relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="flex items-center justify-center w-20 h-20 mx-auto mb-6 bg-white/20 rounded-full text-white shadow-lg backdrop-blur-sm">
-              <Heart className="h-10 w-10" />
-            </div>
-            <h1 className="text-4xl md:text-5xl font-headline font-bold mb-4 text-white">Support Our Community</h1>
-            <div className="mx-auto mb-6 h-1 w-24 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600" />
-            <p className="text-lg text-white/90 max-w-2xl mx-auto">
-              Your generous donations help us continue our mission of unity, scholarship, and community service 
-              throughout Solano County. Every contribution makes a lasting impact in our community.
+    <div>
+      <PageHero
+        eyebrow="Support the council"
+        title="Every gift stays in Solano County."
+        lede="Your donation funds scholarships, youth programs, and the community events the nine chapters put on together."
+      >
+        <Button asChild size="lg" className="bg-gold text-ink hover:bg-gold/90">
+          {donationUrl ? (
+            <a href={giveHref} target="_blank" rel="noopener noreferrer">
+              {giveLabel} <ArrowUpRight className="h-4 w-4" />
+            </a>
+          ) : (
+            <a href={giveHref}>{giveLabel}</a>
+          )}
+        </Button>
+        <Button asChild size="lg" variant="outline" className="border-ivory/30 bg-transparent text-ivory hover:bg-ivory/10 hover:text-ivory">
+          <Link href="/contact?subject=Sponsorship">Sponsor an event</Link>
+        </Button>
+      </PageHero>
+
+      {/* Where it goes */}
+      <section className="py-16 md:py-24">
+        <div className="container grid gap-10 lg:grid-cols-12 lg:gap-16">
+          <div className="lg:col-span-5">
+            <h2 className="font-headline text-3xl font-bold leading-tight [text-wrap:balance] md:text-4xl">Three things your gift pays for.</h2>
+            <p className="mt-4 leading-relaxed text-muted-foreground">
+              The council is run by volunteers from the nine chapters. Gifts go to programs, not overhead.
             </p>
+          </div>
+          <ol className="divide-y divide-border border-y border-border lg:col-span-7">
+            {USES.map((u, i) => (
+              <li key={u.title} className="grid grid-cols-[3rem_1fr] gap-4 py-6 md:grid-cols-[4rem_1fr]">
+                <span className="font-headline text-2xl font-bold tabular-nums text-gold md:text-3xl">0{i + 1}</span>
+                <div>
+                  <h3 className="font-headline text-xl font-bold leading-snug md:text-2xl">{u.title}</h3>
+                  <p className="mt-2 max-w-prose text-sm leading-relaxed text-muted-foreground md:text-base">{u.text}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      {/* Give */}
+      <section className="bg-ink py-16 text-ivory md:py-24">
+        <div className="container grid items-center gap-10 md:grid-cols-12">
+          <div className="md:col-span-7">
+            <h2 className="font-headline text-3xl font-bold leading-tight [text-wrap:balance] md:text-4xl">
+              {donationUrl ? "Give securely online." : "Online giving is coming."}
+            </h2>
+            <p className="mt-4 max-w-xl leading-relaxed text-ivory/70">
+              {donationUrl
+                ? "Donations are processed by our hosted giving partner. You will receive a receipt by email."
+                : "We are setting up online giving. In the meantime, email the council and we will arrange a gift by check or transfer."}
+            </p>
+            <p className="mt-6 max-w-xl text-xs leading-relaxed text-ivory/50">
+              NPHC of Solano County is a nonprofit organization. Gifts may be tax-deductible to the extent allowed by law; please consult your tax advisor. A receipt is provided for every gift.
+            </p>
+          </div>
+          <div className="md:col-span-5 md:flex md:justify-end">
+            <Button asChild size="lg" className="bg-gold text-ink hover:bg-gold/90">
+              {donationUrl ? (
+                <a href={giveHref} target="_blank" rel="noopener noreferrer">
+                  Donate now <ArrowUpRight className="h-4 w-4" />
+                </a>
+              ) : (
+                <a href={giveHref}>Email about giving</a>
+              )}
+            </Button>
           </div>
         </div>
       </section>
 
-      <div className="container mx-auto px-4 py-16">
-        <div className="max-w-4xl mx-auto">
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <Card className="text-center">
-            <CardContent className="pt-6">
-              <Users className="h-12 w-12 mx-auto mb-4 text-yellow-600" />
-              <h3 className="text-xl font-semibold mb-2">Community Programs</h3>
-              <p className="text-muted-foreground">
-                Support youth mentorship, leadership development, and community outreach initiatives.
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card className="text-center">
-            <CardContent className="pt-6">
-              <GraduationCap className="h-12 w-12 mx-auto mb-4 text-yellow-600" />
-              <h3 className="text-xl font-semibold mb-2">Scholarships</h3>
-              <p className="text-muted-foreground">
-                Help fund educational scholarships for deserving students in our community.
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card className="text-center">
-            <CardContent className="pt-6">
-              <Calendar className="h-12 w-12 mx-auto mb-4 text-yellow-600" />
-              <h3 className="text-xl font-semibold mb-2">Events & Activities</h3>
-              <p className="text-muted-foreground">
-                Enable us to host meaningful events that bring our community together.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <DollarSign className="h-5 w-5" />
-                Make a Donation
-              </CardTitle>
-              <CardDescription>
-                Choose a donation amount that works for you. Every contribution makes a difference.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-2 gap-3">
-                {["$25", "$50", "$100", "$250"].map((amount) =>
-                  donationUrl ? (
-                    <Button key={amount} variant="outline" className="h-16 text-lg" asChild>
-                      <a href={donationUrl} target="_blank" rel="noopener noreferrer">
-                        {amount}
-                      </a>
-                    </Button>
-                  ) : (
-                    <Button key={amount} variant="outline" className="h-16 text-lg" disabled>
-                      {amount}
-                    </Button>
-                  )
-                )}
-              </div>
-
-              <div className="space-y-3">
-                {donationUrl ? (
-                  <Button
-                    className="w-full h-12 text-lg bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700"
-                    asChild
-                  >
-                    <a href={donationUrl} target="_blank" rel="noopener noreferrer">
-                      <Heart className="mr-2 h-5 w-5" />
-                      Donate Now
-                    </a>
-                  </Button>
-                ) : (
-                  <Button
-                    className="w-full h-12 text-lg bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700"
-                    disabled
-                  >
-                    <Heart className="mr-2 h-5 w-5" />
-                    Donate Now
-                  </Button>
-                )}
-                <Button variant="outline" className="w-full" disabled={!donationUrl} asChild={Boolean(donationUrl)}>
-                  {donationUrl ? (
-                    <a href={donationUrl} target="_blank" rel="noopener noreferrer">
-                      Set Up Monthly Giving
-                    </a>
-                  ) : (
-                    <span>Set Up Monthly Giving</span>
-                  )}
-                </Button>
-                {!donationUrl && (
-                  <p className="text-center text-sm text-muted-foreground">
-                    Online donations coming soon.
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <HandHeart className="h-5 w-5" />
-                Other Ways to Help
-              </CardTitle>
-              <CardDescription>
-                There are many ways to support our mission beyond monetary donations.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-3">
-                <div className="flex items-start gap-3">
-                  <Badge variant="secondary" className="mt-1">Volunteer</Badge>
-                  <div>
-                    <h4 className="font-medium">Join Our Team</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Volunteer at events, mentor youth, or help with administrative tasks.
-                    </p>
-                  </div>
+      {/* Other ways */}
+      <section className="py-16 md:py-24">
+        <div className="container grid gap-10 lg:grid-cols-12 lg:gap-16">
+          <div className="lg:col-span-4">
+            <h2 className="font-headline text-2xl font-bold leading-tight md:text-3xl">Other ways to help</h2>
+            <Button asChild variant="link" className="mt-3 h-auto p-0 font-semibold">
+              <Link href="/scholarships">
+                See our scholarships <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+          <ul className="divide-y divide-border border-y border-border lg:col-span-8">
+            {OTHER_WAYS.map((w) => (
+              <li key={w.title} className="flex items-start justify-between gap-6 py-5">
+                <div>
+                  <p className="font-headline text-lg font-bold">{w.title}</p>
+                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{w.text}</p>
                 </div>
-                
-                <div className="flex items-start gap-3">
-                  <Badge variant="secondary" className="mt-1">Sponsor</Badge>
-                  <div>
-                    <h4 className="font-medium">Event Sponsorship</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Partner with us to sponsor specific events or programs.
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-3">
-                  <Badge variant="secondary" className="mt-1">Share</Badge>
-                  <div>
-                    <h4 className="font-medium">Spread the Word</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Follow us on social media and share our mission with others.
-                    </p>
-                  </div>
-                </div>
-              </div>
-              
-              <Button variant="outline" className="w-full mt-4">
-                Learn About Volunteering
-              </Button>
-            </CardContent>
-          </Card>
+                <Link href={w.href} className="shrink-0 whitespace-nowrap text-sm font-semibold hover:underline underline-offset-4">
+                  {w.label} <ArrowRight className="inline h-3.5 w-3.5" />
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
-
-        <Card className="mt-8">
-          <CardHeader>
-            <CardTitle>Tax Information</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">
-              NPHC Solano County is a 501(c)(3) nonprofit organization. Your donation may be tax-deductible 
-              to the extent allowed by law. Please consult your tax advisor for specific guidance. 
-              A receipt will be provided for all donations.
-            </p>
-          </CardContent>
-        </Card>
-        </div>
-      </div>
+      </section>
     </div>
   );
-} 
+}

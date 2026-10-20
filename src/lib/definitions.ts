@@ -19,6 +19,10 @@ export interface Event {
   externalLink?: string;
   maxAttendees?: number;
   currentAttendees?: number;
+  /** Short name of the Divine Nine organization hosting the event, if any. */
+  hostOrganization?: string;
+  /** Admin flag: feature this event in the homepage countdown. */
+  featured?: boolean;
 }
 
 export interface EventRSVP {
@@ -87,6 +91,9 @@ export interface MemberProfile {
   organization: string;
   chapter?: string;
   avatarUrl?: string;
+  phone?: string;
+  /** Member-controlled: false hides the profile from the member directory. */
+  showInDirectory?: boolean;
   joinedAt?: string;
   membershipStatus?: 'pending' | 'approved' | 'suspended' | 'rejected';
   isActive?: boolean;

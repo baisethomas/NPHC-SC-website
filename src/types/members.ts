@@ -142,7 +142,15 @@ export interface Activity {
   id: string;
   userId: string;
   userName: string;
-  action: 'document_uploaded' | 'meeting_created' | 'message_sent' | 'request_submitted' | 'request_approved' | 'request_denied';
+  action:
+    | 'document_uploaded'
+    | 'meeting_created'
+    | 'message_sent'
+    | 'request_submitted'
+    | 'request_under_review'
+    | 'request_approved'
+    | 'request_denied'
+    | 'request_reopened';
   resourceId: string;
   resourceType: 'document' | 'meeting' | 'message' | 'request';
   resourceTitle: string;

@@ -22,10 +22,17 @@ export default {
     extend: {
       fontFamily: {
         body: ['var(--font-body)', 'sans-serif'],
-        headline: ['var(--font-headline)', 'serif'],
+        headline: ['var(--font-headline)', 'Georgia', 'serif'],
+        greek: ['var(--font-greek)', 'Georgia', 'serif'],
         code: ['monospace'],
       },
       colors: {
+        ink: 'hsl(var(--brand-ink))',
+        gold: {
+          DEFAULT: 'hsl(var(--brand-gold))',
+          soft: 'hsl(var(--brand-gold-soft))',
+        },
+        ivory: 'hsl(var(--brand-ivory))',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         card: {
