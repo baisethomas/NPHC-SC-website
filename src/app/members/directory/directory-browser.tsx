@@ -1,12 +1,11 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Building2, Mail, Phone, Search, UserCircle } from 'lucide-react';
+import { Search } from 'lucide-react';
 import type { MemberProfile } from '@/lib/definitions';
 import { getDivineNineBrand } from '@/lib/divine-nine-brand';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
+import { PortalEmpty } from '@/components/portal/page-header';
 import { cn } from '@/lib/utils';
 
 const ALL = '__all';
@@ -36,10 +35,10 @@ export function DirectoryBrowser({ members }: { members: MemberProfile[] }) {
   });
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-center">
         <div className="relative md:w-80">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             id="directory-search"
             value={query}
@@ -64,15 +63,9 @@ export function DirectoryBrowser({ members }: { members: MemberProfile[] }) {
       </div>
 
       {shown.length === 0 ? (
-        <Card className="border-2 border-dashed shadow-none">
-          <CardContent className="flex flex-col items-center py-16 text-center">
-            <UserCircle className="h-8 w-8 text-slate-300" />
-            <p className="mt-3 font-medium text-slate-900">No members match</p>
-            <p className="mt-1 text-sm text-slate-500">Try a different name or clear the organization filter.</p>
-          </CardContent>
-        </Card>
+        <PortalEmpty title="No members match" description="Try a different name or clear the organization filter." />
       ) : (
-        <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <ul className="divide-y divide-border border-y border-border">
           {shown.map((m) => {
             const b = getDivineNineBrand(m.organization);
             const initials = (m.displayName ?? '?')
@@ -82,55 +75,45 @@ export function DirectoryBrowser({ members }: { members: MemberProfile[] }) {
               .slice(0, 2)
               .toUpperCase();
             return (
-              <li key={m.id}>
-                <Card className="h-full border-slate-200 shadow-none">
-                  <CardContent className="flex gap-4 p-5">
-                    <div
-                      className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-100 font-headline text-lg font-bold text-slate-800"
-                      style={b ? { boxShadow: `inset 0 0 0 3px ${b.colors[0]}` } : undefined}
-                    >
-                      {m.avatarUrl?.startsWith('https://') ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={m.avatarUrl} alt="" className="h-full w-full object-cover" />
-                      ) : (
-                        initials || '?'
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate font-semibold text-slate-900">{m.displayName}</p>
-                      <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                        {m.role && <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">{m.role}</Badge>}
-                      </div>
-                      <dl className="mt-3 space-y-1.5 text-sm text-slate-600">
-                        {(b || m.organization) && (
-                          <div className="flex items-start gap-2">
-                            <Building2 className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
-                            <dd className="min-w-0">
-                              <span className="block truncate font-medium text-slate-900">{b?.shortName ?? m.organization}</span>
-                              {m.chapter && <span className="block truncate text-xs text-slate-500">{m.chapter}</span>}
-                            </dd>
-                          </div>
-                        )}
-                        {m.email && (
-                          <div className="flex items-center gap-2">
-                            <Mail className="h-4 w-4 shrink-0 text-slate-400" />
-                            <a href={`mailto:${m.email}`} className="truncate hover:underline underline-offset-4">
-                              {m.email}
-                            </a>
-                          </div>
-                        )}
-                        {m.phone && (
-                          <div className="flex items-center gap-2">
-                            <Phone className="h-4 w-4 shrink-0 text-slate-400" />
-                            <a href={`tel:${m.phone.replace(/[^+\d]/g, '')}`} className="hover:underline underline-offset-4">
-                              {m.phone}
-                            </a>
-                          </div>
-                        )}
-                      </dl>
-                    </div>
-                  </CardContent>
-                </Card>
+              <li key={m.id} className="grid grid-cols-[auto_1fr] items-center gap-4 py-4 sm:grid-cols-[auto_1.2fr_1fr_1fr] sm:gap-6">
+                <div className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-secondary font-headline text-base font-bold text-foreground">
+                  {m.avatarUrl?.startsWith('https://') ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={m.avatarUrl} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    initials || '?'
+                  )}
+                  <span
+                    className="absolute inset-x-0 bottom-0 h-1"
+                    style={{ background: b?.colors[0] ?? 'hsl(var(--brand-gold))' }}
+                    aria-hidden
+                  />
+                </div>
+                <div className="min-w-0">
+                  <p className="truncate font-headline text-lg font-bold leading-tight">{m.displayName}</p>
+                  {m.role && <p className="mt-0.5 text-xs font-semibold uppercase tracking-[0.12em] text-gold">{m.role}</p>}
+                </div>
+                <div className="col-start-2 min-w-0 sm:col-start-auto">
+                  {(b || m.organization) && (
+                    <p className="flex items-center gap-2 text-sm">
+                      <span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ background: b?.colors[0] ?? 'hsl(var(--brand-gold))' }} aria-hidden />
+                      <span className="truncate font-semibold">{b?.shortName ?? m.organization}</span>
+                    </p>
+                  )}
+                  {m.chapter && <p className="mt-0.5 truncate pl-[18px] text-xs text-muted-foreground">{m.chapter}</p>}
+                </div>
+                <div className="col-start-2 min-w-0 text-sm sm:col-start-auto">
+                  {m.email && (
+                    <a href={`mailto:${m.email}`} className="block truncate hover:underline underline-offset-4">
+                      {m.email}
+                    </a>
+                  )}
+                  {m.phone && (
+                    <a href={`tel:${m.phone.replace(/[^+\d]/g, '')}`} className="block truncate text-muted-foreground hover:underline underline-offset-4">
+                      {m.phone}
+                    </a>
+                  )}
+                </div>
               </li>
             );
           })}
@@ -148,10 +131,10 @@ function Chip({ active, onClick, color, children }: { active: boolean; onClick: 
       aria-pressed={active}
       className={cn(
         'inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium transition-colors',
-        active ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-400'
+        active ? 'border-ink bg-ink text-ivory' : 'border-border bg-card text-foreground hover:border-ink/40'
       )}
     >
-      {color && <span className="h-2 w-2 rounded-full" style={{ background: color }} aria-hidden />}
+      {color && <span className="h-2 w-2 rounded-sm" style={{ background: color }} aria-hidden />}
       {children}
     </button>
   );

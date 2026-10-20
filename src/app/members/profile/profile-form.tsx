@@ -150,7 +150,7 @@ export function ProfileForm({ initial }: { initial: OwnProfileInput }) {
           control={form.control}
           name="showInDirectory"
           render={({ field }) => (
-            <FormItem className="flex items-center justify-between rounded-lg border border-slate-200 p-4">
+            <FormItem className="flex items-center justify-between rounded-lg border border-border p-4">
               <div>
                 <FormLabel>Show me in the member directory</FormLabel>
                 <FormDescription>Turn this off to hide your profile from other members.</FormDescription>
@@ -163,8 +163,8 @@ export function ProfileForm({ initial }: { initial: OwnProfileInput }) {
         />
 
         <div className="flex items-center justify-end gap-3">
-          {form.formState.isDirty && !saving && <span className="text-sm text-slate-500">Unsaved changes</span>}
-          <Button type="submit" disabled={saving || !form.formState.isDirty} className="bg-slate-900 hover:bg-slate-800">
+          {form.formState.isDirty && !saving && <span className="text-sm text-muted-foreground">Unsaved changes</span>}
+          <Button type="submit" disabled={saving || !form.formState.isDirty} className="bg-ink text-ivory hover:bg-ink/90">
             {saving ? 'Saving…' : 'Save profile'}
           </Button>
         </div>
