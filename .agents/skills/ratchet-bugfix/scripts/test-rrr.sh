@@ -89,6 +89,27 @@ mkdir -p sub
 (cd sub && "$rrr" --test "true" -- ../../outside.txt >/dev/null 2>&1)
 check "relative path escaping the repo" 2 "outside the work tree" --test "true" -- "../outside.txt"
 if [ "$(cat "$sandbox/outside.txt" 2>/dev/null)" = precious ]; then pass=$((pass + 1)); else fail=$((fail + 1)); echo "FAIL: a file outside the repo was modified or removed"; fi
+
+echo "== Git's own metadata is never a fix file =="
+new_repo
+cp .git/config "$sandbox/git-config.before"
+check ".git/config" 2 "Git directory" --test "true" -- .git/config
+check ".git/HEAD" 2 "Git directory" --test "true" -- .git/HEAD
+check "the .git entry itself" 2 "Git directory" --test "true" -- .git
+mkdir -p sub
+(cd sub && "$rrr" --test "true" -- ../.git/config >/dev/null 2>&1); [ $? -eq 2 ] && pass=$((pass + 1)) || { fail=$((fail + 1)); echo "FAIL: ../.git/config from a subdirectory was not refused"; }
+if cmp -s .git/config "$sandbox/git-config.before" && [ -f .git/HEAD ] && git rev-parse --verify -q HEAD >/dev/null; then pass=$((pass + 1)); else fail=$((fail + 1)); echo "FAIL: Git metadata was modified or removed"; fi
+# A linked worktree keeps its metadata outside its own root and marks the root with a
+# .git *file*; both the file and the metadata it points to must be refused there too.
+linked="$sandbox/linked.$((pass + fail))"
+git worktree add -q "$linked" -b linked >/dev/null 2>&1
+if [ -f "$linked/.git" ]; then
+  (cd "$linked" && "$rrr" --test "true" -- .git >/dev/null 2>&1); [ $? -eq 2 ] && pass=$((pass + 1)) || { fail=$((fail + 1)); echo "FAIL: a linked worktree's .git file was not refused"; }
+  linked_gitdir="$(cd "$linked" && git rev-parse --absolute-git-dir)"
+  if [ -f "$linked/.git" ] && [ -d "$linked_gitdir" ] && (cd "$linked" && git rev-parse --verify -q HEAD >/dev/null); then pass=$((pass + 1)); else fail=$((fail + 1)); echo "FAIL: linked worktree metadata was modified or removed"; fi
+else
+  fail=$((fail + 1)); echo "FAIL: could not create a linked worktree for the test"
+fi
 new_repo
 echo target >real.sh && ln -s real.sh link.sh
 check "symlink fix file" 2 "symlink" --test "true" -- link.sh

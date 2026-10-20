@@ -11,8 +11,10 @@
 # List only the files that contain the fix. Never list the test file: reverting it
 # makes the test disappear, and "test not found" is not evidence of anything.
 #
-# FIX_FILEs must be regular files inside this repository: absolute paths, paths that
-# resolve outside the repo, symlinks, and directories are refused before anything runs.
+# FIX_FILEs must be regular files inside this repository's work tree: absolute paths,
+# paths that resolve outside the repo, anything inside the Git directory (.git/config,
+# .git/HEAD, a linked worktree's .git file), symlinks, and directories are refused
+# before anything runs.
 # Both content and the executable bit are reverted, so a chmod-only fix can be proven.
 # Containment is re-checked at every write, and the script never writes through an
 # existing path, so a test that swaps a fix file or its directory for a symlink cannot
@@ -64,6 +66,28 @@ base_mode() { git ls-tree "$base" -- "$1" 2>/dev/null | awk 'NR==1 { print $1 }'
 # Resolves the nearest existing parent physically, so neither ../ nor a symlinked
 # directory can point the script at a file outside the repository.
 root="$(cd "$(git rev-parse --show-toplevel)" && pwd -P)" || die "could not resolve the repo root"
+
+# Git's administrative area is inside the work tree root (.git/), so containment alone
+# would accept .git/config or .git/HEAD as a fix file and phase 2 would delete it. The
+# EXIT trap normally restores it, but a SIGKILL mid-run would leave the repository's
+# metadata gone. Resolve both the git dir and the common dir (they differ in a linked
+# worktree, where .git is a file pointing elsewhere) and refuse anything in or at them.
+gitdir="$(cd "$(git rev-parse --absolute-git-dir)" && pwd -P)" || die "could not resolve the git directory"
+gitcommon="$(cd "$(git rev-parse --git-common-dir)" && pwd -P)" || gitcommon="$gitdir"
+
+# inside_gitdir <path> — true if the path's real location is the work tree's .git entry
+# (directory or linked-worktree file) or anything under the git dir / common dir.
+inside_gitdir() {
+  local dir real
+  dir="$(dirname "$1")"
+  while [ ! -d "$dir" ]; do dir="$(dirname "$dir")"; done
+  dir="$(cd "$dir" && pwd -P)" || return 1
+  real="$dir/$(basename "$1")"
+  [ "$real" = "$root/.git" ] && return 0
+  case "$real/" in "$gitdir/"* | "$gitcommon/"*) return 0 ;; esac
+  return 1
+}
+
 inside_worktree() {
   local dir
   dir="$(dirname "$1")"
@@ -79,15 +103,19 @@ inside_worktree() {
 # *through* it. rm on a symlink removes the link, not its target.
 place() {
   inside_worktree "$2" || return 1
+  inside_gitdir "$2" && return 1
   [ -d "$2" ] && [ ! -L "$2" ] && return 1
   mkdir -p "$(dirname "$2")" || return 1
   inside_worktree "$2" || return 1
+  inside_gitdir "$2" && return 1
   rm -f "$2" && cat "$1" >"$2"
 }
 
-# unplace <path> — remove <path> (file or symlink), only if it is still inside the repo.
+# unplace <path> — remove <path> (file or symlink), only if it is still inside the repo
+# and still outside Git's own directory.
 unplace() {
   inside_worktree "$1" || return 1
+  inside_gitdir "$1" && return 1
   [ -d "$1" ] && [ ! -L "$1" ] && return 1
   rm -f "$1"
 }
@@ -99,6 +127,7 @@ for p in "${paths[@]}"; do
     /*) die "$p is outside the work tree; list fix files relative to the repo" ;;
   esac
   inside_worktree "$p" || die "$p is outside the work tree; list fix files relative to the repo"
+  inside_gitdir "$p" && die "$p is inside the Git directory; fix files must be part of the work tree, never Git's own metadata"
   [ -L "$p" ] && die "$p is a symlink; list the real file it points to"
   [ "$(base_mode "$p")" = "120000" ] && die "$p is a symlink at $base; list the real file it points to"
   [ -d "$p" ] && die "$p is a directory; list the fix files individually"
