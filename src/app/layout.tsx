@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Instrument_Sans, Big_Shoulders } from 'next/font/google';
+import { Instrument_Sans, Bricolage_Grotesque, Source_Serif_4 } from 'next/font/google';
 import { SiteChrome } from "@/components/site-chrome";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
@@ -17,12 +17,22 @@ const fontBody = Instrument_Sans({
   display: 'swap',
 });
 
-// Headlines: a tall condensed grotesque. Civic, collegiate, and loud at
-// display sizes, without the "AI site" serif.
-const fontHeadline = Big_Shoulders({
+// Headlines: a grotesque with optical sizes, so it is tight and characterful
+// at display sizes and still clean at card-title sizes. Not the "AI site" serif.
+const fontHeadline = Bricolage_Grotesque({
   subsets: ['latin'],
   weight: ['600', '700', '800'],
   variable: '--font-headline',
+  display: 'swap',
+});
+
+// Greek lettermarks (ΑΚΑ, ΩΨΦ…): neither headline nor body face ships Greek
+// glyphs, so without this they fall back to whatever the device has. A serif
+// with real Greek keeps them identical on every platform.
+const fontGreek = Source_Serif_4({
+  subsets: ['greek', 'latin'],
+  weight: ['600', '700'],
+  variable: '--font-greek',
   display: 'swap',
 });
 
@@ -46,7 +56,8 @@ export default function RootLayout({
       <body className={cn(
         "font-body antialiased",
         fontBody.variable,
-        fontHeadline.variable
+        fontHeadline.variable,
+        fontGreek.variable
       )}>
         <AuthProvider>
           <SiteChrome header={<Header />} footer={<Footer />}>

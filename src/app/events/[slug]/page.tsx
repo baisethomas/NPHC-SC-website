@@ -175,7 +175,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
                   className={`mt-6 flex items-center gap-4 rounded-lg p-4 transition-transform hover:-translate-y-0.5 ${textOn(brand.colors[0]) === 'ink' ? 'text-ink' : 'text-ivory'}`}
                   style={{ background: brand.colors[0] }}
                 >
-                  <span className="font-headline text-3xl font-bold leading-none">{brand.letters}</span>
+                  <span className="font-greek text-3xl leading-none">{brand.letters}</span>
                   <span className="min-w-0 flex-1">
                     <span className="block text-sm font-semibold">Hosted by {brand.shortName}</span>
                     <span className="block text-xs opacity-75">About the chapter</span>

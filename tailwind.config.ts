@@ -22,7 +22,8 @@ export default {
     extend: {
       fontFamily: {
         body: ['var(--font-body)', 'sans-serif'],
-        headline: ['var(--font-headline)', 'Impact', 'sans-serif'],
+        headline: ['var(--font-headline)', 'sans-serif'],
+        greek: ['var(--font-greek)', 'Georgia', 'serif'],
         code: ['monospace'],
       },
       colors: {

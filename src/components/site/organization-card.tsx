@@ -25,7 +25,7 @@ export function OrganizationCard({ org }: { org: Organization }) {
           <Image src={org.logo} alt={`${org.name} crest`} width={160} height={160} className="h-full w-full object-contain" />
         </span>
         <div className="min-w-0">
-          {brand && <p className="font-headline text-4xl font-bold leading-none">{brand.letters}</p>}
+          {brand && <p className="font-greek text-4xl leading-none">{brand.letters}</p>}
           <h3 className="mt-2 font-headline text-lg font-bold leading-snug">{org.name}</h3>
           {brand && (
             <p className={cn("mt-1 text-xs", onInk ? "text-ivory/75" : "text-ink/70")}>

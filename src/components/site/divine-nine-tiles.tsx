@@ -38,11 +38,11 @@ export function DivineNineTiles({ organizations, className }: { organizations: O
                 {org ? (
                   <Image src={org.logo} alt="" width={112} height={112} className="h-14 w-14 object-contain" />
                 ) : (
-                  <span className="font-headline text-2xl font-bold text-ink">{brand.letters}</span>
+                  <span className="font-greek text-2xl text-ink">{brand.letters}</span>
                 )}
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block font-headline text-3xl font-bold leading-none">{brand.letters}</span>
+                <span className="block font-greek text-3xl leading-none">{brand.letters}</span>
                 <span className="mt-2 block text-sm font-semibold leading-tight">{brand.shortName}</span>
                 <span className={cn("mt-1 block text-xs", ink ? "text-ink/70" : "text-ivory/70")}>
                   Est. {brand.founded} · {brand.foundedAt.replace(" University", "")}

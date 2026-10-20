@@ -119,7 +119,7 @@ export default async function ScholarshipsPage() {
                     style={{ background: b.colors[0] }}
                   >
                     <span>
-                      <span className="block font-headline text-xl font-bold leading-none">{b.letters}</span>
+                      <span className="block font-greek text-xl leading-none">{b.letters}</span>
                       <span className="mt-1.5 block text-sm font-semibold">{b.shortName}</span>
                     </span>
                     <ArrowUpRight className={`h-4 w-4 ${ink ? "text-ink/70" : "text-ivory/80"}`} />

@@ -101,7 +101,7 @@ export default async function ProgramsPage() {
                           <Image src={org.logo} alt={`${org.name} crest`} width={120} height={120} className="h-full w-full object-contain" />
                         </span>
                         <div className="min-w-0">
-                          {brand && <p className="font-headline text-3xl font-bold leading-none">{brand.letters}</p>}
+                          {brand && <p className="font-greek text-3xl leading-none">{brand.letters}</p>}
                           <h2 className="mt-1.5 font-headline text-xl font-bold leading-tight">{org.name}</h2>
                           <p className={cn("mt-2 text-sm", onInk ? "text-ivory/75" : "text-ink/70")}>
                             {orgPrograms.length} {orgPrograms.length === 1 ? "program" : "programs"} in Solano County
