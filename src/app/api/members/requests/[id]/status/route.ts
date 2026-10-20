@@ -32,11 +32,18 @@ export async function PUT(
     const updatedRequest = await requestService.getById(id);
     
     if (updatedRequest) {
-      // Log activity
+      // Log activity with the transition that actually happened; "under
+      // review" and "reopened" are not denials.
+      const ACTIVITY_ACTION = {
+        approved: 'request_approved',
+        denied: 'request_denied',
+        under_review: 'request_under_review',
+        pending: 'request_reopened',
+      } as const;
       await activityService.log({
         userId: auth.user.uid,
         userName: auth.user.name || auth.user.email,
-        action: status === 'approved' ? 'request_approved' : 'request_denied',
+        action: ACTIVITY_ACTION[status],
         resourceId: id,
         resourceType: 'request',
         resourceTitle: updatedRequest.title,

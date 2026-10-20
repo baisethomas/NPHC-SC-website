@@ -240,8 +240,10 @@ export function useRecentActivities(limit: number = 5) {
       'meeting_created': 'Meeting notes posted',
       'message_sent': 'New message sent',
       'request_submitted': 'Request submitted',
+      'request_under_review': 'Request under review',
       'request_approved': 'Request approved',
-      'request_denied': 'Request denied'
+      'request_denied': 'Request denied',
+      'request_reopened': 'Request reopened'
     };
     
     return {
