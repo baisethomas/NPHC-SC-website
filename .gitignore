@@ -56,3 +56,6 @@ serviceAccountKey.json
 
 # internal review artifacts
 *.docx
+
+# Claude Code local worktrees
+/.claude/worktrees/
